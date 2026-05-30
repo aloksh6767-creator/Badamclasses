@@ -1,0 +1,22 @@
+{
+  "name": "livelearn-pro",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "up": "powershell -ExecutionPolicy Bypass -File .\\start-local.ps1",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "typecheck": "npm --prefix frontend run typecheck",
+    "verify": "npm --prefix frontend run verify",
+    "health": "npm --prefix frontend run health",
+    "check": "npm --prefix frontend run check"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "mongoose": "^8.12.1"
+  }
+}

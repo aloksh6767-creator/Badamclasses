@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Next.js build output and local dist overrides
+.next/
+.next-dev/
+.next-*/
+tmp-next/
+tmp-next-dev/
+out/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Runtime logs and generated temp files
+*.log
+*.err
+*.err.log
+*.out
+tmp-*/
+tmp_*
+tmp-start-*.cmd
+tmp-verify-*.cmd
+homepage-live.html
+
+# Local runtime persistence/backups
+backend/storage/
+
+# Source/export archives generated outside the app source
+*-source-package/
+*-source-package.zip
+*-code-export.txt
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local deploy metadata
+.vercel/

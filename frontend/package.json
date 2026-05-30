@@ -1,0 +1,28 @@
+{
+  "name": "badamsinghclasses-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "lint": "node scripts/verify-site.js",
+    "prebuild": "node scripts/clean-build-cache.mjs",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "node scripts/verify-site.js",
+    "verify": "node scripts/verify-site.js",
+    "health": "node scripts/check-health.js",
+    "check": "node scripts/verify-site.js && node scripts/check-health.js"
+  },
+  "dependencies": {
+    "firebase": "^12.12.1",
+    "next": "15.2.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "swiper": "^12.1.4"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17"
+  }
+}

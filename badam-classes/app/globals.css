@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #0b1226;
+}
+
+.container-main {
+  width: 92%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.btn-primary {
+  @apply rounded-xl bg-orange-500 px-4 py-2 font-semibold text-white transition hover:bg-orange-400;
+}

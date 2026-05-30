@@ -1,0 +1,1 @@
+Copy-Item "C:\Users\aloks\OneDrive\Documents\Playground\frontend\*" "C:\dev\Playground\frontend\" -Recurse -Force`r`nCopy-Item "C:\Users\aloks\OneDrive\Documents\Playground\backend\*" "C:\dev\Playground\backend\" -Recurse -Force`r`n
