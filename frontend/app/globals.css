@@ -1949,6 +1949,85 @@ body {
   font-size: 1.1rem;
 }
 
+.stat-text-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-text-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.12) 48%, transparent 76%);
+  animation: stat-card-sheen 3.4s ease-in-out infinite;
+  animation-delay: var(--stat-delay, 0ms);
+  pointer-events: none;
+}
+
+.stat-number-animate {
+  background: linear-gradient(90deg, #fb923c, #fef3c7, #38bdf8, #fb923c);
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 24px rgba(251, 146, 60, 0.18);
+  animation: stat-text-flow 3.2s ease-in-out infinite, stat-text-pop 900ms ease both;
+  animation-delay: var(--stat-delay, 0ms), var(--stat-delay, 0ms);
+}
+
+.stat-label-animate {
+  color: #cbd5e1;
+  animation: stat-label-fade 2.6s ease-in-out infinite;
+  animation-delay: var(--stat-delay, 0ms);
+}
+
+@keyframes stat-text-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes stat-text-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes stat-label-fade {
+  0%, 100% {
+    color: #cbd5e1;
+  }
+  50% {
+    color: #ffffff;
+  }
+}
+
+@keyframes stat-card-sheen {
+  0%, 42% {
+    transform: translateX(-120%);
+  }
+  72%, 100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-text-card::after,
+  .stat-number-animate,
+  .stat-label-animate {
+    animation: none;
+  }
+}
+
 .hero-testimonial-top {
   display: flex;
   align-items: center;

@@ -25,12 +25,16 @@ export default function StatsCounter({ items = [] }) {
   return (
     <section className="animate-reveal stagger-1 mb-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((item, idx) => (
-        <div key={item.label} className="card-anim rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5 text-center transition hover:-translate-y-1 hover:border-orange-300/40">
-          <p className="text-3xl font-bold text-orange-400">
+        <div
+          key={item.label}
+          className="stat-text-card card-anim rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5 text-center transition hover:-translate-y-1 hover:border-orange-300/40"
+          style={{ "--stat-delay": `${idx * 140}ms` }}
+        >
+          <p className="stat-number-animate text-3xl font-bold">
             {values[idx].toLocaleString("en-IN")}
             {item.suffix || ""}
           </p>
-          <p className="mt-1 text-slate-300">{item.label}</p>
+          <p className="stat-label-animate mt-1">{item.label}</p>
         </div>
       ))}
     </section>
