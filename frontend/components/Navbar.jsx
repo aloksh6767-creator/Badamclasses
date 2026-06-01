@@ -54,6 +54,23 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
+  useEffect(() => {
+    if (!mobileOpen) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setMobileOpen(false);
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileOpen]);
+
   const profileLabel = useMemo(() => {
     if (!user?.name) return "Profile";
     return user.name.split(" ")[0];
@@ -179,51 +196,88 @@ export default function Navbar() {
 
         <button
           onClick={() => setMobileOpen((v) => !v)}
-          className="btn-anim rounded-lg border border-white/20 px-3 py-2 text-xs font-semibold text-slate-100 lg:hidden"
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-navigation-drawer"
+          className="btn-anim inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-slate-100 lg:hidden"
         >
-          {mobileOpen ? "Close" : "Menu"}
+          <span className="sr-only">{mobileOpen ? "Close navigation" : "Open navigation"}</span>
+          <span className="flex w-4 flex-col gap-1">
+            <span className={`h-0.5 rounded-full bg-current transition ${mobileOpen ? "translate-y-1.5 rotate-45" : ""}`} />
+            <span className={`h-0.5 rounded-full bg-current transition ${mobileOpen ? "opacity-0" : ""}`} />
+            <span className={`h-0.5 rounded-full bg-current transition ${mobileOpen ? "-translate-y-1.5 -rotate-45" : ""}`} />
+          </span>
         </button>
       </div>
 
       {mobileOpen ? (
-        <div className="border-t border-white/10 bg-[#081633]/95 px-4 py-3 lg:hidden">
-          <div className="mb-3 grid grid-cols-2 gap-2">
-            <button onClick={toggleTheme} className="btn-anim rounded-lg border border-white/20 px-3 py-2 text-xs font-semibold text-slate-100">
-              {theme === "dark" ? "Light" : "Dark"}
-            </button>
-            <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="btn-anim rounded-lg border border-orange-300/50 bg-orange-500/15 px-3 py-2 text-center text-xs font-semibold text-orange-100">
-              My Courses
-            </Link>
-            {user ? (
-              <button onClick={handleLogout} className="btn-anim rounded-lg border border-rose-300/40 px-3 py-2 text-xs font-semibold text-rose-100">Logout</button>
-            ) : (
-              <>
-                <Link href="/login" onClick={() => setMobileOpen(false)} className="btn-anim rounded-lg border border-white/25 px-3 py-2 text-xs font-semibold text-white">Login</Link>
-                <Link href="/signup" onClick={() => setMobileOpen(false)} className="btn-anim rounded-lg bg-orange-500 px-3 py-2 text-xs font-semibold text-white">Register</Link>
-              </>
-            )}
-            {user && isAdmin ? (
-              <>
-                <Link href="/admin" onClick={() => setMobileOpen(false)} className="btn-anim rounded-lg border border-orange-300/50 bg-orange-500/15 px-3 py-2 text-center text-xs font-semibold text-orange-100">
-                  Admin Panel
-                </Link>
-                <Link href="/admin#manage-courses" onClick={() => setMobileOpen(false)} className="btn-anim rounded-lg border border-rose-300/40 px-3 py-2 text-center text-xs font-semibold text-rose-100">
-                  Manage Courses
-                </Link>
-              </>
-            ) : null}
-          </div>
-          <div className="grid gap-2">
-            {menuItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+          <button
+            type="button"
+            aria-label="Close navigation"
+            onClick={() => setMobileOpen(false)}
+            className="absolute inset-0 bg-slate-950/55 backdrop-blur-[2px]"
+          />
+          <div
+            id="mobile-navigation-drawer"
+            className="absolute right-3 top-3 flex max-h-[calc(100vh-1.5rem)] w-[min(19rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-2xl border border-white/12 bg-[#081633]/95 shadow-[0_24px_80px_rgba(0,0,0,0.45)] ring-1 ring-white/10"
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-200">Menu</p>
+                <p className="truncate text-sm font-semibold text-white">{user?.name || "BadamClasses"}</p>
+              </div>
+              <button
+                type="button"
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-200 transition hover:border-orange-300/60"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-lg leading-none text-white"
+                aria-label="Close navigation"
               >
-                {item.label}
-              </Link>
-            ))}
+                &times;
+              </button>
+            </div>
+
+            <div className="overflow-y-auto px-3 py-3">
+              <div className="mb-3 grid grid-cols-2 gap-2">
+                <button onClick={toggleTheme} className="btn-anim rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-100">
+                  {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                </button>
+                <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="btn-anim rounded-xl border border-orange-300/40 bg-orange-500/15 px-3 py-2 text-center text-xs font-semibold text-orange-100">
+                  My Courses
+                </Link>
+                {user ? (
+                  <button onClick={handleLogout} className="btn-anim rounded-xl border border-rose-300/35 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-100">Logout</button>
+                ) : (
+                  <>
+                    <Link href="/login" onClick={() => setMobileOpen(false)} className="btn-anim rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-center text-xs font-semibold text-white">Login</Link>
+                    <Link href="/signup" onClick={() => setMobileOpen(false)} className="btn-anim rounded-xl bg-orange-500 px-3 py-2 text-center text-xs font-semibold text-white">Register</Link>
+                  </>
+                )}
+                {user && isAdmin ? (
+                  <>
+                    <Link href="/admin" onClick={() => setMobileOpen(false)} className="btn-anim rounded-xl border border-orange-300/40 bg-orange-500/15 px-3 py-2 text-center text-xs font-semibold text-orange-100">
+                      Admin
+                    </Link>
+                    <Link href="/admin#manage-courses" onClick={() => setMobileOpen(false)} className="btn-anim rounded-xl border border-rose-300/35 bg-rose-500/10 px-3 py-2 text-center text-xs font-semibold text-rose-100">
+                      Manage
+                    </Link>
+                  </>
+                ) : null}
+              </div>
+
+              <nav className="grid gap-1.5">
+                {menuItems.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm font-medium text-slate-100 transition hover:border-orange-300/50 hover:bg-orange-500/10"
+                  >
+                    <span>{item.label}</span>
+                    <span className="text-slate-500">&rsaquo;</span>
+                  </Link>
+                ))}
+              </nav>
+            </div>
           </div>
         </div>
       ) : null}
