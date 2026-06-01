@@ -1,35 +1,50 @@
 {
   "expo": {
-    "name": "BadamClasses",
-    "slug": "badamclasses-mobile",
+    "name": "Badam Singh Classes",
+    "slug": "badam-singh-classes",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
     "scheme": "badamclasses",
-    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#07122a"
+      "backgroundColor": "#071126"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.badamclasses.mobile"
+      "bundleIdentifier": "com.badamclasses.mobile",
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification"]
+      }
     },
     "android": {
       "package": "com.badamclasses.mobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#07122a"
-      }
+        "backgroundColor": "#071126"
+      },
+      "permissions": ["POST_NOTIFICATIONS"]
     },
-    "plugins": ["expo-router", "expo-notifications"],
-    "experiments": {
-      "typedRoutes": false
-    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-notifications",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#071126",
+          "image": "./assets/splash.png",
+          "resizeMode": "contain"
+        }
+      ]
+    ],
     "extra": {
-      "apiUrl": "http://127.0.0.1:5000/api"
+      "apiUrl": "http://127.0.0.1:5000/api",
+      "eas": {
+        "projectId": "replace-with-eas-project-id"
+      }
     }
   }
 }
