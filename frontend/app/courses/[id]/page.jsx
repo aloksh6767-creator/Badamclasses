@@ -705,6 +705,21 @@ export default function CourseDetailsPage() {
         { title: "Revision Mock Test", duration: "45 min", status: "Unlocking Soon" }
       ];
   const isLocked = accessChecked && !hasPurchased;
+  const instructorName = course.instructor?.name || course.instructor || "Badam Sir";
+  const courseMode = course.courseType || (course.liveClassEnabled ? "Live + Recorded" : "Recorded");
+  const courseTiming = course.classTiming || course.batchTime || "Flexible timing";
+  const courseDuration = course.duration || `${course.months || 12} Months`;
+  const courseLanguage = course.language || "Hindi + English";
+  const courseRating = Number(course.ratingAverage || 4.8);
+  const enrolledCount = Number(course.studentCount || course.enrolledCount || course.ratingCount || 5000);
+  const summaryItems = [
+    { label: "Faculty", value: instructorName },
+    { label: "Timing", value: courseTiming },
+    { label: "Duration", value: courseDuration },
+    { label: "Mode", value: courseMode },
+    { label: "Language", value: courseLanguage },
+    { label: "Students", value: `${enrolledCount.toLocaleString("en-IN")}+` }
+  ];
 
   return (
     <main className="mx-auto w-[92%] max-w-7xl py-10">
@@ -714,18 +729,29 @@ export default function CourseDetailsPage() {
         </div>
       ) : null}
 
-      <section className="rounded-[32px] border border-white/10 bg-card/60 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.45)]">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-[#0c1734] px-5 py-4 text-center text-lg font-semibold text-white">
+      <section className="overflow-hidden rounded-[32px] border border-white/10 bg-card/60 p-4 shadow-[0_24px_80px_rgba(15,23,42,0.45)] sm:p-6">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-orange-300/20 bg-[#0c1734] px-5 py-3 text-center text-base font-semibold text-white shadow-[0_14px_35px_rgba(249,115,22,0.12)] sm:py-4 sm:text-lg">
             Batch Detail
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white px-5 py-4 text-center text-lg font-semibold text-slate-900">
+          <div className="rounded-2xl border border-white/10 bg-white px-5 py-3 text-center text-base font-semibold text-slate-900 sm:py-4 sm:text-lg">
             Batch Content
           </div>
         </div>
 
-        <div className="mt-6 grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-          <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0c1734]">
+        <div className="mt-5 grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+          <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#07122d] p-3 shadow-[0_22px_65px_rgba(2,8,23,0.36)]">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.24),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.2),transparent_36%)]" />
+            <div className="absolute left-5 top-5 z-10 flex flex-wrap gap-2">
+              <span className="rounded-full bg-orange-500 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white">
+                {course.isLatest ? "New Batch" : "Premium Batch"}
+              </span>
+              {liveClassVisible ? (
+                <span className="rounded-full border border-red-300/40 bg-red-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-red-100">
+                  Live Now
+                </span>
+              ) : null}
+            </div>
             <img
               src={resolveCourseImage(course)}
               alt={course.title}
@@ -733,62 +759,64 @@ export default function CourseDetailsPage() {
                 event.currentTarget.onerror = null;
                 event.currentTarget.src = getCourseFallbackImage(course);
               }}
-              className="h-full min-h-[360px] w-full object-contain"
+              className="relative z-[1] h-full min-h-[280px] w-full rounded-2xl object-contain drop-shadow-[0_24px_42px_rgba(2,8,23,0.4)] sm:min-h-[360px]"
             />
           </div>
 
-          <div className="rounded-[28px] border border-white/10 bg-[#10214a] p-6">
-            <p className="text-sm uppercase tracking-[0.35em] text-orange-300">Batch Summary</p>
-            <h1 className="mt-3 font-display text-4xl leading-tight text-white">{course.title}</h1>
-            <p className="mt-4 text-lg text-slate-200">
-              Instructor: {course.instructor?.name || course.instructor || "Badam Sir"}
-            </p>
-            <p className="mt-2 text-lg text-slate-200">
-              Duration: {course.duration || `${course.months || 12} Months`}
-            </p>
-            {course.batchTime ? (
-              <p className="mt-2 text-lg text-slate-200">Batch Timing: {course.batchTime}</p>
-            ) : null}
-            {course.startDate ? (
-              <p className="mt-2 text-lg text-slate-200">Start Date: {course.startDate}</p>
-            ) : null}
-
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              <p className="text-4xl font-semibold text-orange-300">
-                {"\u20B9"}
-                {(hasOffer ? offerPrice : price).toLocaleString("en-IN")}
-              </p>
-              {hasOffer ? (
-                <span className="text-base text-slate-400 line-through">
-                  {"\u20B9"}
-                  {price.toLocaleString("en-IN")}
-                </span>
-              ) : null}
-              {hasOffer ? (
-                <span className="rounded-full bg-orange-500/20 px-3 py-1 text-xs font-semibold text-orange-200">
-                  {discountLabel || "Special Offer"}
-                </span>
-              ) : null}
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                  hasPurchased ? "bg-emerald-500/20 text-emerald-200" : "bg-white/10 text-slate-200"
-                }`}
-              >
-                {accessChecked ? (hasPurchased ? "Purchased Access" : "Locked Access") : "Checking Access"}
-              </span>
-              {liveClassVisible ? (
-                <span className="rounded-full bg-red-500/20 px-3 py-1 text-xs font-semibold text-red-200">
-                  LIVE NOW
-                </span>
-              ) : null}
-              {liveCountdown ? (
-                <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-200">
-                  Ends in {liveCountdown.label}
-                </span>
-              ) : null}
+          <div className="rounded-[28px] border border-white/10 bg-[#10214a] p-5 shadow-[0_22px_60px_rgba(2,8,23,0.32)] sm:p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.28em] text-orange-300 sm:text-sm">Batch Summary</p>
+            <h1 className="mt-3 font-display text-3xl leading-tight text-white sm:text-4xl">{course.title}</h1>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {summaryItems.map((item) => (
+                <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2.5">
+                  <span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{item.label}</span>
+                  <span className="mt-1 block truncate text-sm font-semibold text-slate-100">{item.value}</span>
+                </div>
+              ))}
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-5 rounded-2xl border border-orange-300/20 bg-orange-500/10 p-4">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-orange-100">Course Fee</p>
+                  <p className="mt-1 text-4xl font-black text-orange-200">
+                    {"\u20B9"}
+                    {(hasOffer ? offerPrice : price).toLocaleString("en-IN")}
+                  </p>
+                </div>
+                {hasOffer ? (
+                  <span className="text-base text-slate-400 line-through">
+                    {"\u20B9"}
+                    {price.toLocaleString("en-IN")}
+                  </span>
+                ) : null}
+                <div className="text-right text-xs text-slate-300">
+                  <span className="block font-bold text-amber-200">{courseRating}/5 rating</span>
+                  <span>{course.startDate || "Admission open"}</span>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {hasOffer ? (
+                  <span className="rounded-full bg-orange-500/20 px-3 py-1 text-xs font-semibold text-orange-100">
+                    {discountLabel || "Special Offer"}
+                  </span>
+                ) : null}
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    hasPurchased ? "bg-emerald-500/20 text-emerald-200" : "bg-white/10 text-slate-200"
+                  }`}
+                >
+                  {accessChecked ? (hasPurchased ? "Purchased Access" : "Locked Access") : "Checking Access"}
+                </span>
+                {liveCountdown ? (
+                  <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-200">
+                    Ends in {liveCountdown.label}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {hasPurchased ? (
                 <>
                   <button
@@ -805,37 +833,48 @@ export default function CourseDetailsPage() {
                   </button>
                 </>
               ) : (
-                <Link href={`/checkout?course=${encodeURIComponent(course.routeId || course._id || course.title)}`} className="btn-gradient btn-anim rounded-xl px-5 py-3 font-semibold text-white">
-                  Buy Course
-                </Link>
+                <>
+                  <Link href={`/checkout?course=${encodeURIComponent(course.routeId || course._id || course.title)}`} className="btn-gradient btn-anim rounded-xl px-5 py-3 text-center font-semibold text-white">
+                    Enroll Now
+                  </Link>
+                  <button
+                    onClick={() => setActiveTab("Classes")}
+                    className="rounded-xl border border-white/20 px-5 py-3 font-semibold text-slate-100 transition hover:border-orange-300"
+                  >
+                    Preview Content
+                  </button>
+                </>
               )}
             </div>
 
-            <div className="mt-6 rounded-2xl border border-white/10 bg-[#0b1634]/80 p-4 text-sm text-slate-300">
+            <div className="mt-5 rounded-2xl border border-white/10 bg-[#0b1634]/80 p-4 text-sm leading-6 text-slate-300">
               {course.description ||
                 "Comprehensive preparation with structured classes, sheets, tests, and mentor support."}
             </div>
           </div>
         </div>
 
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
-          <div className="rounded-[28px] border border-white/10 bg-[#0c1734] p-6 text-center">
-            <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full border-[14px] border-blue-500/90 text-2xl text-white shadow-[0_0_30px_rgba(59,130,246,0.28)]">
-              {course.level || "beginner"}
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          <div className="rounded-[24px] border border-white/10 bg-[#0c1734] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">Level</p>
+            <p className="mt-3 text-3xl font-black capitalize text-white">{course.level || "beginner"}</p>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full w-1/3 rounded-full bg-blue-400" />
             </div>
-            <p className="mt-5 text-2xl font-semibold text-white">Level</p>
           </div>
-          <div className="rounded-[28px] border border-white/10 bg-[#0c1734] p-6 text-center">
-            <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full border-[14px] border-slate-200 text-3xl text-white">
-              {course.progress || "0%"}
+          <div className="rounded-[24px] border border-white/10 bg-[#0c1734] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-200">Batch Completion</p>
+            <p className="mt-3 text-3xl font-black text-white">{course.progress || "0%"}</p>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-emerald-400" style={{ width: course.progress || "0%" }} />
             </div>
-            <p className="mt-5 text-2xl font-semibold text-white">Batch Completion</p>
           </div>
-          <div className="rounded-[28px] border border-white/10 bg-[#0c1734] p-6 text-center">
-            <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full border-[14px] border-slate-200 text-3xl text-white">
-              {course.watchTime || "0%"}
+          <div className="rounded-[24px] border border-white/10 bg-[#0c1734] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-orange-200">Watch Time</p>
+            <p className="mt-3 text-3xl font-black text-white">{course.watchTime || "0%"}</p>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-orange-400" style={{ width: course.watchTime || "0%" }} />
             </div>
-            <p className="mt-5 text-2xl font-semibold text-white">Watch Time</p>
           </div>
         </div>
 
@@ -844,9 +883,9 @@ export default function CourseDetailsPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`rounded-2xl px-5 py-3 text-lg font-semibold transition ${
+              className={`rounded-2xl px-5 py-3 text-base font-semibold transition sm:text-lg ${
                 activeTab === tab
-                  ? "bg-white text-slate-900"
+                  ? "bg-white text-slate-900 shadow-[0_16px_36px_rgba(255,255,255,0.14)]"
                   : "border border-white/15 bg-[#0f1b3b] text-white hover:border-orange-300/60"
               }`}
             >
@@ -855,7 +894,7 @@ export default function CourseDetailsPage() {
           ))}
         </div>
 
-        <div className="mt-6 min-h-[280px] rounded-[28px] border border-white/10 bg-[#0b1328] p-6">
+        <div className="mt-6 min-h-[280px] rounded-[28px] border border-white/10 bg-[#0b1328] p-4 sm:p-6">
           {isLocked ? (
             <div className="flex min-h-[240px] flex-col items-center justify-center text-center">
               <p className="text-2xl font-semibold text-white">Purchase required to open course content</p>
