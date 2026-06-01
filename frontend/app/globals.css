@@ -2157,6 +2157,129 @@ body {
   }
 }
 
+.new-batch-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: #071126;
+  box-shadow: 0 24px 70px rgba(0, 26, 84, 0.34);
+}
+
+.new-batch-hero-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.new-batch-hero-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0.7rem;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 28%, transparent 72%, rgba(255, 255, 255, 0.12)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 42%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.new-batch-hero-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.new-batch-hotspot {
+  position: absolute;
+  z-index: 3;
+  border-radius: 0.85rem;
+}
+
+.new-batch-hotspot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.34;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background:
+    linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.12) 46%, rgba(255, 255, 255, 0.32) 50%, rgba(255, 255, 255, 0.1) 54%, transparent 100%),
+    rgba(255, 255, 255, 0.02);
+  background-size: 220% 100%, 100% 100%;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 10px 22px rgba(3, 20, 56, 0.18);
+  animation: newBatchButtonSweep 2.8s ease-in-out infinite;
+  transition: opacity 180ms ease, box-shadow 180ms ease;
+}
+
+.new-batch-hotspot::before {
+  content: "";
+  position: absolute;
+  inset: 17% 8%;
+  z-index: 1;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  opacity: 0.42;
+  animation: newBatchTextPulse 1.8s ease-in-out infinite;
+}
+
+.new-batch-hotspot:hover::after,
+.new-batch-hotspot:focus-visible::after {
+  opacity: 1;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52), 0 14px 30px rgba(3, 20, 56, 0.26);
+}
+
+.new-batch-hotspot:focus-visible {
+  outline: 3px solid rgba(255, 214, 10, 0.95);
+  outline-offset: 3px;
+}
+
+.new-batch-hotspot-explore {
+  left: 2.6%;
+  top: 50.5%;
+  width: 22.6%;
+  height: 8.6%;
+}
+
+.new-batch-hotspot-mock {
+  left: 26.3%;
+  top: 50.5%;
+  width: 19.6%;
+  height: 8.6%;
+}
+
+.new-batch-hotspot-enroll {
+  left: 3.6%;
+  top: 91.1%;
+  width: 26.6%;
+  height: 7.4%;
+}
+
+@keyframes newBatchButtonSweep {
+  0%,
+  34% {
+    background-position: 130% 0, 0 0;
+  }
+  70%,
+  100% {
+    background-position: -80% 0, 0 0;
+  }
+}
+
+@keyframes newBatchTextPulse {
+  0%,
+  100% {
+    opacity: 0.38;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.88;
+    transform: scale(1);
+  }
+}
+
 @media (min-width: 1280px) {
   .hero-banner-grid {
     grid-template-columns: minmax(180px, 0.34fr) minmax(0, 1fr) minmax(180px, 0.34fr);

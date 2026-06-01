@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import HeroBanner from "@/components/HeroBanner";
 import StatsCounter from "@/components/StatsCounter";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import CurrentAffairsSection from "@/components/CurrentAffairsSection";
@@ -461,7 +460,19 @@ export default function HomePage() {
         </div>
       ) : null}
 
-      {mounted && displayBatches.length ? <HeroBanner batches={displayBatches} /> : null}
+      <section className="new-batch-hero mb-8" aria-label="Badam Singh Classes new batch starts">
+        <div className="new-batch-hero-frame">
+          <img
+            src="/new-batch-starts-2026.png"
+            alt="Badam Singh Classes 2.0 new batch starts"
+            className="new-batch-hero-image"
+            loading="eager"
+          />
+          <a href="/courses" className="new-batch-hotspot new-batch-hotspot-explore" aria-label="Explore courses" />
+          <a href="/mock-tests" className="new-batch-hotspot new-batch-hotspot-mock" aria-label="Try free mock test" />
+          <a href="/courses" className="new-batch-hotspot new-batch-hotspot-enroll" aria-label="Enroll now and view all courses" />
+        </div>
+      </section>
 
       <section className="animate-reveal mb-12 grid gap-5 overflow-hidden rounded-3xl border border-white/10 bg-[#071126] p-3 shadow-glow lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] lg:p-5">
         <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b1634]">
