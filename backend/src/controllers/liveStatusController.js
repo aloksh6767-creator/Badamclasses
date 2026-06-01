@@ -1,4 +1,5 @@
 const YOUTUBE_API_BASE = "https://www.googleapis.com/youtube/v3";
+const channelIdCache = new Map();
 
 const jsonResponse = (res, payload) => res.json({
   provider: "youtube",
@@ -53,8 +54,14 @@ const parseYouTubeUrl = (value = "") => {
       return { type: "channel", channelId: channelMatch[1] };
     }
 
-    if (/^\/(@[^/]+|c\/[^/]+|user\/[^/]+)\/live\/?$/i.test(path)) {
-      return { type: "channelLivePage", livePageUrl: raw };
+    const handleLiveMatch = path.match(/^\/(@[^/]+)\/live\/?$/i);
+    if (handleLiveMatch?.[1]) {
+      return { type: "handle", handle: handleLiveMatch[1], livePageUrl: raw };
+    }
+
+    const customLiveMatch = path.match(/^\/(c\/[^/]+|user\/[^/]+)\/live\/?$/i);
+    if (customLiveMatch?.[1]) {
+      return { type: "customLivePage", livePageUrl: raw };
     }
   } catch {
     return null;
@@ -79,6 +86,29 @@ const youtubeFetch = async (path, params) => {
   }
 
   return data;
+};
+
+const resolveChannelIdByHandle = async (handle, apiKey) => {
+  const normalizedHandle = String(handle || "").trim();
+  if (!normalizedHandle) return "";
+
+  const cacheKey = normalizedHandle.toLowerCase();
+  const cached = channelIdCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.channelId;
+  }
+
+  const data = await youtubeFetch("/channels", {
+    key: apiKey,
+    part: "id",
+    forHandle: normalizedHandle
+  });
+  const channelId = data?.items?.[0]?.id || "";
+  channelIdCache.set(cacheKey, {
+    channelId,
+    expiresAt: Date.now() + 6 * 60 * 60 * 1000
+  });
+  return channelId;
 };
 
 const getVideoStatus = async (videoId, apiKey) => {
@@ -193,11 +223,33 @@ export const getLiveStatus = async (req, res) => {
       return jsonResponse(res, await getVideoStatus(videoId, apiKey));
     }
 
+    if (parsed.type === "handle") {
+      const channelId = await resolveChannelIdByHandle(parsed.handle, apiKey);
+      if (!channelId) {
+        return jsonResponse(res, {
+          status: "unavailable",
+          embeddable: false,
+          watchUrl: parsed.livePageUrl || rawUrl,
+          message: "YouTube handle se channel ID resolve nahi ho saka. Channel ID live URL save karein."
+        });
+      }
+
+      const videoId = await findChannelLiveVideo(channelId, apiKey);
+      if (!videoId) {
+        return jsonResponse(res, {
+          ...getChannelLiveStandbyStatus(channelId),
+          watchUrl: parsed.livePageUrl || `https://www.youtube.com/channel/${encodeURIComponent(channelId)}/live`
+        });
+      }
+
+      return jsonResponse(res, await getVideoStatus(videoId, apiKey));
+    }
+
     return jsonResponse(res, {
       status: "unknown",
       embeddable: false,
       watchUrl: parsed.livePageUrl,
-      message: "Use a channel ID or direct video URL for automatic live verification."
+      message: "Use a channel ID, @handle live URL, or direct video URL for automatic live verification."
     });
   } catch (error) {
     return jsonResponse(res, {

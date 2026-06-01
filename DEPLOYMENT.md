@@ -27,6 +27,7 @@
    - `FRONTEND_URL=https://YOUR_VERCEL_FRONTEND_URL`
    - `OPENAI_API_KEY=your_openai_key`
    - `OPENAI_MODEL=gpt-4o-mini`
+   - `YOUTUBE_API_KEY=your_youtube_data_api_key` (for live class auto-status)
    - `STRIPE_SECRET_KEY=...` (if payments enabled)
    - `STRIPE_WEBHOOK_SECRET=...` (if payments enabled)
    - `CLOUDINARY_CLOUD_NAME=...`
@@ -51,6 +52,7 @@
 - When backend wiring or payment configuration changed, run `npm run health`.
 - Open frontend URL.
 - Test API health: `https://YOUR_RENDER_BACKEND_URL/api/health`.
+- Test YouTube live status: `https://YOUR_RENDER_BACKEND_URL/api/live-status?url=https%3A%2F%2Fwww.youtube.com%2F%40yourhandle%2Flive`.
 - Test home, `/courses`, `/login`, `/signup`, and `/checkout?course=demo-course`.
 
 ## 6) Optional Custom Domain
