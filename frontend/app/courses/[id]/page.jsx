@@ -6,6 +6,7 @@ import Link from "next/link";
 import PdfViewer from "@/components/PdfViewer";
 import SecureYouTubePlayer from "@/components/live/SecureYouTubePlayer";
 import { apiFetch } from "@/lib/api";
+import { getCourseFallbackImage, resolveCourseImage } from "@/lib/courseImages";
 import { matchCourseByRoute, normalizeCourseForRoute, normalizeCourseRouteValue } from "@/lib/courseIdentity";
 import { batches } from "@/lib/fixtures";
 import { DEFAULT_LIVE_CLASS_URL, filterDeletedCourses, filterDeletedCoursesFromStorage, readDeletedCourseKeys, readLocalCourses as readVisibleLocalCourses } from "@/lib/localCourseState";
@@ -726,13 +727,13 @@ export default function CourseDetailsPage() {
         <div className="mt-6 grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
           <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0c1734]">
             <img
-              src={
-                course.thumbnail ||
-                course.image ||
-                "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80"
-              }
+              src={resolveCourseImage(course)}
               alt={course.title}
-              className="h-full min-h-[360px] w-full object-cover"
+              onError={(event) => {
+                event.currentTarget.onerror = null;
+                event.currentTarget.src = getCourseFallbackImage(course);
+              }}
+              className="h-full min-h-[360px] w-full object-contain"
             />
           </div>
 
