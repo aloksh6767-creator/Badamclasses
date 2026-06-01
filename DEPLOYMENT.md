@@ -52,7 +52,8 @@
 - When backend wiring or payment configuration changed, run `npm run health`.
 - Open frontend URL.
 - Test API health: `https://YOUR_RENDER_BACKEND_URL/api/health`.
-- Test YouTube live status: `https://YOUR_RENDER_BACKEND_URL/api/live-status?url=https%3A%2F%2Fwww.youtube.com%2F%40yourhandle%2Flive`.
+- Test public YouTube auto-detect: `https://YOUR_RENDER_BACKEND_URL/api/live-status?url=https%3A%2F%2Fwww.youtube.com%2F%40yourhandle%2Flive`.
+- Test unlisted/direct YouTube embed: `https://YOUR_RENDER_BACKEND_URL/api/live-status?url=https%3A%2F%2Fyoutu.be%2FVIDEO_ID` should return the exact `videoId`, `embedUrl`, and `watchUrl`.
 - Test home, `/courses`, `/login`, `/signup`, and `/checkout?course=demo-course`.
 
 ## 6) Optional Custom Domain

@@ -1,9 +1,37 @@
 "use client";
 
 import ClientOnly from "@/components/live/ClientOnly";
-import { YOUTUBE_IFRAME_ALLOW, buildYouTubeEmbedUrl, normalizeLiveStatus } from "@/lib/youtubeEmbed";
+import { YOUTUBE_IFRAME_ALLOW, buildYouTubeEmbedUrl, getYouTubeWatchUrl, normalizeLiveStatus } from "@/lib/youtubeEmbed";
 
-function PlayerFallback({ status = "unknown", loading = false, message = "", onRefresh }) {
+function PlayerActionButtons({ watchUrl = "", onRefresh, compact = false }) {
+  if (!watchUrl && !onRefresh) return null;
+
+  return (
+    <div className={`flex flex-wrap items-center justify-center gap-2 ${compact ? "" : "mt-6"}`}>
+      {onRefresh ? (
+        <button
+          type="button"
+          onClick={onRefresh}
+          className="rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold text-white backdrop-blur transition hover:border-orange-300/50 hover:bg-white/15"
+        >
+          Refresh live status
+        </button>
+      ) : null}
+      {watchUrl ? (
+        <a
+          href={watchUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-xl border border-orange-300/40 bg-orange-500/15 px-4 py-2 text-xs font-semibold text-orange-100 backdrop-blur transition hover:bg-orange-500/25"
+        >
+          Open on YouTube
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
+function PlayerFallback({ status = "unknown", loading = false, message = "", watchUrl = "", recordedFallbackUrl = "", recordedFallbackLabel = "Watch recorded lecture", onRefresh }) {
   const isOffline = status === "offline" || status === "upcoming";
   const isPrivate = status === "private" || status === "unavailable";
   const isError = status === "error";
@@ -35,17 +63,23 @@ function PlayerFallback({ status = "unknown", loading = false, message = "", onR
           {message ||
             (isPrivate
               ? "YouTube Studio me stream ko Unlisted/Public karein aur Allow embedding enabled rakhein. Private streams website iframe me users ke liye play nahi hoti."
+              : isOffline
+                ? "Live class is not active right now. Please check schedule or watch recorded lecture."
               : "Agar stream start ho chuki hai, player refresh karke dobara check karein. Status automatically refresh hota rahega.")}
         </p>
-        {onRefresh ? (
-          <button
-            type="button"
-            onClick={onRefresh}
-            className="btn-gradient btn-anim mt-6 inline-flex rounded-xl px-6 py-3 text-sm font-semibold text-white"
-          >
-            Refresh Player
-          </button>
-        ) : null}
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          {recordedFallbackUrl && isOffline ? (
+            <a
+              href={recordedFallbackUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-gradient btn-anim inline-flex rounded-xl px-5 py-3 text-sm font-semibold text-white"
+            >
+              {recordedFallbackLabel}
+            </a>
+          ) : null}
+          <PlayerActionButtons watchUrl={watchUrl} onRefresh={onRefresh} />
+        </div>
       </div>
     </div>
   );
@@ -59,7 +93,9 @@ export default function SecureYouTubePlayer({
   playerKey = 0,
   onRefresh,
   className = "h-full w-full bg-black",
-  fallbackClassName = ""
+  fallbackClassName = "",
+  recordedFallbackUrl = "",
+  recordedFallbackLabel = "Watch recorded lecture"
 }) {
   const normalizedStatus = liveStatus ? normalizeLiveStatus(liveStatus, sourceUrl, typeof window !== "undefined" ? window.location.origin : "") : null;
   const embedUrl =
@@ -68,6 +104,7 @@ export default function SecureYouTubePlayer({
       : !normalizedStatus
         ? buildYouTubeEmbedUrl(sourceUrl, { origin: typeof window !== "undefined" ? window.location.origin : "" })
         : "";
+  const watchUrl = normalizedStatus?.watchUrl || getYouTubeWatchUrl(sourceUrl);
 
   return (
     <ClientOnly
@@ -78,20 +115,35 @@ export default function SecureYouTubePlayer({
       }
     >
       {embedUrl ? (
-        <iframe
-          key={`${embedUrl}-${playerKey}`}
-          src={embedUrl}
-          title={title}
-          allow={YOUTUBE_IFRAME_ALLOW}
-          allowFullScreen
-          referrerPolicy="strict-origin-when-cross-origin"
-          className={className}
-        />
+        <div className={`${className} relative overflow-hidden`}>
+          <iframe
+            key={`${embedUrl}-${playerKey}`}
+            src={embedUrl}
+            title={title}
+            allow={YOUTUBE_IFRAME_ALLOW}
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+            className="h-full w-full bg-black"
+          />
+          <div className="pointer-events-none absolute inset-x-3 top-3 flex justify-end">
+            <div className="pointer-events-auto rounded-2xl border border-white/10 bg-slate-950/65 p-2 shadow-[0_12px_30px_rgba(0,0,0,0.35)] backdrop-blur">
+              <PlayerActionButtons watchUrl={watchUrl} onRefresh={onRefresh} compact />
+            </div>
+          </div>
+          {loading ? (
+            <div className="pointer-events-none absolute left-3 bottom-3 rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-xs font-semibold text-slate-100 backdrop-blur">
+              Checking live status...
+            </div>
+          ) : null}
+        </div>
       ) : (
         <PlayerFallback
           status={normalizedStatus?.status}
           loading={loading}
           message={normalizedStatus?.message}
+          watchUrl={watchUrl}
+          recordedFallbackUrl={recordedFallbackUrl}
+          recordedFallbackLabel={recordedFallbackLabel}
           onRefresh={onRefresh}
         />
       )}

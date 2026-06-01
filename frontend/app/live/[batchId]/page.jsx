@@ -148,6 +148,7 @@ export default function LiveClassPage() {
   const routeId = course?.routeId || buildCourseRouteId(course || {});
   const liveEnabled = Boolean(course?.liveClassEnabled);
   const liveUrl = liveEnabled ? safeUrl(course?.liveClassUrl || DEFAULT_LIVE_CLASS_URL) : "";
+  const recordedFallbackUrl = safeUrl(course?.recordedVideoUrl || course?.videoSources?.[0]?.url || course?.videos?.[0]?.url || "");
   const canWatch = Boolean(hasAccess && liveEnabled && liveUrl);
 
   if (loading) {
@@ -212,6 +213,7 @@ export default function LiveClassPage() {
                         setPlayerKey((value) => value + 1);
                         refresh();
                       }}
+                      recordedFallbackUrl={recordedFallbackUrl}
                       className={`${theaterMode ? "h-screen" : "aspect-video h-auto"} w-full bg-black`}
                       fallbackClassName={theaterMode ? "h-screen" : "aspect-video"}
                     />

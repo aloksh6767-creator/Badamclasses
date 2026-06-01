@@ -14,6 +14,15 @@ const jsonResponse = (res, payload) => res.json({
   ...payload
 });
 
+const getDirectVideoStatus = (videoId, message = "") => ({
+  status: "live",
+  embeddable: true,
+  videoId,
+  embedUrl: `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0&modestbranding=1&playsinline=1`,
+  watchUrl: `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`,
+  message
+});
+
 const parseYouTubeUrl = (value = "") => {
   const raw = String(value || "").trim();
   if (!raw) return null;
@@ -49,19 +58,21 @@ const parseYouTubeUrl = (value = "") => {
       return { type: "channel", channelId: parsed.searchParams.get("channel") };
     }
 
-    const channelMatch = path.match(/^\/channel\/([^/]+)\/live\/?$/i);
+    const channelMatch = path.match(/^\/channel\/([^/]+)(?:\/live)?\/?$/i);
     if (channelMatch?.[1]) {
       return { type: "channel", channelId: channelMatch[1] };
     }
 
-    const handleLiveMatch = path.match(/^\/(@[^/]+)\/live\/?$/i);
+    const handleLiveMatch = path.match(/^\/(@[^/]+)(?:\/live)?\/?$/i);
     if (handleLiveMatch?.[1]) {
-      return { type: "handle", handle: handleLiveMatch[1], livePageUrl: raw };
+      const livePageUrl = lowerPath.endsWith("/live") || lowerPath.endsWith("/live/") ? raw : `${parsed.origin}/${handleLiveMatch[1]}/live`;
+      return { type: "handle", handle: handleLiveMatch[1], livePageUrl };
     }
 
-    const customLiveMatch = path.match(/^\/(c\/[^/]+|user\/[^/]+)\/live\/?$/i);
+    const customLiveMatch = path.match(/^\/(c\/[^/]+|user\/[^/]+)(?:\/live)?\/?$/i);
     if (customLiveMatch?.[1]) {
-      return { type: "customLivePage", livePageUrl: raw };
+      const livePageUrl = lowerPath.endsWith("/live") || lowerPath.endsWith("/live/") ? raw : `${parsed.origin}/${customLiveMatch[1]}/live`;
+      return { type: "customLivePage", livePageUrl };
     }
   } catch {
     return null;
@@ -124,6 +135,7 @@ const getVideoStatus = async (videoId, apiKey) => {
       status: "unavailable",
       embeddable: false,
       videoId,
+      embedUrl: `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0&modestbranding=1&playsinline=1`,
       watchUrl: `https://www.youtube.com/watch?v=${videoId}`,
       message: "YouTube video is private, deleted, or unavailable."
     };
@@ -145,9 +157,9 @@ const getVideoStatus = async (videoId, apiKey) => {
 
   return {
     status,
-    embeddable: status === "live" && embeddable,
+    embeddable: visibleInsideSite && embeddable,
     videoId,
-    embedUrl: status === "live" && embeddable ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1` : "",
+    embedUrl: visibleInsideSite && embeddable ? `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0&modestbranding=1&playsinline=1` : "",
     watchUrl: `https://www.youtube.com/watch?v=${videoId}`,
     title: item.snippet?.title || "",
     message: status === "private"
@@ -194,9 +206,14 @@ export const getLiveStatus = async (req, res) => {
   }
 
   if (!apiKey) {
-    const watchUrl = parsed.videoId
-      ? `https://www.youtube.com/watch?v=${parsed.videoId}`
-      : parsed.channelId
+    if (parsed.type === "video") {
+      return jsonResponse(res, getDirectVideoStatus(
+        parsed.videoId,
+        "Direct YouTube video URL configured. API key is only needed for channel auto-detection and verified live/offline status."
+      ));
+    }
+
+    const watchUrl = parsed.channelId
         ? `https://www.youtube.com/channel/${encodeURIComponent(parsed.channelId)}/live`
         : parsed.livePageUrl || rawUrl;
 
@@ -211,7 +228,15 @@ export const getLiveStatus = async (req, res) => {
 
   try {
     if (parsed.type === "video") {
-      return jsonResponse(res, await getVideoStatus(parsed.videoId, apiKey));
+      const verifiedStatus = await getVideoStatus(parsed.videoId, apiKey);
+      if (verifiedStatus.status === "unavailable") {
+        return jsonResponse(res, verifiedStatus);
+      }
+      return jsonResponse(res, {
+        ...verifiedStatus,
+        embeddable: verifiedStatus.embeddable || verifiedStatus.status !== "private",
+        embedUrl: verifiedStatus.embedUrl || `https://www.youtube.com/embed/${encodeURIComponent(parsed.videoId)}?autoplay=1&rel=0&modestbranding=1&playsinline=1`
+      });
     }
 
     if (parsed.type === "channel") {

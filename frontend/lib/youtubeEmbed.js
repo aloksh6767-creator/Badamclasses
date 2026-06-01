@@ -59,14 +59,18 @@ export function parseYouTubeUrl(value = "") {
     return { type: "channel", channelId: parsed.searchParams.get("channel") };
   }
 
-  const channelMatch = pathname.match(/^\/channel\/([^/]+)\/live\/?$/i);
+  const channelMatch = pathname.match(/^\/channel\/([^/]+)(?:\/live)?\/?$/i);
   if (channelMatch?.[1]) {
     return { type: "channel", channelId: channelMatch[1] };
   }
 
-  const livePageMatch = pathname.match(/^\/(@[^/]+|c\/[^/]+|user\/[^/]+)\/live\/?$/i);
+  const livePageMatch = pathname.match(/^\/(@[^/]+|c\/[^/]+|user\/[^/]+)(?:\/live)?\/?$/i);
   if (livePageMatch?.[1]) {
-    return { type: "livePage", livePageUrl: parsed.toString() };
+    const livePageUrl =
+      lowerPath.endsWith("/live") || lowerPath.endsWith("/live/")
+        ? parsed.toString()
+        : `${parsed.origin}/${livePageMatch[1]}/live`;
+    return { type: "livePage", livePageUrl };
   }
 
   if (lowerPath === "/live") {
@@ -128,11 +132,12 @@ export function buildYouTubeEmbedUrl(value = "", options = {}) {
 export function normalizeLiveStatus(status = {}, sourceUrl = "", origin = "") {
   const localEmbedUrl = buildYouTubeEmbedUrl(status.embedUrl || sourceUrl, { origin });
   const watchUrl = status.watchUrl || getYouTubeWatchUrl(sourceUrl);
+  const hasEmbedUrl = Boolean(status.embedUrl || localEmbedUrl);
 
   return {
     provider: status.provider || "youtube",
     status: status.status || "unknown",
-    embeddable: Boolean(status.embeddable && (status.embedUrl || localEmbedUrl)),
+    embeddable: Boolean(status.embeddable && hasEmbedUrl),
     videoId: status.videoId || "",
     embedUrl: status.embeddable ? buildYouTubeEmbedUrl(status.embedUrl || localEmbedUrl || sourceUrl, { origin }) : "",
     watchUrl,

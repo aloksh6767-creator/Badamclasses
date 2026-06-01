@@ -16,6 +16,7 @@ import {
   upsertLocalCourse
 } from "@/lib/localCourseState";
 import { apiFetch } from "@/lib/api";
+import { parseYouTubeUrl } from "@/lib/youtubeEmbed";
 
 const emptyForm = {
   _id: "",
@@ -29,6 +30,7 @@ const emptyForm = {
   description: "",
   liveClassEnabled: false,
   liveClassUrl: "",
+  liveClassTitle: "",
   recordedVideoUrl: "",
   videoSourcesText: "",
   pdfResourcesText: "",
@@ -70,6 +72,7 @@ function courseToForm(course) {
     description: normalized.description || "",
     liveClassEnabled: Boolean(normalized.liveClassEnabled),
     liveClassUrl: normalized.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
+    liveClassTitle: normalized.liveClassTitle || "",
     recordedVideoUrl: normalized.recordedVideoUrl || "",
     videoSourcesText: (normalized.videoSources || [])
       .map((source) => `${source.quality || source.label || "Auto"} | ${source.url || ""}`)
@@ -107,6 +110,7 @@ function buildCourseFromForm(form) {
     description: form.description,
     liveClassEnabled: Boolean(form.liveClassEnabled),
     liveClassUrl: form.liveClassUrl,
+    liveClassTitle: form.liveClassTitle,
     recordedVideoUrl: form.recordedVideoUrl,
     videoSources,
     pdfResources,
@@ -142,9 +146,23 @@ function buildServerCoursePayload(course) {
   };
 }
 
+function validateLiveClassUrl(value = "") {
+  const raw = String(value || "").trim();
+  if (!raw) return { ok: true, url: DEFAULT_LIVE_CLASS_URL };
+  if (!/^https?:\/\//i.test(raw)) {
+    return { ok: false, message: "Live URL must start with http:// or https://." };
+  }
+  const parsed = parseYouTubeUrl(raw);
+  if (!parsed) {
+    return { ok: false, message: "Use a valid YouTube channel, @handle/live, watch?v=, youtu.be, shorts, or embed URL." };
+  }
+  return { ok: true, url: raw };
+}
+
 export default function LocalCourseManager({ onCoursesChange, publicCourses = [] }) {
   const [courses, setCourses] = useState([]);
   const [form, setForm] = useState(emptyForm);
+  const [liveDrafts, setLiveDrafts] = useState({});
   const [message, setMessage] = useState("");
 
   const refreshCourses = () => {
@@ -178,8 +196,18 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
       setMessage("Course title is required.");
       return;
     }
+    if (form.liveClassEnabled || form.liveClassUrl.trim()) {
+      const liveValidation = validateLiveClassUrl(form.liveClassUrl);
+      if (!liveValidation.ok) {
+        setMessage(liveValidation.message);
+        return;
+      }
+    }
 
-    const course = buildCourseFromForm(form);
+    const course = buildCourseFromForm({
+      ...form,
+      liveClassUrl: validateLiveClassUrl(form.liveClassUrl).url
+    });
     let savedCourse = course;
     let serverSynced = false;
     let syncError = "";
@@ -259,15 +287,35 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
     setMessage(`${course.title} removed from public course pages.`);
   };
 
+  const updateLiveDraft = (course, key, value) => {
+    const storageKey = getCourseStorageKey(course);
+    setLiveDrafts((current) => ({
+      ...current,
+      [storageKey]: {
+        liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
+        liveClassTitle: course.liveClassTitle || "",
+        ...current[storageKey],
+        [key]: value
+      }
+    }));
+  };
+
   const setPublicCourseLive = async (course, enabled) => {
     const existing = courses.find((item) => getCourseStorageKey(item) === getCourseStorageKey(course));
+    const draft = liveDrafts[getCourseStorageKey(course)] || {};
+    const liveValidation = validateLiveClassUrl(draft.liveClassUrl || course.liveClassUrl || existing?.liveClassUrl || DEFAULT_LIVE_CLASS_URL);
+    if (!liveValidation.ok) {
+      setMessage(`${course.title}: ${liveValidation.message}`);
+      return;
+    }
     const nextCourse = normalizeLocalCourseRecord({
       ...course,
       ...existing,
       _id: course._id || course.id || existing?._id,
       id: course.id || course._id || existing?.id,
       liveClassEnabled: enabled,
-      liveClassUrl: course.liveClassUrl || existing?.liveClassUrl || DEFAULT_LIVE_CLASS_URL
+      liveClassUrl: liveValidation.url,
+      liveClassTitle: String(draft.liveClassTitle || course.liveClassTitle || existing?.liveClassTitle || "").trim()
     });
     upsertLocalCourse(nextCourse);
     try {
@@ -297,6 +345,21 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
         return true;
       });
   }, [publicCourses, courses]);
+
+  useEffect(() => {
+    setLiveDrafts((current) => {
+      const nextDrafts = { ...current };
+      visiblePublicCourses.forEach((course) => {
+        const key = getCourseStorageKey(course);
+        if (!key || nextDrafts[key]) return;
+        nextDrafts[key] = {
+          liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
+          liveClassTitle: course.liveClassTitle || ""
+        };
+      });
+      return nextDrafts;
+    });
+  }, [visiblePublicCourses]);
 
   return (
     <div className="grid gap-5 xl:grid-cols-[420px_minmax(0,1fr)]">
@@ -352,6 +415,13 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
               value={form.liveClassUrl}
               onChange={(e) => updateForm("liveClassUrl", e.target.value)}
               placeholder={DEFAULT_LIVE_CLASS_URL}
+            />
+          </Field>
+          <Field label="Live Class Title">
+            <Input
+              value={form.liveClassTitle}
+              onChange={(e) => updateForm("liveClassTitle", e.target.value)}
+              placeholder="Today live class title"
             />
           </Field>
           <Field label="Recorded Video URL"><Input value={form.recordedVideoUrl} onChange={(e) => updateForm("recordedVideoUrl", e.target.value)} placeholder="https://..." /></Field>
@@ -463,32 +533,54 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
             </span>
           </div>
           <div className="mt-4 grid gap-2">
-            {visiblePublicCourses.map((course) => (
-              <div key={getCourseStorageKey(course)} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#081127] px-3 py-2">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-white">{course.title}</p>
-                  <p className="text-xs text-slate-400">{course.subject || course.category || "General"}</p>
+            {visiblePublicCourses.map((course) => {
+              const storageKey = getCourseStorageKey(course);
+              const draft = liveDrafts[storageKey] || {
+                liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
+                liveClassTitle: course.liveClassTitle || ""
+              };
+
+              return (
+                <div key={storageKey} className="grid gap-3 rounded-xl border border-white/10 bg-[#081127] px-3 py-3 lg:grid-cols-[minmax(160px,0.8fr)_minmax(180px,1fr)_minmax(220px,1.4fr)_auto] lg:items-center">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">{course.title}</p>
+                    <p className="text-xs text-slate-400">{course.subject || course.category || "General"}</p>
+                  </div>
+                  <Input
+                    value={draft.liveClassTitle}
+                    onChange={(event) => updateLiveDraft(course, "liveClassTitle", event.target.value)}
+                    placeholder="Live title"
+                    className="w-full"
+                  />
+                  <Input
+                    value={draft.liveClassUrl}
+                    onChange={(event) => updateLiveDraft(course, "liveClassUrl", event.target.value)}
+                    placeholder="YouTube channel/live or video URL"
+                    className="w-full"
+                  />
+                  <div className="flex flex-wrap gap-2 lg:justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setPublicCourseLive(course, !course.liveClassEnabled)}
+                      className={`rounded-lg border px-3 py-1 text-xs font-semibold ${
+                        course.liveClassEnabled
+                          ? "border-red-300/40 text-red-200 hover:bg-red-500/15"
+                          : "border-emerald-300/40 text-emerald-200 hover:bg-emerald-500/15"
+                      }`}
+                    >
+                      {course.liveClassEnabled ? "Live End" : "Live Start"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removePublicCourse(course)}
+                      className="rounded-lg border border-rose-300/40 px-3 py-1 text-xs font-semibold text-rose-200 hover:bg-rose-500/15"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setPublicCourseLive(course, !course.liveClassEnabled)}
-                  className={`rounded-lg border px-3 py-1 text-xs font-semibold ${
-                    course.liveClassEnabled
-                      ? "border-red-300/40 text-red-200 hover:bg-red-500/15"
-                      : "border-emerald-300/40 text-emerald-200 hover:bg-emerald-500/15"
-                  }`}
-                >
-                  {course.liveClassEnabled ? "Live End" : "Live Start"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => removePublicCourse(course)}
-                  className="rounded-lg border border-rose-300/40 px-3 py-1 text-xs font-semibold text-rose-200 hover:bg-rose-500/15"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
+              );
+            })}
             {!visiblePublicCourses.length ? (
               <p className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300">
                 No public courses are currently visible.

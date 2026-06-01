@@ -13,7 +13,7 @@ import { DEFAULT_LIVE_CLASS_URL, filterDeletedCourses, filterDeletedCoursesFromS
 import { hasLocalPurchase } from "@/lib/purchaseState";
 import { getLiveCountdown, getSliderConfig, isBatchLiveNow, pruneExpiredLiveNow } from "@/lib/sliderConfig";
 import { readUserScopedJson, writeUserScopedJson } from "@/lib/userScopedStorage";
-import { YOUTUBE_IFRAME_ALLOW, buildYouTubeEmbedUrl, getYouTubeWatchUrl, isYouTubeLiveUrl, normalizeLiveStatus } from "@/lib/youtubeEmbed";
+import { YOUTUBE_IFRAME_ALLOW, buildYouTubeEmbedUrl, getYouTubeWatchUrl, normalizeLiveStatus, parseYouTubeUrl } from "@/lib/youtubeEmbed";
 
 const LOCAL_PDF_KEY = "badamclasses_local_pdfs";
 const VIDEO_QUALITY_ORDER = ["240", "360", "420", "720", "1080"];
@@ -152,8 +152,8 @@ function isNativeVideoUrl(url = "") {
   return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url);
 }
 
-function isYouTubeChannelLiveUrl(url = "") {
-  return isYouTubeLiveUrl(url);
+function isYouTubePlayerUrl(url = "") {
+  return Boolean(parseYouTubeUrl(url));
 }
 
 function getPublicLiveClassUrl(url = "") {
@@ -378,6 +378,7 @@ export default function CourseDetailsPage() {
   const [selectedQuality, setSelectedQuality] = useState("");
   const [liveStatus, setLiveStatus] = useState(null);
   const [liveStatusLoading, setLiveStatusLoading] = useState(false);
+  const [liveStatusRefreshKey, setLiveStatusRefreshKey] = useState(0);
   const [localCourses, setLocalCourses] = useState([]);
   const [deletedCourseKeys, setDeletedCourseKeys] = useState([]);
 
@@ -568,7 +569,7 @@ export default function CourseDetailsPage() {
       cancelled = true;
       window.clearInterval(intervalId);
     };
-  }, [selectedQuality, selectedVideo]);
+  }, [liveStatusRefreshKey, selectedQuality, selectedVideo]);
 
   useEffect(() => {
     let cancelled = false;
@@ -685,7 +686,7 @@ export default function CourseDetailsPage() {
   const isLiveClassPlayer =
     selectedVideo?.title === "Today's Class" ||
     selectedVideo?.sources?.some((source) => source.label === "Live");
-  const shouldUseExternalLivePlayer = isLiveClassPlayer && isYouTubeChannelLiveUrl(activeVideoUrl);
+  const shouldUseExternalLivePlayer = isLiveClassPlayer && isYouTubePlayerUrl(activeVideoUrl);
   const normalizedLiveStatus = liveStatus ? normalizeLiveStatus(liveStatus, activeVideoUrl, typeof window !== "undefined" ? window.location.origin : "") : null;
   const activeVideoLink = normalizedLiveStatus?.watchUrl || (activeVideoSource ? getPublicLiveClassUrl(activeVideoUrl) : "");
   const liveEmbedUrl = normalizedLiveStatus?.embeddable ? normalizedLiveStatus.embedUrl : "";
@@ -1129,6 +1130,8 @@ export default function CourseDetailsPage() {
                     title={selectedVideo.title || "Live Class"}
                     liveStatus={normalizedLiveStatus}
                     loading={liveStatusLoading}
+                    onRefresh={() => setLiveStatusRefreshKey((value) => value + 1)}
+                    recordedFallbackUrl={videoSources[0]?.url || course.recordedVideoUrl || ""}
                     className="h-full w-full bg-black"
                   />
                 ) : canRenderNativeVideo && activeVideoSource ? (
