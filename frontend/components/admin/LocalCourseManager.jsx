@@ -24,6 +24,10 @@ const emptyForm = {
   subtitle: "",
   subject: "General",
   status: "active",
+  isActive: true,
+  featured: true,
+  type: "standard",
+  routeSlug: "",
   price: "",
   offerPrice: "",
   thumbnail: "",
@@ -66,6 +70,10 @@ function courseToForm(course) {
     subtitle: normalized.subtitle || "",
     subject: normalized.subject || normalized.category || "General",
     status: isCourseDeleted(normalized) ? "hidden" : normalized.status || "active",
+    isActive: normalized.isActive !== false && !isCourseDeleted(normalized),
+    featured: normalized.featured !== false,
+    type: normalized.type || "standard",
+    routeSlug: normalized.routeSlug || normalized.slug || "",
     price: normalized.price ? String(normalized.price) : "",
     offerPrice: normalized.offerPrice ? String(normalized.offerPrice) : "",
     thumbnail: normalized.thumbnail || normalized.image || "",
@@ -103,6 +111,11 @@ function buildCourseFromForm(form) {
     subtitle: form.subtitle,
     subject: form.subject,
     category: form.subject,
+    isActive: Boolean(form.isActive) && form.status !== "hidden",
+    featured: Boolean(form.featured),
+    type: form.type,
+    slug: form.routeSlug,
+    routeSlug: form.routeSlug,
     status: form.status,
     price: Number(form.price || 0),
     offerPrice: Number(form.offerPrice || 0),
@@ -129,7 +142,13 @@ function buildServerCoursePayload(course) {
     price: Number(course.price || course.priceValue || 0),
     offerPrice: course.offerPrice || null,
     category: course.category || course.subject || "General",
+    isActive: course.isActive !== false && course.status !== "hidden",
+    featured: course.featured !== false,
+    type: course.type || "standard",
+    slug: course.routeSlug || course.slug || "",
+    routeSlug: course.routeSlug || course.slug || "",
     thumbnail: course.thumbnail || course.image || "",
+    imageUrl: course.imageUrl || course.thumbnail || course.image || "",
     liveClassEnabled: Boolean(course.liveClassEnabled),
     liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
     liveClassTitle: course.liveClassTitle || "",
@@ -154,7 +173,7 @@ function validateLiveClassUrl(value = "") {
   }
   const parsed = parseYouTubeUrl(raw);
   if (!parsed) {
-    return { ok: false, message: "Use a valid YouTube channel, @handle/live, watch?v=, youtu.be, shorts, or embed URL." };
+    return { ok: false, message: "Use a valid YouTube channel, @handle/live, /live/video-id, watch?v=, youtu.be, shorts, or embed URL." };
   }
   return { ok: true, url: raw };
 }
@@ -163,12 +182,30 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
   const [courses, setCourses] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [liveDrafts, setLiveDrafts] = useState({});
+  const [pendingLiveKeys, setPendingLiveKeys] = useState({});
   const [message, setMessage] = useState("");
 
-  const refreshCourses = () => {
-    const nextCourses = readLocalCourses();
-    setCourses(nextCourses);
-    onCoursesChange?.(nextCourses);
+  const refreshCourses = async () => {
+    const localCourses = readLocalCourses();
+    setCourses(localCourses);
+    onCoursesChange?.(localCourses);
+
+    try {
+      const serverCourses = await apiFetch("/instructor/courses");
+      if (!Array.isArray(serverCourses)) return;
+      const merged = [...localCourses, ...serverCourses.map(normalizeLocalCourseRecord)];
+      const seen = new Set();
+      const deduped = merged.filter((course) => {
+        const key = getCourseStorageKey(course);
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      setCourses(deduped);
+      onCoursesChange?.(deduped);
+    } catch {
+      // Local admin fallback remains usable when the API is unavailable.
+    }
   };
 
   useEffect(() => {
@@ -255,15 +292,22 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
     refreshCourses();
   };
 
-  const removeCourse = (course) => {
+  const removeCourse = async (course) => {
     const confirmed = typeof window === "undefined" ? false : window.confirm(`Delete "${course.title}" from local courses?`);
     if (!confirmed) return;
     deleteLocalCourse(course);
+    if (isMongoObjectId(course._id)) {
+      try {
+        await apiFetch(`/instructor/courses/${encodeURIComponent(course._id)}`, { method: "DELETE" });
+      } catch (error) {
+        setMessage(`${course.title} deleted locally. Server delete skipped: ${error.message}`);
+      }
+    }
     refreshCourses();
     if (form._id === course._id) {
       setForm(emptyForm);
     }
-    setMessage(`${course.title} deleted locally.`);
+    setMessage(`${course.title} deleted.`);
   };
 
   const removePublicCourse = (course) => {
@@ -301,8 +345,9 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
   };
 
   const setPublicCourseLive = async (course, enabled) => {
+    const storageKey = getCourseStorageKey(course);
     const existing = courses.find((item) => getCourseStorageKey(item) === getCourseStorageKey(course));
-    const draft = liveDrafts[getCourseStorageKey(course)] || {};
+    const draft = liveDrafts[storageKey] || {};
     const liveValidation = validateLiveClassUrl(draft.liveClassUrl || course.liveClassUrl || existing?.liveClassUrl || DEFAULT_LIVE_CLASS_URL);
     if (!liveValidation.ok) {
       setMessage(`${course.title}: ${liveValidation.message}`);
@@ -317,7 +362,21 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
       liveClassUrl: liveValidation.url,
       liveClassTitle: String(draft.liveClassTitle || course.liveClassTitle || existing?.liveClassTitle || "").trim()
     });
+
+    setPendingLiveKeys((current) => ({ ...current, [storageKey]: true }));
     upsertLocalCourse(nextCourse);
+    const updatedLocalCourses = readLocalCourses();
+    setCourses((current) => {
+      const existingIndex = current.findIndex((item) => getCourseStorageKey(item) === storageKey);
+      if (existingIndex < 0) {
+        return [nextCourse, ...current];
+      }
+      return current.map((item, index) => (index === existingIndex ? { ...item, ...nextCourse } : item));
+    });
+    onCoursesChange?.(updatedLocalCourses);
+    setMessage(`${course.title} live class ${enabled ? "started" : "stopped"} locally. Syncing server...`);
+    refreshCourses();
+
     try {
       await apiFetch(`/instructor/courses/live/${encodeURIComponent(getCourseStorageKey(course))}`, {
         method: "PATCH",
@@ -330,13 +389,70 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
       setMessage(`${course.title} live class ${enabled ? "enabled" : "disabled"} on server.`);
     } catch (error) {
       setMessage(`${course.title} live class ${enabled ? "enabled" : "disabled"} locally. Server sync skipped: ${error.message}`);
+    } finally {
+      setPendingLiveKeys((current) => {
+        const next = { ...current };
+        delete next[storageKey];
+        return next;
+      });
+      refreshCourses();
+    }
+  };
+
+  const toggleCourseActive = async (course) => {
+    const nextActive = course.isActive === false;
+    const nextCourse = normalizeLocalCourseRecord({
+      ...course,
+      isActive: nextActive,
+      status: nextActive ? "active" : "hidden"
+    });
+    upsertLocalCourse(nextCourse);
+    try {
+      if (isMongoObjectId(course._id)) {
+        await apiFetch(`/instructor/courses/${encodeURIComponent(course._id)}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            isActive: nextActive,
+            status: nextActive ? "active" : "hidden"
+          })
+        });
+      }
+      setMessage(`${course.title} is now ${nextActive ? "active" : "inactive"}.`);
+    } catch (error) {
+      setMessage(`${course.title} active status changed locally. Server sync skipped: ${error.message}`);
+    }
+    refreshCourses();
+  };
+
+  const toggleCourseFeatured = async (course) => {
+    const nextFeatured = course.featured === false;
+    const nextCourse = normalizeLocalCourseRecord({
+      ...course,
+      featured: nextFeatured
+    });
+    upsertLocalCourse(nextCourse);
+    try {
+      if (isMongoObjectId(course._id)) {
+        await apiFetch(`/instructor/courses/${encodeURIComponent(course._id)}`, {
+          method: "PATCH",
+          body: JSON.stringify({ featured: nextFeatured })
+        });
+      }
+      setMessage(`${course.title} ${nextFeatured ? "will appear" : "was removed"} from homepage featured batches.`);
+    } catch (error) {
+      setMessage(`${course.title} featured status changed locally. Server sync skipped: ${error.message}`);
     }
     refreshCourses();
   };
 
   const visiblePublicCourses = useMemo(() => {
     const seen = new Set();
-    return (Array.isArray(publicCourses) ? publicCourses : [])
+    const combinedCourses = [
+      ...(Array.isArray(courses) ? courses : []),
+      ...(Array.isArray(publicCourses) ? publicCourses : [])
+    ];
+
+    return combinedCourses
       .filter((course) => course && !isCourseDeleted(course))
       .filter((course) => {
         const key = getCourseStorageKey(course);
@@ -385,6 +501,19 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
                 {subjects.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
               </Select>
             </Field>
+            <Field label="Batch Type">
+              <Select value={form.type} onChange={(e) => updateForm("type", e.target.value)}>
+                <option value="standard">Standard</option>
+                <option value="live">Live</option>
+                <option value="recorded">Recorded</option>
+                <option value="combo">Combo</option>
+              </Select>
+            </Field>
+          </div>
+          <Field label="Route Slug">
+            <Input value={form.routeSlug} onChange={(e) => updateForm("routeSlug", e.target.value)} placeholder="ssc-cgl-new-batch-2026" />
+          </Field>
+          <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Status">
               <Select value={form.status} onChange={(e) => updateForm("status", e.target.value)}>
                 <option value="active">Active</option>
@@ -392,12 +521,22 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
                 <option value="hidden">Hidden</option>
               </Select>
             </Field>
+            <div className="grid gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200">
+              <label className="flex items-center justify-between gap-3">
+                <span>Active on Website</span>
+                <input type="checkbox" checked={Boolean(form.isActive)} onChange={(e) => updateForm("isActive", e.target.checked)} />
+              </label>
+              <label className="flex items-center justify-between gap-3">
+                <span>Featured on Homepage</span>
+                <input type="checkbox" checked={Boolean(form.featured)} onChange={(e) => updateForm("featured", e.target.checked)} />
+              </label>
+            </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Price"><Input type="number" min="0" value={form.price} onChange={(e) => updateForm("price", e.target.value)} placeholder="999" /></Field>
             <Field label="Offer Price"><Input type="number" min="0" value={form.offerPrice} onChange={(e) => updateForm("offerPrice", e.target.value)} placeholder="799" /></Field>
           </div>
-          <Field label="Thumbnail"><Input value={form.thumbnail} onChange={(e) => updateForm("thumbnail", e.target.value)} placeholder="/course.jpg or https://..." /></Field>
+          <Field label="Image URL"><Input value={form.thumbnail} onChange={(e) => updateForm("thumbnail", e.target.value)} placeholder="/course.jpg or https://..." /></Field>
           <Field label="Description"><Textarea value={form.description} onChange={(e) => updateForm("description", e.target.value)} placeholder="Course summary" /></Field>
           <label className="flex items-center justify-between gap-3 rounded-2xl border border-red-300/20 bg-red-500/10 p-4 text-sm text-red-100">
             <span>
@@ -460,6 +599,7 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
                 <th>Subject</th>
                 <th>Price</th>
                 <th>Status</th>
+                <th>Homepage</th>
                 <th>Assets</th>
                 <th className="text-right">Actions</th>
               </tr>
@@ -467,6 +607,8 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
             <tbody>
               {courses.map((course) => {
                 const hidden = isCourseDeleted(course);
+                const storageKey = getCourseStorageKey(course);
+                const livePending = Boolean(pendingLiveKeys[storageKey]);
                 return (
                   <tr key={course._id || course.id} className="border-t border-white/10 text-slate-200">
                     <td className="max-w-[260px] py-3">
@@ -480,7 +622,12 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
                     </td>
                     <td>
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold ${hidden ? "bg-rose-500/15 text-rose-200" : "bg-emerald-500/15 text-emerald-200"}`}>
-                        {hidden ? "hidden" : course.status || "active"}
+                        {course.isActive === false ? "inactive" : hidden ? "hidden" : course.status || "active"}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${course.featured === false ? "bg-white/10 text-slate-300" : "bg-orange-500/15 text-orange-100"}`}>
+                        {course.featured === false ? "not featured" : "featured"}
                       </span>
                     </td>
                     <td className="text-xs text-slate-400">
@@ -494,16 +641,23 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
                         <button type="button" onClick={() => toggleHidden(course)} className="rounded-lg border border-cyan-300/40 px-3 py-1 text-xs text-cyan-200 hover:bg-cyan-500/15">
                           {hidden ? "Show" : "Hide"}
                         </button>
+                        <button type="button" onClick={() => toggleCourseActive(course)} className="rounded-lg border border-sky-300/40 px-3 py-1 text-xs text-sky-200 hover:bg-sky-500/15">
+                          {course.isActive === false ? "Activate" : "Deactivate"}
+                        </button>
+                        <button type="button" onClick={() => toggleCourseFeatured(course)} className="rounded-lg border border-amber-300/40 px-3 py-1 text-xs text-amber-100 hover:bg-amber-500/15">
+                          {course.featured === false ? "Feature" : "Unfeature"}
+                        </button>
                         <button
                           type="button"
+                          disabled={livePending}
                           onClick={() => setPublicCourseLive(course, !course.liveClassEnabled)}
                           className={`rounded-lg border px-3 py-1 text-xs font-semibold ${
                             course.liveClassEnabled
                               ? "border-red-300/40 text-red-200 hover:bg-red-500/15"
                               : "border-emerald-300/40 text-emerald-200 hover:bg-emerald-500/15"
-                          }`}
+                          } disabled:cursor-wait disabled:opacity-60`}
                         >
-                          {course.liveClassEnabled ? "Live End" : "Live Start"}
+                          {livePending ? "Saving..." : course.liveClassEnabled ? "Live End" : "Live Start"}
                         </button>
                         <button type="button" onClick={() => removeCourse(course)} className="rounded-lg border border-rose-300/40 px-3 py-1 text-xs text-rose-200 hover:bg-rose-500/15">
                           Delete
@@ -539,6 +693,7 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
                 liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
                 liveClassTitle: course.liveClassTitle || ""
               };
+              const livePending = Boolean(pendingLiveKeys[storageKey]);
 
               return (
                 <div key={storageKey} className="grid gap-3 rounded-xl border border-white/10 bg-[#081127] px-3 py-3 lg:grid-cols-[minmax(160px,0.8fr)_minmax(180px,1fr)_minmax(220px,1.4fr)_auto] lg:items-center">
@@ -561,14 +716,15 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
                   <div className="flex flex-wrap gap-2 lg:justify-end">
                     <button
                       type="button"
+                      disabled={livePending}
                       onClick={() => setPublicCourseLive(course, !course.liveClassEnabled)}
                       className={`rounded-lg border px-3 py-1 text-xs font-semibold ${
                         course.liveClassEnabled
                           ? "border-red-300/40 text-red-200 hover:bg-red-500/15"
                           : "border-emerald-300/40 text-emerald-200 hover:bg-emerald-500/15"
-                      }`}
+                      } disabled:cursor-wait disabled:opacity-60`}
                     >
-                      {course.liveClassEnabled ? "Live End" : "Live Start"}
+                      {livePending ? "Saving..." : course.liveClassEnabled ? "Live End" : "Live Start"}
                     </button>
                     <button
                       type="button"

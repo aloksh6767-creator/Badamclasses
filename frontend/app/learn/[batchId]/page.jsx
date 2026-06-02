@@ -25,9 +25,7 @@ function sanitizeExternalUrl(value) {
 }
 
 function hasRemoteAccess(enrollments = [], course = {}) {
-  const courseKeys = [course.routeId, course._id, course.id, course.slug, course.title]
-    .map((item) => String(item || "").trim().toLowerCase())
-    .filter(Boolean);
+  const courseKeys = buildAccessKeys(course);
 
   return enrollments.some((item) => {
     const enrollmentKeys = [
@@ -37,11 +35,30 @@ function hasRemoteAccess(enrollments = [], course = {}) {
       item?.course?._id,
       item?.course?.id,
       item?.course?.routeId,
+      item?.course?.slug,
+      item?.course?.routeSlug,
+      item?.course ? buildCourseRouteId(item.course) : "",
       item?.course?.title,
       item?.courseTitle
-    ].map((value) => String(value || "").trim().toLowerCase()).filter(Boolean);
+    ].map(normalizeAccessKey).filter(Boolean);
     return enrollmentKeys.some((key) => courseKeys.includes(key));
   });
+}
+
+function normalizeAccessKey(value = "") {
+  return String(value || "").trim().toLowerCase();
+}
+
+function buildAccessKeys(course = {}) {
+  return Array.from(new Set([
+    course.routeId,
+    course._id,
+    course.id,
+    course.slug,
+    course.routeSlug,
+    course.title,
+    buildCourseRouteId(course)
+  ].map(normalizeAccessKey).filter(Boolean)));
 }
 
 function normalizeBatch(batch, index) {
@@ -214,8 +231,18 @@ export default function LearnBatchPage() {
       }
 
       try {
-        const enrollments = await apiFetch("/enrollments/my");
-        const allowed = Array.isArray(enrollments) && hasRemoteAccess(enrollments, course);
+        const [enrollmentResult, dashboardResult] = await Promise.allSettled([
+          apiFetch("/enrollments/my"),
+          apiFetch("/student/dashboard")
+        ]);
+        const enrollments = enrollmentResult.status === "fulfilled" && Array.isArray(enrollmentResult.value)
+          ? enrollmentResult.value
+          : [];
+        const dashboardEnrollments =
+          dashboardResult.status === "fulfilled" && Array.isArray(dashboardResult.value?.purchasedCourses)
+            ? dashboardResult.value.purchasedCourses
+            : [];
+        const allowed = hasRemoteAccess([...enrollments, ...dashboardEnrollments], course);
         if (cancelled) return;
         setAccess(allowed ? "allowed" : "denied");
         if (!allowed) {

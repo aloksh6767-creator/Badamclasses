@@ -44,6 +44,11 @@ const parseYouTubeUrl = (value = "") => {
       return { type: "video", videoId: parsed.searchParams.get("v") };
     }
 
+    if (lowerPath.startsWith("/live/")) {
+      const videoId = path.split("/").filter(Boolean)[1];
+      return videoId ? { type: "video", videoId } : null;
+    }
+
     if (lowerPath.startsWith("/shorts/")) {
       const videoId = path.split("/").filter(Boolean)[1];
       return videoId ? { type: "video", videoId } : null;

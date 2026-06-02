@@ -392,12 +392,14 @@ export default function CourseDetailsPage() {
           {
             _id: batch.id,
             id: batch.id,
-            slug: batch.id,
+            slug: batch.slug || batch.routeSlug || batch.id,
+            routeSlug: batch.routeSlug || batch.slug || batch.id,
             title: batch.title,
             instructor: batch.instructor,
             price: batch.priceValue,
             category: batch.category,
             image: batch.image,
+            imageUrl: batch.imageUrl || batch.image,
             batchTime: batch.batchTime,
             startDate: batch.startDate,
             classTiming: batch.classTiming,
@@ -578,18 +580,43 @@ export default function CourseDetailsPage() {
       if (!course) return;
       const explicitDetails = searchParams.get("details") === "1";
       const localPurchase = hasLocalPurchase(course);
+      const currentKeys = Array.from(new Set([
+        course?.routeId,
+        course?._id,
+        course?.id,
+        course?.slug,
+        course?.routeSlug,
+        course?.title,
+        buildCourseRouteId(course)
+      ].map((value) => String(value || "").trim().toLowerCase()).filter(Boolean)));
+      const hasMatchingEnrollment = (items = []) => Array.isArray(items) && items.some((item) => {
+        const enrollmentKeys = [
+          item?.courseRouteId,
+          item?.courseId,
+          item?.id,
+          item?.course?._id,
+          item?.course?.id,
+          item?.course?.routeId,
+          item?.course?.slug,
+          item?.course?.routeSlug,
+          item?.course ? buildCourseRouteId(item.course) : "",
+          item?.course?.title,
+          item?.courseTitle
+        ].map((value) => String(value || "").trim().toLowerCase()).filter(Boolean);
+        return enrollmentKeys.some((key) => currentKeys.includes(key));
+      });
 
       try {
-        const enrollments = await apiFetch("/enrollments/my");
-        const purchased = localPurchase || (Array.isArray(enrollments)
-          ? enrollments.some((item) => {
-              const enrollmentRouteId = String(item?.courseRouteId || item?.course?.routeId || item?.course?._id || item?.course?.id || "").trim().toLowerCase();
-              const currentRouteId = String(course?.routeId || course?._id || course?.id || "").trim().toLowerCase();
-              const enrollmentTitle = String(item?.course?.title || item?.courseTitle || "").trim().toLowerCase();
-              const currentTitle = String(course?.title || "").trim().toLowerCase();
-              return enrollmentRouteId === currentRouteId || (enrollmentTitle && enrollmentTitle === currentTitle);
-            })
-          : false);
+        const [enrollmentResult, dashboardResult] = await Promise.allSettled([
+          apiFetch("/enrollments/my"),
+          apiFetch("/student/dashboard")
+        ]);
+        const enrollments = enrollmentResult.status === "fulfilled" ? enrollmentResult.value : [];
+        const dashboardEnrollments =
+          dashboardResult.status === "fulfilled" && Array.isArray(dashboardResult.value?.purchasedCourses)
+            ? dashboardResult.value.purchasedCourses
+            : [];
+        const purchased = localPurchase || hasMatchingEnrollment([...enrollments, ...dashboardEnrollments]);
 
         if (!cancelled) {
           setHasPurchased(purchased);
