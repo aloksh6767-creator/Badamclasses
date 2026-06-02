@@ -201,7 +201,7 @@ export default function LiveClassPage() {
           </div>
         </div>
 
-        <div className={`${theaterMode ? "p-0" : "grid gap-6 p-5 xl:grid-cols-[minmax(0,1fr)_320px]"}`}>
+        <div className={`${theaterMode ? "p-0" : "grid gap-0 xl:grid-cols-[minmax(0,1fr)_400px]"}`}>
           <div className="overflow-hidden bg-black">
             {canWatch ? (
               canUseYouTubePlayer(liveUrl) ? (
@@ -254,31 +254,33 @@ export default function LiveClassPage() {
           </div>
 
           {!theaterMode ? (
-            <aside className="space-y-4">
-              <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Status</p>
-                <div className={`mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${liveEnabled ? "bg-red-500/20 text-red-100" : "bg-white/10 text-slate-300"}`}>
-                  {liveEnabled ? "LIVE ON" : "LIVE OFF"}
-                </div>
-                <p className="mt-3 text-sm text-slate-300">Live stream website ke andar secure player mein chalegi. Direct YouTube link UI mein share nahi hota.</p>
-              </div>
-
-              <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Batch</p>
-                <img src={resolveCourseImage(course)} alt={course.title} className="mt-3 h-36 w-full rounded-2xl object-cover" />
-                <h3 className="mt-3 text-lg font-semibold text-white">{course.title}</h3>
-                <p className="mt-1 text-sm text-slate-300">Instructor: {course.instructor?.name || course.instructor || "BadamClasses"}</p>
-                <p className="mt-1 text-sm text-slate-300">Schedule: {course.batchTime || course.startDate || "Will be updated"}</p>
-              </div>
-
-              <div className="rounded-[24px] border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
-                <p className="font-semibold text-white">Class protection</p>
-                <p className="mt-2">Only logged-in enrolled students and admins can open this page. Browser-level recording or inspection cannot be fully prevented, but the website does not expose a shareable class link.</p>
-              </div>
-
+            <aside className="min-h-[560px] border-l border-white/10 bg-[#0d1526]">
               {canWatch ? (
                 <LiveClassChat batchId={routeId || batchId} title={course.liveClassTitle || course.title} />
-              ) : null}
+              ) : (
+                <div className="space-y-4 p-5">
+                  <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Status</p>
+                    <div className={`mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${liveEnabled ? "bg-red-500/20 text-red-100" : "bg-white/10 text-slate-300"}`}>
+                      {liveEnabled ? "LIVE ON" : "LIVE OFF"}
+                    </div>
+                    <p className="mt-3 text-sm text-slate-300">Live stream website ke andar secure player mein chalegi. Direct YouTube link UI mein share nahi hota.</p>
+                  </div>
+
+                  <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Batch</p>
+                    <img src={resolveCourseImage(course)} alt={course.title} className="mt-3 h-36 w-full rounded-2xl object-cover" />
+                    <h3 className="mt-3 text-lg font-semibold text-white">{course.title}</h3>
+                    <p className="mt-1 text-sm text-slate-300">Instructor: {course.instructor?.name || course.instructor || "BadamClasses"}</p>
+                    <p className="mt-1 text-sm text-slate-300">Schedule: {course.batchTime || course.startDate || "Will be updated"}</p>
+                  </div>
+
+                  <div className="rounded-[24px] border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+                    <p className="font-semibold text-white">Class protection</p>
+                    <p className="mt-2">Only logged-in enrolled students and admins can open this page.</p>
+                  </div>
+                </div>
+              )}
             </aside>
           ) : null}
         </div>
