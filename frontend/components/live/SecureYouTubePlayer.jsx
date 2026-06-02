@@ -95,6 +95,10 @@ export default function SecureYouTubePlayer({
             referrerPolicy="strict-origin-when-cross-origin"
             className="h-full w-full bg-black"
           />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-0 top-0 z-10 h-20 w-72 bg-gradient-to-r from-black via-black/95 to-black/0"
+          />
           {loading ? (
             <div className="pointer-events-none absolute left-3 bottom-3 rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-xs font-semibold text-slate-100 backdrop-blur">
               Checking live status...
