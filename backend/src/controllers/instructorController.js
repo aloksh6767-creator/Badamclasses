@@ -16,11 +16,16 @@ import {
 
 const DEFAULT_LIVE_CLASS_URL = "https://www.youtube.com/channel/UC9KopMZXd5is7KvOzhamTYw/live";
 const normalizeCourseKey = (value = "") => String(value || "").trim().toLowerCase();
+const normalizeLiveStreamType = (value = "") => {
+  const normalized = String(value || "").trim().toLowerCase();
+  return ["youtube", "hls", "mp4"].includes(normalized) ? normalized : "youtube";
+};
 
 const buildLivePatch = (body = {}) => ({
   liveClassEnabled: Boolean(body.liveClassEnabled),
   liveClassUrl: String(body.liveClassUrl || DEFAULT_LIVE_CLASS_URL).trim(),
-  liveClassTitle: String(body.liveClassTitle || "").trim()
+  liveClassTitle: String(body.liveClassTitle || "").trim(),
+  liveStreamType: normalizeLiveStreamType(body.liveStreamType)
 });
 
 export const createCourse = async (req, res) => {

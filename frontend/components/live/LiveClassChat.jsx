@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { apiFetch } from "@/lib/api";
 import { getUser } from "@/lib/auth";
 
 const buildStorageKey = (batchId = "") => `badamclasses_live_chat_${String(batchId || "default").trim().toLowerCase()}`;
@@ -28,6 +29,34 @@ export default function LiveClassChat({ batchId = "", title = "Live Class" }) {
   }, [storageKey]);
 
   useEffect(() => {
+    let active = true;
+    const loadMessages = async () => {
+      try {
+        const data = await apiFetch(`/live-chat?batchId=${encodeURIComponent(batchId)}&limit=120`);
+        if (!active || !Array.isArray(data)) return;
+        const normalized = data.map((message) => ({
+          ...message,
+          id: message._id || message.id,
+          name: message.senderName || "Student",
+          time: new Date(message.createdAt || Date.now()).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })
+        }));
+        setMessages(normalized);
+        try {
+          window.localStorage.setItem(storageKey, JSON.stringify(normalized.slice(-80)));
+        } catch {}
+      } catch {
+        // Keep local fallback chat working when backend/session is unavailable.
+      }
+    };
+    loadMessages();
+    const timer = window.setInterval(loadMessages, 15000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [batchId, storageKey]);
+
+  useEffect(() => {
     if (!listRef.current) return;
     listRef.current.scrollTop = listRef.current.scrollHeight;
   }, [messages, chatMode]);
@@ -39,19 +68,49 @@ export default function LiveClassChat({ batchId = "", title = "Live Class" }) {
     } catch {}
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const content = input.trim();
     if (!content) return;
 
-    const nextMessage = {
+    const localMessage = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       name: user?.name || user?.email || "Student",
+      senderName: user?.name || user?.email || "Student",
+      senderEmail: user?.email || "",
       mode: chatMode,
       text: content,
-      time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })
+      createdAt: new Date().toISOString(),
+      time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
+      pending: true
     };
-    saveMessages([...messages, nextMessage]);
+    saveMessages([...messages, localMessage]);
     setInput("");
+
+    try {
+      const saved = await apiFetch("/live-chat", {
+        method: "POST",
+        body: JSON.stringify({
+          batchId,
+          batchTitle: title,
+          mode: chatMode,
+          text: content
+        })
+      });
+      saveMessages([
+        ...messages,
+        {
+          ...localMessage,
+          id: saved._id || localMessage.id,
+          _id: saved._id,
+          senderName: saved.senderName || localMessage.senderName,
+          senderEmail: saved.senderEmail || localMessage.senderEmail,
+          createdAt: saved.createdAt || localMessage.createdAt,
+          pending: false
+        }
+      ]);
+    } catch {
+      saveMessages([...messages, { ...localMessage, pending: false, offline: true }]);
+    }
   };
 
   return (
@@ -103,7 +162,7 @@ export default function LiveClassChat({ batchId = "", title = "Live Class" }) {
                 .map((message) => (
                   <div key={message.id} className="rounded-xl bg-white/[0.06] px-3 py-2">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-xs font-semibold text-white">{message.name}</span>
+                      <span className="truncate text-xs font-semibold text-white">{message.senderName || message.name}</span>
                       <span className="shrink-0 text-[11px] text-slate-500">{message.time}</span>
                     </div>
                     <p className="mt-1 text-sm text-slate-200">{message.text}</p>

@@ -6,6 +6,7 @@ const courseLiveOverrideSchema = new mongoose.Schema(
     liveClassEnabled: { type: Boolean, default: false },
     liveClassUrl: { type: String, default: "" },
     liveClassTitle: { type: String, default: "" },
+    liveStreamType: { type: String, enum: ["youtube", "hls", "mp4"], default: "youtube" },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }
   },
   { timestamps: true }

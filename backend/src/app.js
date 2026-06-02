@@ -15,6 +15,7 @@ import inquiryRoutes from "./routes/inquiryRoutes.js";
 import automationRoutes from "./routes/automationRoutes.js";
 import pdfRoutes from "./routes/pdfRoutes.js";
 import liveStatusRoutes from "./routes/liveStatusRoutes.js";
+import liveChatRoutes from "./routes/liveChatRoutes.js";
 import { notifyErrorAlert } from "./utils/alertNotifier.js";
 import { getDatabaseStatus, isMongoEnvConfigured } from "./config/db.js";
 import { getPaymentDebugSummary } from "./controllers/paymentController.js";
@@ -88,6 +89,7 @@ app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/automation", automationRoutes);
 app.use("/api/pdfs", pdfRoutes);
 app.use("/api/live-status", liveStatusRoutes);
+app.use("/api/live-chat", liveChatRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);

@@ -35,6 +35,7 @@ const emptyForm = {
   liveClassEnabled: false,
   liveClassUrl: "",
   liveClassTitle: "",
+  liveStreamType: "youtube",
   recordedVideoUrl: "",
   videoSourcesText: "",
   pdfResourcesText: "",
@@ -81,6 +82,7 @@ function courseToForm(course) {
     liveClassEnabled: Boolean(normalized.liveClassEnabled),
     liveClassUrl: normalized.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
     liveClassTitle: normalized.liveClassTitle || "",
+    liveStreamType: normalized.liveStreamType || "youtube",
     recordedVideoUrl: normalized.recordedVideoUrl || "",
     videoSourcesText: (normalized.videoSources || [])
       .map((source) => `${source.quality || source.label || "Auto"} | ${source.url || ""}`)
@@ -124,6 +126,7 @@ function buildCourseFromForm(form) {
     liveClassEnabled: Boolean(form.liveClassEnabled),
     liveClassUrl: form.liveClassUrl,
     liveClassTitle: form.liveClassTitle,
+    liveStreamType: form.liveStreamType || "youtube",
     recordedVideoUrl: form.recordedVideoUrl,
     videoSources,
     pdfResources,
@@ -152,6 +155,7 @@ function buildServerCoursePayload(course) {
     liveClassEnabled: Boolean(course.liveClassEnabled),
     liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
     liveClassTitle: course.liveClassTitle || "",
+    liveStreamType: course.liveStreamType || "youtube",
     batchTime: course.batchTime || "",
     startDate: course.startDate || "",
     duration: course.duration || "Flexible",
@@ -165,11 +169,21 @@ function buildServerCoursePayload(course) {
   };
 }
 
-function validateLiveClassUrl(value = "") {
+function validateLiveClassUrl(value = "", streamType = "youtube") {
   const raw = String(value || "").trim();
   if (!raw) return { ok: true, url: DEFAULT_LIVE_CLASS_URL };
   if (!/^https?:\/\//i.test(raw)) {
     return { ok: false, message: "Live URL must start with http:// or https://." };
+  }
+  if (streamType === "hls") {
+    return /\.m3u8(?:$|\?)/i.test(raw)
+      ? { ok: true, url: raw }
+      : { ok: false, message: "Direct HLS stream must be a .m3u8 URL." };
+  }
+  if (streamType === "mp4") {
+    return /\.(mp4|webm|ogg)(?:$|\?)/i.test(raw)
+      ? { ok: true, url: raw }
+      : { ok: false, message: "MP4 video stream must be an .mp4, .webm, or .ogg URL." };
   }
   const parsed = parseYouTubeUrl(raw);
   if (!parsed) {
@@ -234,7 +248,7 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
       return;
     }
     if (form.liveClassEnabled || form.liveClassUrl.trim()) {
-      const liveValidation = validateLiveClassUrl(form.liveClassUrl);
+      const liveValidation = validateLiveClassUrl(form.liveClassUrl, form.liveStreamType);
       if (!liveValidation.ok) {
         setMessage(liveValidation.message);
         return;
@@ -243,7 +257,7 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
 
     const course = buildCourseFromForm({
       ...form,
-      liveClassUrl: validateLiveClassUrl(form.liveClassUrl).url
+      liveClassUrl: validateLiveClassUrl(form.liveClassUrl, form.liveStreamType).url
     });
     let savedCourse = course;
     let serverSynced = false;
@@ -338,6 +352,7 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
       [storageKey]: {
         liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
         liveClassTitle: course.liveClassTitle || "",
+        liveStreamType: course.liveStreamType || "youtube",
         ...current[storageKey],
         [key]: value
       }
@@ -348,7 +363,8 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
     const storageKey = getCourseStorageKey(course);
     const existing = courses.find((item) => getCourseStorageKey(item) === getCourseStorageKey(course));
     const draft = liveDrafts[storageKey] || {};
-    const liveValidation = validateLiveClassUrl(draft.liveClassUrl || course.liveClassUrl || existing?.liveClassUrl || DEFAULT_LIVE_CLASS_URL);
+    const liveStreamType = draft.liveStreamType || course.liveStreamType || existing?.liveStreamType || "youtube";
+    const liveValidation = validateLiveClassUrl(draft.liveClassUrl || course.liveClassUrl || existing?.liveClassUrl || DEFAULT_LIVE_CLASS_URL, liveStreamType);
     if (!liveValidation.ok) {
       setMessage(`${course.title}: ${liveValidation.message}`);
       return;
@@ -360,7 +376,8 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
       id: course.id || course._id || existing?.id,
       liveClassEnabled: enabled,
       liveClassUrl: liveValidation.url,
-      liveClassTitle: String(draft.liveClassTitle || course.liveClassTitle || existing?.liveClassTitle || "").trim()
+      liveClassTitle: String(draft.liveClassTitle || course.liveClassTitle || existing?.liveClassTitle || "").trim(),
+      liveStreamType
     });
 
     setPendingLiveKeys((current) => ({ ...current, [storageKey]: true }));
@@ -383,7 +400,8 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
         body: JSON.stringify({
           liveClassEnabled: enabled,
           liveClassUrl: nextCourse.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
-          liveClassTitle: nextCourse.liveClassTitle || ""
+          liveClassTitle: nextCourse.liveClassTitle || "",
+          liveStreamType: nextCourse.liveStreamType || "youtube"
         })
       });
       setMessage(`${course.title} live class ${enabled ? "enabled" : "disabled"} on server.`);
@@ -470,7 +488,8 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
         if (!key || nextDrafts[key]) return;
         nextDrafts[key] = {
           liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
-          liveClassTitle: course.liveClassTitle || ""
+          liveClassTitle: course.liveClassTitle || "",
+          liveStreamType: course.liveStreamType || "youtube"
         };
       });
       return nextDrafts;
@@ -555,6 +574,13 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
               onChange={(e) => updateForm("liveClassUrl", e.target.value)}
               placeholder={DEFAULT_LIVE_CLASS_URL}
             />
+          </Field>
+          <Field label="Live Stream Type">
+            <Select value={form.liveStreamType} onChange={(e) => updateForm("liveStreamType", e.target.value)}>
+              <option value="youtube">YouTube Embed</option>
+              <option value="hls">Direct HLS / m3u8</option>
+              <option value="mp4">MP4 Video</option>
+            </Select>
           </Field>
           <Field label="Live Class Title">
             <Input
@@ -691,16 +717,26 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
               const storageKey = getCourseStorageKey(course);
               const draft = liveDrafts[storageKey] || {
                 liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
-                liveClassTitle: course.liveClassTitle || ""
+                liveClassTitle: course.liveClassTitle || "",
+                liveStreamType: course.liveStreamType || "youtube"
               };
               const livePending = Boolean(pendingLiveKeys[storageKey]);
 
               return (
-                <div key={storageKey} className="grid gap-3 rounded-xl border border-white/10 bg-[#081127] px-3 py-3 lg:grid-cols-[minmax(160px,0.8fr)_minmax(180px,1fr)_minmax(220px,1.4fr)_auto] lg:items-center">
+                <div key={storageKey} className="grid gap-3 rounded-xl border border-white/10 bg-[#081127] px-3 py-3 lg:grid-cols-[minmax(150px,0.8fr)_minmax(150px,0.9fr)_minmax(170px,1fr)_minmax(220px,1.4fr)_auto] lg:items-center">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-white">{course.title}</p>
                     <p className="text-xs text-slate-400">{course.subject || course.category || "General"}</p>
                   </div>
+                  <Select
+                    value={draft.liveStreamType || "youtube"}
+                    onChange={(event) => updateLiveDraft(course, "liveStreamType", event.target.value)}
+                    className="w-full"
+                  >
+                    <option value="youtube">YouTube Embed</option>
+                    <option value="hls">Direct HLS / m3u8</option>
+                    <option value="mp4">MP4 Video</option>
+                  </Select>
                   <Input
                     value={draft.liveClassTitle}
                     onChange={(event) => updateLiveDraft(course, "liveClassTitle", event.target.value)}

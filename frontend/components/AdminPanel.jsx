@@ -6,6 +6,7 @@ import { batches } from "@/lib/fixtures";
 import { logout } from "@/lib/auth";
 import { buildDefaultAdminWorkspace, readAdminWorkspace, writeAdminWorkspace } from "@/lib/adminWorkspace";
 import { filterDeletedCourses, readLocalCourses } from "@/lib/localCourseState";
+import LiveChatInbox from "@/components/admin/LiveChatInbox";
 import LocalCourseManager from "@/components/admin/LocalCourseManager";
 import {
   AIInsightsPanel,
@@ -354,6 +355,7 @@ export default function AdminPanel({ user, warning = "" }) {
       liveClassEnabled: Boolean(batch.liveClassEnabled),
       liveClassUrl: batch.liveClassUrl || "",
       liveClassTitle: batch.liveClassTitle || "",
+      liveStreamType: batch.liveStreamType || "youtube",
       classSections: Array.isArray(batch.classSections) ? batch.classSections : [],
       pdfResources: []
     }));
@@ -591,6 +593,14 @@ export default function AdminPanel({ user, warning = "" }) {
                     <InstructorPage embedded initialTab={module.embeddedTab} hideTitle hideTabNav />
                   </div>
                 </div>
+              </SectionShell>
+            );
+          }
+
+          if (module.id === "support") {
+            return (
+              <SectionShell key={module.id} module={module} badge="Live chat connected">
+                <LiveChatInbox batches={mergedBatches} />
               </SectionShell>
             );
           }

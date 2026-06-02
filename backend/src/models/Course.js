@@ -28,6 +28,7 @@ const courseSchema = new mongoose.Schema(
     liveClassEnabled: { type: Boolean, default: false },
     liveClassUrl: { type: String, default: "" },
     liveClassTitle: { type: String, default: "" },
+    liveStreamType: { type: String, enum: ["youtube", "hls", "mp4"], default: "youtube" },
     batchTime: { type: String, default: "" },
     startDate: { type: String, default: "" },
     duration: { type: String, default: "" },

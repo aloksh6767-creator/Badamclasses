@@ -12,6 +12,7 @@ const defaultState = {
   courses: [],
   offlineTests: [],
   inquiries: [],
+  liveChatMessages: [],
   onlineMcqSets: []
 };
 
@@ -36,6 +37,7 @@ const readState = () => {
       courses: Array.isArray(parsed.courses) ? parsed.courses : [],
       offlineTests: Array.isArray(parsed.offlineTests) ? parsed.offlineTests : [],
       inquiries: Array.isArray(parsed.inquiries) ? parsed.inquiries : [],
+      liveChatMessages: Array.isArray(parsed.liveChatMessages) ? parsed.liveChatMessages : [],
       onlineMcqSets: Array.isArray(parsed.onlineMcqSets) ? parsed.onlineMcqSets : []
     };
   } catch {
@@ -246,6 +248,7 @@ export const createLocalCourse = (payload) => {
     recordedVideoUrl: payload.recordedVideoUrl || null,
     liveClassUrl: payload.liveClassUrl || null,
     liveClassTitle: payload.liveClassTitle || null,
+    liveStreamType: ["youtube", "hls", "mp4"].includes(String(payload.liveStreamType || "").toLowerCase()) ? String(payload.liveStreamType).toLowerCase() : "youtube",
     classTiming: payload.classTiming || null,
     category: payload.category || "",
     thumbnail: payload.thumbnail || "",
@@ -365,6 +368,36 @@ export const createLocalInquiry = (payload) => {
   state.inquiries.unshift(record);
   writeState(state);
   return clone(record);
+};
+
+export const createLocalLiveChatMessage = (payload) => {
+  const state = readState();
+  const record = {
+    _id: payload._id || createLocalId("live_chat"),
+    batchId: String(payload.batchId || "default").trim().toLowerCase() || "default",
+    batchTitle: String(payload.batchTitle || "").trim(),
+    mode: payload.mode === "Group Chat" ? "Group Chat" : "Private Chat",
+    text: String(payload.text || "").trim(),
+    senderName: String(payload.senderName || "").trim() || "Student",
+    senderEmail: String(payload.senderEmail || "").trim().toLowerCase(),
+    senderRole: payload.senderRole || "student",
+    createdAt: payload.createdAt || new Date().toISOString()
+  };
+  state.liveChatMessages = Array.isArray(state.liveChatMessages) ? state.liveChatMessages : [];
+  state.liveChatMessages.push(record);
+  state.liveChatMessages = state.liveChatMessages.slice(-500);
+  writeState(state);
+  return clone(record);
+};
+
+export const listLocalLiveChatMessages = (batchId = "") => {
+  const state = readState();
+  const normalizedBatchId = String(batchId || "").trim().toLowerCase();
+  const items = Array.isArray(state.liveChatMessages) ? state.liveChatMessages : [];
+  const filtered = normalizedBatchId
+    ? items.filter((item) => String(item.batchId || "").trim().toLowerCase() === normalizedBatchId)
+    : items;
+  return clone(filtered);
 };
 
 export const listLocalOnlineMcqSets = () => {

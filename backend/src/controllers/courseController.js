@@ -53,7 +53,8 @@ const applyLiveOverrides = async (courses = []) => {
       ...course,
       liveClassEnabled: Boolean(override.liveClassEnabled),
       liveClassUrl: override.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
-      liveClassTitle: override.liveClassTitle || course.liveClassTitle || ""
+      liveClassTitle: override.liveClassTitle || course.liveClassTitle || "",
+      liveStreamType: override.liveStreamType || course.liveStreamType || "youtube"
     };
   });
 };

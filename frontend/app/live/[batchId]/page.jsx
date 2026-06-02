@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import CustomLivePlayer from "@/components/live/CustomLivePlayer";
 import LiveClassChat from "@/components/live/LiveClassChat";
 import LiveStatusChecker from "@/components/live/LiveStatusChecker";
 import SecureYouTubePlayer from "@/components/live/SecureYouTubePlayer";
@@ -48,7 +49,8 @@ function normalizeBatch(batch, index) {
       startDate: batch.startDate,
       liveClassEnabled: Boolean(batch.liveClassEnabled),
       liveClassUrl: batch.liveClassUrl,
-      liveClassTitle: batch.liveClassTitle
+      liveClassTitle: batch.liveClassTitle,
+      liveStreamType: batch.liveStreamType || "youtube"
     },
     index
   );
@@ -152,6 +154,9 @@ export default function LiveClassPage() {
   const routeId = course?.routeId || buildCourseRouteId(course || {});
   const liveEnabled = Boolean(course?.liveClassEnabled);
   const liveUrl = liveEnabled ? safeUrl(course?.liveClassUrl || DEFAULT_LIVE_CLASS_URL) : "";
+  const liveStreamType = ["youtube", "hls", "mp4"].includes(String(course?.liveStreamType || "").toLowerCase())
+    ? String(course.liveStreamType).toLowerCase()
+    : "youtube";
   const recordedFallbackUrl = safeUrl(course?.recordedVideoUrl || course?.videoSources?.[0]?.url || course?.videos?.[0]?.url || "");
   const canWatch = Boolean(hasAccess && liveEnabled && liveUrl);
 
@@ -204,7 +209,7 @@ export default function LiveClassPage() {
         <div className={`${theaterMode ? "p-0" : "grid gap-0 xl:grid-cols-[minmax(0,1fr)_400px]"}`}>
           <div className="overflow-hidden bg-black">
             {canWatch ? (
-              canUseYouTubePlayer(liveUrl) ? (
+              liveStreamType === "youtube" && canUseYouTubePlayer(liveUrl) ? (
                 <LiveStatusChecker sourceUrl={liveUrl}>
                   {({ status, loading, refresh }) => (
                     <SecureYouTubePlayer
@@ -223,12 +228,19 @@ export default function LiveClassPage() {
                     />
                   )}
                 </LiveStatusChecker>
+              ) : liveStreamType === "hls" || liveStreamType === "mp4" ? (
+                <CustomLivePlayer
+                  sourceUrl={liveUrl}
+                  streamType={liveStreamType}
+                  title={course.liveClassTitle || `${course.title} Live Class`}
+                  className={`${theaterMode ? "h-screen" : "aspect-video h-auto"} w-full bg-black`}
+                />
               ) : (
                 <div className={`${theaterMode ? "h-screen" : "aspect-video"} flex items-center justify-center bg-[#050816] p-6 text-center`}>
                   <div className="max-w-xl">
                     <p className="text-sm uppercase tracking-[0.28em] text-orange-300">Unsupported Live Source</p>
-                    <h2 className="mt-3 font-display text-3xl text-white">Secure player ke liye YouTube live URL required hai.</h2>
-                    <p className="mt-3 text-sm text-slate-300">Admin panel me YouTube video, channel live, ya embed live_stream URL save karein.</p>
+                    <h2 className="mt-3 font-display text-3xl text-white">Stream type aur live URL match nahi kar rahe.</h2>
+                    <p className="mt-3 text-sm text-slate-300">Admin panel me YouTube Embed, Direct HLS / m3u8, ya MP4 Video type select karke matching URL save karein.</p>
                   </div>
                 </div>
               )
