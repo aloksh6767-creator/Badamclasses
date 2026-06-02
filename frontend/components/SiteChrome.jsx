@@ -11,6 +11,7 @@ import BackToTop from "@/components/BackToTop";
 export default function SiteChrome({ children }) {
   const pathname = usePathname() || "";
   const isSaasRoute = pathname === "/ai-saas" || pathname.startsWith("/ai-saas/");
+  const isLiveRoute = pathname === "/live" || pathname.startsWith("/live/");
 
   if (isSaasRoute) {
     return children;
@@ -24,7 +25,7 @@ export default function SiteChrome({ children }) {
       <Footer />
       <FloatingEnrollButton />
       <BackToTop />
-      <ChatbotWidget />
+      {!isLiveRoute ? <ChatbotWidget /> : null}
     </>
   );
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import LiveClassChat from "@/components/live/LiveClassChat";
 import LiveStatusChecker from "@/components/live/LiveStatusChecker";
 import SecureYouTubePlayer from "@/components/live/SecureYouTubePlayer";
 import { apiFetch } from "@/lib/api";
@@ -32,11 +33,14 @@ function normalizeBatch(batch, index) {
     {
       _id: batch.id,
       id: batch.id,
+      slug: batch.slug || batch.routeSlug || batch.id,
+      routeSlug: batch.routeSlug || batch.slug || batch.id,
       title: batch.title,
       instructor: batch.instructor,
       price: batch.priceValue,
       priceValue: batch.priceValue,
       image: batch.image,
+      imageUrl: batch.imageUrl || batch.image,
       thumbnail: batch.image,
       duration: batch.duration,
       category: batch.category,
@@ -271,6 +275,10 @@ export default function LiveClassPage() {
                 <p className="font-semibold text-white">Class protection</p>
                 <p className="mt-2">Only logged-in enrolled students and admins can open this page. Browser-level recording or inspection cannot be fully prevented, but the website does not expose a shareable class link.</p>
               </div>
+
+              {canWatch ? (
+                <LiveClassChat batchId={routeId || batchId} title={course.liveClassTitle || course.title} />
+              ) : null}
             </aside>
           ) : null}
         </div>

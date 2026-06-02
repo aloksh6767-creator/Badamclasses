@@ -1,37 +1,9 @@
 "use client";
 
 import ClientOnly from "@/components/live/ClientOnly";
-import { YOUTUBE_IFRAME_ALLOW, buildYouTubeEmbedUrl, getYouTubeWatchUrl, normalizeLiveStatus } from "@/lib/youtubeEmbed";
+import { YOUTUBE_IFRAME_ALLOW, buildYouTubeEmbedUrl, normalizeLiveStatus } from "@/lib/youtubeEmbed";
 
-function PlayerActionButtons({ watchUrl = "", onRefresh, compact = false }) {
-  if (!watchUrl && !onRefresh) return null;
-
-  return (
-    <div className={`flex flex-wrap items-center justify-center gap-2 ${compact ? "" : "mt-6"}`}>
-      {onRefresh ? (
-        <button
-          type="button"
-          onClick={onRefresh}
-          className="rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold text-white backdrop-blur transition hover:border-orange-300/50 hover:bg-white/15"
-        >
-          Refresh live status
-        </button>
-      ) : null}
-      {watchUrl ? (
-        <a
-          href={watchUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-xl border border-orange-300/40 bg-orange-500/15 px-4 py-2 text-xs font-semibold text-orange-100 backdrop-blur transition hover:bg-orange-500/25"
-        >
-          Open on YouTube
-        </a>
-      ) : null}
-    </div>
-  );
-}
-
-function PlayerFallback({ status = "unknown", loading = false, message = "", watchUrl = "", recordedFallbackUrl = "", recordedFallbackLabel = "Watch recorded lecture", onRefresh }) {
+function PlayerFallback({ status = "unknown", loading = false, message = "", recordedFallbackUrl = "", recordedFallbackLabel = "Watch recorded lecture" }) {
   const isOffline = status === "offline" || status === "upcoming";
   const isPrivate = status === "private" || status === "unavailable";
   const isError = status === "error";
@@ -78,7 +50,6 @@ function PlayerFallback({ status = "unknown", loading = false, message = "", wat
               {recordedFallbackLabel}
             </a>
           ) : null}
-          <PlayerActionButtons watchUrl={watchUrl} onRefresh={onRefresh} />
         </div>
       </div>
     </div>
@@ -101,10 +72,9 @@ export default function SecureYouTubePlayer({
   const embedUrl =
     normalizedStatus?.embeddable && normalizedStatus.embedUrl
       ? normalizedStatus.embedUrl
-      : !normalizedStatus
-        ? buildYouTubeEmbedUrl(sourceUrl, { origin: typeof window !== "undefined" ? window.location.origin : "" })
-        : "";
-  const watchUrl = normalizedStatus?.watchUrl || getYouTubeWatchUrl(sourceUrl);
+        : !normalizedStatus
+          ? buildYouTubeEmbedUrl(sourceUrl, { origin: typeof window !== "undefined" ? window.location.origin : "" })
+          : "";
 
   return (
     <ClientOnly
@@ -125,11 +95,6 @@ export default function SecureYouTubePlayer({
             referrerPolicy="strict-origin-when-cross-origin"
             className="h-full w-full bg-black"
           />
-          <div className="pointer-events-none absolute inset-x-3 top-3 flex justify-end">
-            <div className="pointer-events-auto rounded-2xl border border-white/10 bg-slate-950/65 p-2 shadow-[0_12px_30px_rgba(0,0,0,0.35)] backdrop-blur">
-              <PlayerActionButtons watchUrl={watchUrl} onRefresh={onRefresh} compact />
-            </div>
-          </div>
           {loading ? (
             <div className="pointer-events-none absolute left-3 bottom-3 rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-xs font-semibold text-slate-100 backdrop-blur">
               Checking live status...
@@ -141,10 +106,8 @@ export default function SecureYouTubePlayer({
           status={normalizedStatus?.status}
           loading={loading}
           message={normalizedStatus?.message}
-          watchUrl={watchUrl}
           recordedFallbackUrl={recordedFallbackUrl}
           recordedFallbackLabel={recordedFallbackLabel}
-          onRefresh={onRefresh}
         />
       )}
     </ClientOnly>
