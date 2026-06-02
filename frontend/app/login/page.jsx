@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { apiFetch } from "@/lib/api";
-import { getDefaultRouteForUser, getSafeRedirectPath, getToken, getUser, saveAuth } from "@/lib/auth";
+import { clearExpiredAuth, getDefaultRouteForUser, getSafeRedirectPath, getToken, getUser, saveAuth } from "@/lib/auth";
 import AuthShowcase from "@/components/AuthShowcase";
 
 function UserIcon() {
@@ -52,11 +52,39 @@ export default function LoginPage() {
   const redirectTarget = getSafeRedirectPath(searchParams.get("redirect"), "");
 
   useEffect(() => {
-    const existingUser = getUser();
-    if (existingUser && getToken()) {
-      window.location.href = redirectTarget || getDefaultRouteForUser(existingUser);
+    let cancelled = false;
+    const cameFromSignupOrReset = searchParams.get("registered") === "1" || searchParams.get("reset") === "1";
+
+    if (cameFromSignupOrReset) {
+      clearExpiredAuth();
+      return undefined;
     }
-  }, [redirectTarget]);
+
+    const existingUser = getUser();
+    const token = getToken();
+    if (!existingUser || !token) {
+      return undefined;
+    }
+
+    const validateExistingSession = async () => {
+      try {
+        const data = await apiFetch("/auth/me");
+        const validUser = data?.user || existingUser;
+        if (!cancelled) {
+          window.location.href = redirectTarget || getDefaultRouteForUser(validUser);
+        }
+      } catch {
+        if (!cancelled) {
+          clearExpiredAuth();
+        }
+      }
+    };
+
+    validateExistingSession();
+    return () => {
+      cancelled = true;
+    };
+  }, [redirectTarget, searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
