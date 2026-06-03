@@ -5,13 +5,15 @@ import { apiFetch } from "@/lib/api";
 import { getUser } from "@/lib/auth";
 
 const buildStorageKey = (batchId = "") => `badamclasses_live_chat_${String(batchId || "default").trim().toLowerCase()}`;
-const tabs = ["Chat", "Add Notes", "PPT"];
+const buildNotesStorageKey = (batchId = "") => `badamclasses_live_notes_${String(batchId || "default").trim().toLowerCase()}`;
+const tabs = ["Discussion", "Notes", "Resources"];
 const chatModes = ["Group Chat", "Private Chat"];
 
-export default function LiveClassChat({ batchId = "", title = "Live Class" }) {
+export default function LiveClassChat({ batchId = "", title = "Live Class", teacherName = "Faculty" }) {
   const storageKey = useMemo(() => buildStorageKey(batchId), [batchId]);
-  const [activeTab, setActiveTab] = useState("Chat");
-  const [chatMode, setChatMode] = useState("Private Chat");
+  const notesStorageKey = useMemo(() => buildNotesStorageKey(batchId), [batchId]);
+  const [activeTab, setActiveTab] = useState("Discussion");
+  const [chatMode, setChatMode] = useState("Group Chat");
   const [input, setInput] = useState("");
   const [note, setNote] = useState("");
   const [messages, setMessages] = useState([]);
@@ -26,7 +28,13 @@ export default function LiveClassChat({ batchId = "", title = "Live Class" }) {
     } catch {
       setMessages([]);
     }
-  }, [storageKey]);
+
+    try {
+      setNote(window.localStorage.getItem(notesStorageKey) || "");
+    } catch {
+      setNote("");
+    }
+  }, [notesStorageKey, storageKey]);
 
   useEffect(() => {
     let active = true;
@@ -61,12 +69,20 @@ export default function LiveClassChat({ batchId = "", title = "Live Class" }) {
     listRef.current.scrollTop = listRef.current.scrollHeight;
   }, [messages, chatMode]);
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(notesStorageKey, note);
+    } catch {}
+  }, [note, notesStorageKey]);
+
   const saveMessages = (items) => {
     setMessages(items);
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(items.slice(-80)));
     } catch {}
   };
+
+  const filteredMessages = messages.filter((message) => message.mode === chatMode);
 
   const sendMessage = async () => {
     const content = input.trim();
@@ -114,18 +130,24 @@ export default function LiveClassChat({ batchId = "", title = "Live Class" }) {
   };
 
   return (
-    <div className="flex h-full min-h-[560px] flex-col bg-[#0d1526] text-white">
-      <div className="border-b border-white/70 px-4 pt-2">
-        <div className="flex items-end gap-4">
+    <div className="flex h-full min-h-[860px] flex-col text-white">
+      <div className="border-b border-white/10 bg-[linear-gradient(180deg,rgba(8,17,33,0.98),rgba(8,17,33,0.82))] px-5 py-5">
+        <p className="text-[11px] uppercase tracking-[0.28em] text-cyan-200">Class companion</p>
+        <h2 className="mt-2 text-2xl font-semibold text-white">Discussion & notes</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-300">{title} ke saath live doubts, personal notes aur class resources yahin manage karein.</p>
+      </div>
+
+      <div className="border-b border-white/10 px-4 py-3">
+        <div className="grid grid-cols-3 gap-2 rounded-[20px] border border-white/10 bg-white/[0.03] p-1">
           {tabs.map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-4 text-base font-bold transition ${
+              className={`rounded-2xl px-3 py-3 text-sm font-semibold transition ${
                 activeTab === tab
-                  ? "bg-white text-black"
-                  : "text-white hover:bg-white/10"
+                  ? "bg-white text-slate-950 shadow-[0_10px_24px_rgba(255,255,255,0.16)]"
+                  : "text-slate-300 hover:bg-white/10 hover:text-white"
               }`}
             >
               {tab}
@@ -134,87 +156,120 @@ export default function LiveClassChat({ batchId = "", title = "Live Class" }) {
         </div>
       </div>
 
-      {activeTab === "Chat" ? (
+      {activeTab === "Discussion" ? (
         <>
-          <div className="border-b border-white/70 px-4">
-            <div className="flex items-end justify-center gap-4">
-              {chatModes.map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => setChatMode(mode)}
-                  className={`px-6 py-4 text-base font-bold transition ${
-                    chatMode === mode
-                      ? "bg-white text-black"
-                      : "text-slate-400 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  {mode}
-                </button>
-              ))}
+          <div className="border-b border-white/10 px-4 py-4">
+            <div className="flex items-center justify-between gap-3 rounded-[22px] border border-white/10 bg-white/[0.03] px-3 py-2">
+              <div className="flex gap-2">
+                {chatModes.map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setChatMode(mode)}
+                    className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition ${
+                      chatMode === mode
+                        ? "bg-cyan-300 text-slate-950"
+                        : "text-slate-300 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+              <span className="text-xs text-slate-400">{filteredMessages.length} msgs</span>
             </div>
           </div>
 
           <div ref={listRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-5">
-            {messages.filter((message) => message.mode === chatMode).length ? (
-              messages
-                .filter((message) => message.mode === chatMode)
-                .map((message) => (
-                  <div key={message.id} className="rounded-xl bg-white/[0.06] px-3 py-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-xs font-semibold text-white">{message.senderName || message.name}</span>
-                      <span className="shrink-0 text-[11px] text-slate-500">{message.time}</span>
+            {filteredMessages.length ? (
+              filteredMessages.map((message) => (
+                <div key={message.id} className="rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-white">{message.senderName || message.name}</p>
+                      <p className="truncate text-[11px] uppercase tracking-[0.18em] text-slate-500">{message.mode}</p>
                     </div>
-                    <p className="mt-1 text-sm text-slate-200">{message.text}</p>
+                    <div className="text-right">
+                      <p className="text-[11px] text-slate-400">{message.time}</p>
+                      {message.pending ? <p className="text-[11px] text-cyan-200">Sending</p> : message.offline ? <p className="text-[11px] text-orange-200">Saved offline</p> : null}
+                    </div>
                   </div>
-                ))
+                  <p className="mt-2 text-sm leading-6 text-slate-200">{message.text}</p>
+                </div>
+              ))
             ) : (
-              <div className="flex h-full min-h-[220px] items-center justify-center text-center text-sm text-slate-500">
-                {chatMode === "Private Chat" ? "Private messages will appear here." : "Group messages will appear here."}
+              <div className="flex h-full min-h-[280px] items-center justify-center rounded-[26px] border border-dashed border-white/10 bg-white/[0.02] p-6 text-center text-sm text-slate-500">
+                {chatMode === "Private Chat" ? "Private discussion thread yahan visible hogi." : "Group discussion class start hote hi active rahegi."}
               </div>
             )}
           </div>
 
           <div className="border-t border-white/10 p-4">
-            <div className="flex gap-2">
-              <input
-                value={input}
-                onChange={(event) => setInput(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                placeholder="Type your message..."
-                className="min-w-0 flex-1 rounded-xl border border-white/60 bg-transparent px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-300"
-              />
-              <button
-                type="button"
-                onClick={sendMessage}
-                className="h-12 w-12 rounded-xl border border-white/60 text-lg text-white hover:bg-white/10"
-                aria-label="Send message"
-              >
-                :)
-              </button>
+            <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-3">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-white">Ask a doubt</p>
+                  <p className="text-xs text-slate-400">Keep messages short for faster response.</p>
+                </div>
+                <p className="text-xs text-slate-500">{teacherName}</p>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                  placeholder="Type your question..."
+                  className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-[#071023] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/50"
+                />
+                <button
+                  type="button"
+                  onClick={sendMessage}
+                  className="rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-500 px-4 py-3 text-sm font-bold text-slate-950 transition hover:brightness-110"
+                >
+                  Send
+                </button>
+              </div>
             </div>
           </div>
         </>
-      ) : activeTab === "Add Notes" ? (
+      ) : activeTab === "Notes" ? (
         <div className="flex min-h-0 flex-1 flex-col p-4">
-          <p className="text-sm font-semibold text-white">Class Notes</p>
-          <textarea
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-            placeholder="Write your notes for this live class..."
-            className="mt-4 min-h-0 flex-1 resize-none rounded-xl border border-white/20 bg-[#071023] p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-300"
-          />
+          <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-[11px] uppercase tracking-[0.28em] text-orange-200">Personal notes</p>
+            <h3 className="mt-2 text-xl font-semibold text-white">Revision sheet</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-300">Important formulas, shortcuts aur faculty instructions ko yahin save karein. Notes local device par persist hoti hain.</p>
+            <textarea
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder="Write key points from the class..."
+              className="mt-5 min-h-[360px] w-full resize-none rounded-[24px] border border-white/10 bg-[#071023] p-4 text-sm leading-6 text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/50"
+            />
+          </div>
         </div>
       ) : (
-        <div className="flex min-h-0 flex-1 items-center justify-center p-6 text-center">
-          <div>
-            <p className="text-lg font-bold text-white">PPT</p>
-            <p className="mt-2 text-sm text-slate-400">{title} presentation will appear here after upload.</p>
+        <div className="flex min-h-0 flex-1 flex-col p-4">
+          <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-[11px] uppercase tracking-[0.28em] text-emerald-200">Resources</p>
+            <h3 className="mt-2 text-xl font-semibold text-white">Class support</h3>
+            <div className="mt-5 space-y-3">
+              <div className="rounded-2xl border border-white/10 bg-[#081223] px-4 py-3">
+                <p className="text-sm font-semibold text-white">Faculty</p>
+                <p className="mt-1 text-sm text-slate-300">{teacherName}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-[#081223] px-4 py-3">
+                <p className="text-sm font-semibold text-white">Batch</p>
+                <p className="mt-1 text-sm text-slate-300">{title}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-[#081223] px-4 py-3">
+                <p className="text-sm font-semibold text-white">Usage tip</p>
+                <p className="mt-1 text-sm text-slate-300">Agar stream briefly ruk jaye, player refresh button use karein. Notes aur chat locally safe rehte hain.</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

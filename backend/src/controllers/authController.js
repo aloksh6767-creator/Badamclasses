@@ -6,11 +6,13 @@ import { createLocalUser, findLocalUserByEmail, findLocalUserByPhone, updateLoca
 import { ensureConfiguredAdminAccount } from "../utils/adminBootstrap.js";
 
 const otpStore = new Map();
+const FAST2SMS_URL = "https://www.fast2sms.com/dev/bulkV2";
 
 const normalizePhone = (phone = "") => phone.replace(/\s+/g, "").replace(/[^\d+]/g, "");
 const normalizeEmail = (email = "") => String(email || "").trim().toLowerCase();
 const isValidPhone = (phone) => /^\+?\d{10,15}$/.test(phone);
 const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
+const toSmsPhone = (phone = "") => normalizePhone(phone).replace(/[^\d]/g, "");
 const maskPhone = (phone = "") => {
   const normalizedPhone = normalizePhone(phone);
   if (normalizedPhone.length <= 4) {
@@ -42,6 +44,46 @@ const createOtpRecord = (phone) => {
   return { code, expiresAt, phone: normalizedPhone };
 };
 
+const sendOtpViaFast2Sms = async (phone, code) => {
+  const apiKey = String(process.env.SMS_API_KEY || "").trim();
+  if (!apiKey) {
+    return { skipped: true, reason: "SMS_API_KEY is not configured" };
+  }
+
+  const smsPhone = toSmsPhone(phone);
+  const params = new URLSearchParams({
+    authorization: apiKey,
+    route: "otp",
+    variables_values: String(code || "").trim(),
+    numbers: smsPhone
+  });
+
+  const response = await fetch(`${FAST2SMS_URL}?${params.toString()}`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json"
+    }
+  });
+
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    const message = payload?.message || payload?.error || "SMS gateway request failed";
+    throw new Error(message);
+  }
+
+  if (payload?.return === false) {
+    throw new Error(payload?.message || "SMS gateway rejected the OTP request");
+  }
+
+  return { skipped: false, payload };
+};
+
 export const sendOtp = async (req, res) => {
   const rawPhone = req.body?.phone || "";
   const phone = normalizePhone(rawPhone);
@@ -51,10 +93,15 @@ export const sendOtp = async (req, res) => {
   }
 
   const { code } = createOtpRecord(phone);
+  const smsResult = await sendOtpViaFast2Sms(phone, code);
 
   const response = { message: "OTP sent", phone };
   if (process.env.NODE_ENV !== "production") {
     response.devCode = code;
+  }
+  if (smsResult.skipped && process.env.NODE_ENV !== "production") {
+    response.smsMode = "skipped";
+    response.smsReason = smsResult.reason;
   }
 
   res.json(response);
@@ -225,6 +272,7 @@ export const forgotPassword = async (req, res) => {
   }
 
   const { code } = createOtpRecord(phone);
+  const smsResult = await sendOtpViaFast2Sms(phone, code);
   const response = {
     message: "OTP sent to your registered phone number.",
     phone,
@@ -233,6 +281,10 @@ export const forgotPassword = async (req, res) => {
 
   if (process.env.NODE_ENV !== "production") {
     response.devCode = code;
+  }
+  if (smsResult.skipped && process.env.NODE_ENV !== "production") {
+    response.smsMode = "skipped";
+    response.smsReason = smsResult.reason;
   }
 
   res.json(response);

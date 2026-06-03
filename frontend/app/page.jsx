@@ -41,6 +41,47 @@ const buildWhatsappConfirmationUrl = ({ name, phone, exam }) => {
   return `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
 };
 
+const HOMEPAGE_BANNER_FALLBACKS = {
+  newBatch: "/railway-batch-banner-2026.png",
+  legacyBatch: "/new-batch-starts-2026.png",
+  megaTest: "/mega-test-3-banner.png",
+  promo: "/promo-maths-special.jpg",
+  hero: "/ssc-complete.jpg",
+  offer: "/promo-maths-special.jpg"
+};
+
+const isRenderableImage = (value = "") => {
+  const raw = String(value || "").trim();
+  return /^https?:\/\//i.test(raw) || raw.startsWith("/");
+};
+
+const resolveBannerImage = (value, fallback) => {
+  return isRenderableImage(value) ? value : fallback;
+};
+
+const homepagePrimaryBanners = [
+  {
+    id: "legacy-batch",
+    image: HOMEPAGE_BANNER_FALLBACKS.legacyBatch,
+    fallback: HOMEPAGE_BANNER_FALLBACKS.hero,
+    alt: "Badam Singh Classes new batch starts",
+    label: "Featured SSC Batch",
+    exploreHref: "/courses",
+    mockHref: "/mock-tests",
+    enrollHref: "/courses"
+  },
+  {
+    id: "railway-batch",
+    image: HOMEPAGE_BANNER_FALLBACKS.newBatch,
+    fallback: HOMEPAGE_BANNER_FALLBACKS.legacyBatch,
+    alt: "Badam Singh Classes Railway Batch",
+    label: "Featured Railway Batch",
+    exploreHref: "/batches?search=railway",
+    mockHref: "/batches?search=railway",
+    enrollHref: "/batches?search=railway"
+  }
+];
+
 const slugifyBatchPart = (value) => {
   return String(value || "")
     .trim()
@@ -239,6 +280,7 @@ const examIconMap = {
 };
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
+  const [activePromoBanner, setActivePromoBanner] = useState(0);
   const [userName, setUserName] = useState("");
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
@@ -272,6 +314,15 @@ export default function HomePage() {
     setMounted(true);
     setDeletedCourseKeys(readDeletedCourseKeys());
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return undefined;
+    const timer = window.setInterval(() => {
+      setActivePromoBanner((current) => (current + 1) % homepagePrimaryBanners.length);
+    }, 4200);
+
+    return () => window.clearInterval(timer);
+  }, [mounted]);
 
   useEffect(() => {
     const user = getUser();
@@ -396,6 +447,9 @@ export default function HomePage() {
   const publishedNotice = remoteContent?.notice;
   const publishedOfferBanner = remoteContent?.offerBanner;
   const publishedBanner = remoteContent?.banner;
+  const offerBannerImage = resolveBannerImage(publishedOfferBanner?.image || offerBanner?.image, HOMEPAGE_BANNER_FALLBACKS.offer);
+  const heroBannerImage = resolveBannerImage(publishedBanner?.image, HOMEPAGE_BANNER_FALLBACKS.hero);
+  const canRenderLiveBadges = mounted;
 
   const updateRegistrationForm = (key, value) => {
     setRegistrationForm((current) => ({ ...current, [key]: value }));
@@ -460,26 +514,42 @@ export default function HomePage() {
         </div>
       ) : null}
 
-      <section className="new-batch-hero mb-8" aria-label="Badam Singh Classes new batch starts">
-        <div className="new-batch-hero-frame">
-          <img
-            src="/new-batch-starts-2026.png"
-            alt="Badam Singh Classes 2.0 new batch starts"
-            className="new-batch-hero-image"
-            loading="eager"
-          />
-          <a href="/courses" className="new-batch-hotspot new-batch-hotspot-explore" aria-label="Explore courses" />
-          <a href="/mock-tests" className="new-batch-hotspot new-batch-hotspot-mock" aria-label="Try free mock test" />
-          <a href="/courses" className="new-batch-hotspot new-batch-hotspot-enroll" aria-label="Enroll now and view all courses" />
+      <section className="mb-10 overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,17,39,0.94),rgba(4,9,22,0.98))] p-2 shadow-[0_28px_80px_rgba(2,6,23,0.38)]" aria-label="Badam Singh Classes featured banners">
+        <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${activePromoBanner * 100}%)` }}>
+            {homepagePrimaryBanners.map((banner, index) => (
+              <div key={banner.id} className="min-w-full">
+                <div className="new-batch-hero">
+                  <div className="new-batch-hero-frame">
+                    <img
+                      src={banner.image}
+                      alt={banner.alt}
+                      className="new-batch-hero-image min-h-[260px] md:min-h-[360px] xl:min-h-[460px]"
+                      loading={index === 0 ? "eager" : "lazy"}
+                      onError={(event) => {
+                        event.currentTarget.onerror = null;
+                        event.currentTarget.src = banner.fallback;
+                      }}
+                    />
+                    <a href={banner.exploreHref} className="new-batch-hotspot new-batch-hotspot-explore" aria-label={`Explore ${banner.label}`} />
+                    <a href={banner.mockHref} className="new-batch-hotspot new-batch-hotspot-mock" aria-label={`Open ${banner.label}`} />
+                    <a href={banner.enrollHref} className="new-batch-hotspot new-batch-hotspot-enroll" aria-label={`Enroll from ${banner.label}`} />
+                  </div>
+                </div>
+              </div>
+            ))}
         </div>
       </section>
 
       <section className="animate-reveal mb-12 grid gap-5 overflow-hidden rounded-3xl border border-white/10 bg-[#071126] p-3 shadow-glow lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] lg:p-5">
         <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b1634]">
           <img
-            src="/mega-test-3-banner.png"
+            src={HOMEPAGE_BANNER_FALLBACKS.megaTest}
             alt="Badam Singh Classes Mega Test 3.0 for SSC CGL"
             className="h-full min-h-[360px] w-full object-cover object-top"
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = HOMEPAGE_BANNER_FALLBACKS.hero;
+            }}
           />
           <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/20 bg-[#071126]/85 p-3 backdrop-blur">
             <div>
@@ -567,7 +637,15 @@ export default function HomePage() {
         </div>
 
         <div className="relative">
-          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80" alt="Students learning" className="cinematic-zoom float-soft h-72 w-full rounded-2xl object-cover md:h-96" />
+          <img
+            src={heroBannerImage}
+            alt="Students learning"
+            className="cinematic-zoom float-soft h-72 w-full rounded-2xl object-cover md:h-96"
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = HOMEPAGE_BANNER_FALLBACKS.hero;
+            }}
+          />
           <span className="floating-chip chip-a">SSC</span>
           <span className="floating-chip chip-b">Railway</span>
           <span className="floating-chip chip-c">Banking</span>
@@ -587,7 +665,15 @@ export default function HomePage() {
             >
               Close
             </button>
-            <img src="/promo-maths-special.jpg" alt="Special Offer" className="h-auto w-full" />
+            <img
+              src={HOMEPAGE_BANNER_FALLBACKS.promo}
+              alt="Special Offer"
+              className="h-auto w-full"
+              onError={(event) => {
+                event.currentTarget.onerror = null;
+                event.currentTarget.src = HOMEPAGE_BANNER_FALLBACKS.hero;
+              }}
+            />
           </div>
         </div>
       ) : null}
@@ -595,8 +681,16 @@ export default function HomePage() {
       {(publishedOfferBanner?.enabled || offerBanner?.enabled) ? (
         <div className="animate-reveal mb-6 overflow-hidden rounded-2xl border border-orange-300/40 bg-orange-500/10">
           <div className="grid gap-4 p-5 md:grid-cols-[auto_1fr_auto] md:items-center">
-            {(publishedOfferBanner?.image || offerBanner?.image) ? (
-              <img src={publishedOfferBanner?.image || offerBanner?.image} alt="Offer" className="h-20 w-28 rounded-xl object-cover" />
+            {(publishedOfferBanner?.image || offerBanner?.image || offerBannerImage) ? (
+              <img
+                src={offerBannerImage}
+                alt="Offer"
+                className="h-20 w-28 rounded-xl object-cover"
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = HOMEPAGE_BANNER_FALLBACKS.offer;
+                }}
+              />
             ) : null}
             <div>
               <p className="font-semibold text-orange-100">{publishedOfferBanner?.title || offerBanner?.title || "Special Offer"}</p>
@@ -633,7 +727,7 @@ export default function HomePage() {
         </div>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {finalBatches.map((batch, idx) => (
-            <article key={batch.id} className="card-anim card-tilt group overflow-hidden rounded-2xl border border-white/10 bg-[#0d1a3a]/70 transition hover:-translate-y-1 hover:border-orange-300/40">
+            <article key={batch.id} className="card-anim card-tilt group overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,58,0.94),rgba(8,17,39,0.98))] shadow-[0_22px_50px_rgba(2,6,23,0.25)] transition hover:-translate-y-1.5 hover:border-orange-300/40 hover:shadow-[0_30px_70px_rgba(249,115,22,0.12)]">
               <div className="relative">
                 <img
                   src={resolveCourseImage(batch)}
@@ -644,8 +738,9 @@ export default function HomePage() {
                   }}
                   className="aspect-[29/36] w-full object-cover"
                 />
+                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#081127] via-[#081127]/65 to-transparent" />
                 {idx < 3 ? <span className="live-badge">LIVE</span> : null}
-                {isBatchLiveNow(batch, sliderConfig) ? (
+                {canRenderLiveBadges && isBatchLiveNow(batch, sliderConfig) ? (
                   <span className="absolute left-3 top-3 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white shadow-[0_0_14px_rgba(16,185,129,0.5)]">
                     Live Now
                   </span>
@@ -655,33 +750,62 @@ export default function HomePage() {
                     {batch.offerLabel || `${batch.discountPercent}% OFF`}
                   </span>
                 ) : null}
+                <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-white/15 bg-black/35 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur">
+                    {batch.category}
+                  </span>
+                  <span className="rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100 backdrop-blur">
+                    {batch.type}
+                  </span>
+                </div>
                 <span className="card-sheen" />
               </div>
-              <div className="p-4">
-                <h3 className="font-display text-xl">{batch.title}</h3>
-                <p className="mt-1 text-sm text-slate-300">Instructor: {batch.instructor}</p>
-                <p className="text-sm text-slate-300">Duration: {batch.duration}</p>
-                {batch.batchTime || batch.startDate ? (
-                  <p className="text-xs text-slate-400">
-                    {batch.batchTime ? `Batch Time: ${batch.batchTime}` : ""} {batch.startDate ? `\u2022 Starts: ${batch.startDate}` : ""}
-                  </p>
-                ) : null}
-                {isBatchLiveNow(batch, sliderConfig) ? (
-                  <p className="mt-1 text-xs text-emerald-200">
+              <div className="p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="font-display text-xl leading-tight text-white">{batch.title}</h3>
+                    <p className="mt-1 truncate text-sm text-slate-300">{batch.instructor}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] px-3 py-2 text-right">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Duration</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{batch.duration}</p>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-white/10 bg-[#081127] px-3 py-3">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Starts</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{batch.startDate || "Soon"}</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-[#081127] px-3 py-3">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Batch time</p>
+                    <p className="mt-1 text-sm font-semibold text-white">{batch.batchTime || "Flexible"}</p>
+                  </div>
+                </div>
+                {canRenderLiveBadges && isBatchLiveNow(batch, sliderConfig) ? (
+                  <p className="mt-3 rounded-2xl border border-emerald-300/20 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-200">
                     Live ends in {getLiveCountdown(batch, sliderConfig)?.label || "—"}
                   </p>
                 ) : null}
-                <p className="mt-2 font-semibold text-orange-400">
-                  <span className="inr-sign">{String.fromCharCode(0x20B9)}</span>
-                  {batch.offerPrice ? Number(batch.offerPrice).toLocaleString("en-IN") : batch.priceValue.toLocaleString("en-IN")}
-                </p>
-                {batch.offerPrice && batch.offerPrice < batch.priceValue ? (
-                  <p className="text-xs text-slate-400 line-through">
-                    <span className="inr-sign">{String.fromCharCode(0x20B9)}</span>
-                    {batch.priceValue.toLocaleString("en-IN")}
-                  </p>
-                ) : null}
-                <Link href={`/checkout?course=${encodeURIComponent(batch.title)}`} className="btn-gradient btn-anim mt-3 block w-full rounded-lg px-4 py-2 text-center text-sm font-semibold text-white">Enroll Now</Link>
+                <div className="mt-4 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-orange-400">
+                      <span className="inr-sign">{String.fromCharCode(0x20B9)}</span>
+                      {batch.offerPrice ? Number(batch.offerPrice).toLocaleString("en-IN") : batch.priceValue.toLocaleString("en-IN")}
+                    </p>
+                    {batch.offerPrice && batch.offerPrice < batch.priceValue ? (
+                      <p className="text-xs text-slate-400 line-through">
+                        <span className="inr-sign">{String.fromCharCode(0x20B9)}</span>
+                        {batch.priceValue.toLocaleString("en-IN")}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-slate-500">Premium guided preparation</p>
+                    )}
+                  </div>
+                  <Link href={`/courses/${encodeURIComponent(batch.id)}`} className="rounded-full border border-white/15 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:border-cyan-300/40">
+                    View Details
+                  </Link>
+                </div>
+                <Link href={`/checkout?course=${encodeURIComponent(batch.title)}`} className="btn-gradient btn-anim mt-4 block w-full rounded-2xl px-4 py-3 text-center text-sm font-semibold text-white">Enroll Now</Link>
               </div>
             </article>
           ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { resolveCourseImage } from "@/lib/courseImages";
@@ -38,7 +39,8 @@ const normalizeFixtureBatch = (batch, index) =>
       startDate: batch.startDate,
       liveClassEnabled: batch.liveClassEnabled,
       liveClassUrl: batch.liveClassUrl,
-      highlights: batch.highlights
+      highlights: batch.highlights,
+      description: batch.description
     },
     index
   );
@@ -54,10 +56,12 @@ const getBatchMeta = (batch) => ({
 });
 
 export default function BatchesPage() {
+  const searchParams = useSearchParams();
   const [deletedCourseKeys, setDeletedCourseKeys] = useState([]);
   const fallbackBatches = useMemo(() => filterDeletedCourses(batches, deletedCourseKeys).map(normalizeFixtureBatch), [deletedCourseKeys]);
   const [visibleBatches, setVisibleBatches] = useState(fallbackBatches);
   const [error, setError] = useState("");
+  const search = String(searchParams.get("search") || "").trim().toLowerCase();
 
   useEffect(() => {
     setDeletedCourseKeys(readDeletedCourseKeys());
@@ -82,7 +86,8 @@ export default function BatchesPage() {
             startDate: course.startDate || "",
             liveClassEnabled: Boolean(course.liveClassEnabled),
             liveClassUrl: course.liveClassUrl || "",
-            highlights: Array.isArray(course.highlights) ? course.highlights : []
+            highlights: Array.isArray(course.highlights) ? course.highlights : [],
+            description: course.description || ""
           },
           index
         )
@@ -103,12 +108,37 @@ export default function BatchesPage() {
     loadBatches();
   }, [fallbackBatches]);
 
+  const filteredBatches = useMemo(() => {
+    if (!search) return visibleBatches;
+
+    return visibleBatches.filter((batch) => {
+      const haystack = [
+        batch.title,
+        batch.category,
+        batch.description,
+        getInstructorName(batch),
+        ...(Array.isArray(batch.highlights) ? batch.highlights : [])
+      ]
+        .map((value) => String(value || "").toLowerCase())
+        .join(" ");
+
+      return haystack.includes(search);
+    });
+  }, [search, visibleBatches]);
+
+  const heading = search
+    ? `${search.charAt(0).toUpperCase()}${search.slice(1)} Batches`
+    : "All Batches";
+  const subheading = search
+    ? `Showing batches related to ${search}.`
+    : "Choose a batch that matches your exam target and timeline.";
+
   return (
     <main className="mx-auto w-[92%] max-w-7xl py-10 text-slate-100">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-4xl">All Batches</h1>
-          <p className="mt-2 text-sm text-slate-300">Choose a batch that matches your exam target and timeline.</p>
+          <h1 className="font-display text-4xl">{heading}</h1>
+          <p className="mt-2 text-sm text-slate-300">{subheading}</p>
         </div>
         <Link href="/" className="rounded-lg border border-white/20 px-4 py-2 text-sm">
           Back to Home
@@ -121,8 +151,14 @@ export default function BatchesPage() {
         </div>
       ) : null}
 
+      {!filteredBatches.length ? (
+        <div className="rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-6 text-sm text-slate-300">
+          No batches matched this search yet.
+        </div>
+      ) : null}
+
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {visibleBatches.map((batch, index) => {
+        {filteredBatches.map((batch, index) => {
           const routeId = batch.routeId || batch._id || batch.id || batch.title;
           const meta = getBatchMeta(batch);
           const highlights = Array.isArray(batch.highlights) && batch.highlights.length

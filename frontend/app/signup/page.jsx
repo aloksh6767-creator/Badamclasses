@@ -38,6 +38,7 @@ export default function SignupPage() {
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
+  const [otpMode, setOtpMode] = useState("server");
   const [devCode, setDevCode] = useState("");
   const DEMO_OTP_KEY = "bsc_demo_otp_";
   const redirectTarget = getSafeRedirectPath(searchParams.get("redirect"), "");
@@ -70,6 +71,8 @@ export default function SignupPage() {
         body: JSON.stringify({ phone: normalizedPhone })
       });
       setOtpSent(true);
+      setOtpVerified(false);
+      setOtpMode("server");
       setNotice("OTP sent to your phone.");
       if (data?.devCode) {
         setDevCode(data.devCode);
@@ -79,8 +82,10 @@ export default function SignupPage() {
       const payload = { code: fallbackCode, expiresAt: Date.now() + 10 * 60 * 1000 };
       localStorage.setItem(`${DEMO_OTP_KEY}${normalizedPhone}`, JSON.stringify(payload));
       setOtpSent(true);
+      setOtpVerified(false);
+      setOtpMode("demo");
       setDevCode(fallbackCode);
-      setNotice("Backend unavailable. Using demo OTP for now.");
+      setNotice("Backend unavailable. Demo OTP generated. Please resend once the server is reachable to create the account.");
     } finally {
       setSendingOtp(false);
     }
@@ -100,6 +105,7 @@ export default function SignupPage() {
         body: JSON.stringify({ phone: normalizedPhone, code: otp })
       });
       setOtpVerified(true);
+      setOtpMode("server");
       setNotice("Phone verified successfully.");
     } catch (err) {
       const cached = localStorage.getItem(`${DEMO_OTP_KEY}${normalizedPhone}`);
@@ -107,6 +113,7 @@ export default function SignupPage() {
         const data = JSON.parse(cached);
         if (Date.now() <= data.expiresAt && String(data.code) === String(otp).trim()) {
           setOtpVerified(true);
+          setOtpMode("demo");
           setNotice("Phone verified (demo mode).");
         } else {
           setError("OTP expired or incorrect.");
@@ -132,6 +139,10 @@ export default function SignupPage() {
     }
     if (!otpVerified) {
       setError("Please verify OTP before creating account.");
+      return;
+    }
+    if (otpMode === "demo") {
+      setError("Demo OTP mode cannot create the account. Tap Resend after the backend reconnects, then verify the new OTP.");
       return;
     }
 
@@ -225,6 +236,7 @@ export default function SignupPage() {
                 onChange={(e) => {
                   setPhone(e.target.value);
                   setOtpVerified(false);
+                  setOtpMode("server");
                 }}
                 className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400 sm:text-base"
               />
