@@ -467,7 +467,8 @@ export default function HomePage() {
   const publishedOfferBanner = remoteContent?.offerBanner;
   const publishedBanner = remoteContent?.banner;
   const offerBannerImage = resolveBannerImage(publishedOfferBanner?.image || offerBanner?.image, HOMEPAGE_BANNER_FALLBACKS.offer);
-  const heroBannerImage = resolveBannerImage(publishedBanner?.image, HOMEPAGE_BANNER_FALLBACKS.hero);
+  const heroBannerImage = resolveBannerImage(publishedBanner?.image, HOMEPAGE_BANNER_FALLBACKS.legacyBatch);
+  const coachingBannerImage = resolveBannerImage(publishedBanner?.image, HOMEPAGE_BANNER_FALLBACKS.newBatch);
   const canRenderLiveBadges = mounted;
 
   const updateRegistrationForm = (key, value) => {
@@ -572,6 +573,20 @@ export default function HomePage() {
           </div>
 
           <div className="academy-hero-panel" aria-label="Institute highlights">
+            <div className="academy-banner-card">
+              <img
+                src={coachingBannerImage}
+                alt="Badam Singh Classes coaching admission banner"
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = HOMEPAGE_BANNER_FALLBACKS.legacyBatch;
+                }}
+              />
+              <div className="academy-banner-caption">
+                <span>Admissions Open</span>
+                <strong>Live + Recorded batches</strong>
+              </div>
+            </div>
             <div className="academy-live-card">
               <p>Current focus</p>
               <h2>Mega Test 3.0</h2>
