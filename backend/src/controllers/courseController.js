@@ -11,6 +11,7 @@ const normalizeText = (value) => String(value || "").trim().toLowerCase();
 const DEFAULT_LIVE_CLASS_URL = "https://www.youtube.com/channel/UC9KopMZXd5is7KvOzhamTYw/live";
 
 const toPlainCourse = (course = {}) => (typeof course.toObject === "function" ? course.toObject() : { ...course });
+const truthyQuery = (value) => ["1", "true", "yes", "on"].includes(String(value || "").trim().toLowerCase());
 
 const getCourseOverrideKeys = (course = {}) =>
   [
@@ -18,6 +19,7 @@ const getCourseOverrideKeys = (course = {}) =>
     course.id,
     course.slug,
     course.routeId,
+    course.routeSlug,
     course.title
   ]
     .map((value) => normalizeText(value))
@@ -54,7 +56,10 @@ const applyLiveOverrides = async (courses = []) => {
       liveClassEnabled: Boolean(override.liveClassEnabled),
       liveClassUrl: override.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
       liveClassTitle: override.liveClassTitle || course.liveClassTitle || "",
-      liveStreamType: override.liveStreamType || course.liveStreamType || "youtube"
+      liveStreamType: override.liveStreamType || course.liveStreamType || "youtube",
+      recordedVideoUrl: override.recordedVideoUrl || course.recordedVideoUrl || "",
+      recordedClassTitle: override.recordedClassTitle || course.recordedClassTitle || override.liveClassTitle || course.liveClassTitle || "",
+      liveEndedAt: override.liveEndedAt || course.liveEndedAt || null
     };
   });
 };
@@ -89,6 +94,13 @@ const filterFallbackCourses = ({ search, category, sort = "latest" }) => {
   return items;
 };
 
+const filterVisibleCourses = (items = [], { featuredOnly = false } = {}) =>
+  items.filter((course) => {
+    if (course.isActive === false || course.status === "hidden" || course.status === "draft") return false;
+    if (featuredOnly && course.featured === false) return false;
+    return true;
+  });
+
 const mergeCoursesByKey = (items = []) => {
   const getMergeKey = (course = {}) => {
     const title = normalizeText(course.title);
@@ -101,7 +113,7 @@ const mergeCoursesByKey = (items = []) => {
     const description = normalizeText(course.description);
     return (
       Number(course.price || 0) <= 0 ||
-      !normalizeText(course.thumbnail || course.image) ||
+      !normalizeText(course.thumbnail || course.image || course.imageUrl) ||
       !description ||
       description === "course details will be updated soon."
     );
@@ -124,9 +136,22 @@ const mergeCoursesByKey = (items = []) => {
       duration: base.duration || next.duration || "",
       batchTime: base.batchTime || next.batchTime || "",
       startDate: base.startDate || next.startDate || "",
+      type: base.type || next.type || "standard",
+      slug: base.slug || base.routeSlug || next.slug || next.routeSlug || "",
+      routeSlug: base.routeSlug || base.slug || next.routeSlug || next.slug || "",
+      isActive: base.isActive !== undefined ? base.isActive : next.isActive,
+      featured: base.featured !== undefined ? base.featured : next.featured,
+      imageUrl: base.imageUrl || next.imageUrl || "",
+      offerPrice: base.offerPrice ?? next.offerPrice,
+      discountPercent: base.discountPercent ?? next.discountPercent,
+      offerLabel: base.offerLabel || next.offerLabel || "",
       liveClassEnabled: Boolean(base.liveClassEnabled || next.liveClassEnabled),
       liveClassUrl: base.liveClassUrl || next.liveClassUrl || "",
       liveClassTitle: base.liveClassTitle || next.liveClassTitle || "",
+      liveStreamType: base.liveStreamType || next.liveStreamType || "youtube",
+      recordedVideoUrl: base.recordedVideoUrl || next.recordedVideoUrl || "",
+      recordedClassTitle: base.recordedClassTitle || next.recordedClassTitle || "",
+      liveEndedAt: base.liveEndedAt || next.liveEndedAt || null,
       ratingAverage: Number(base.ratingAverage || 0) > 0 ? base.ratingAverage : next.ratingAverage,
       ratingCount: Number(base.ratingCount || 0) > 0 ? base.ratingCount : next.ratingCount,
       curriculum: Array.isArray(base.curriculum) && base.curriculum.length ? base.curriculum : next.curriculum,
@@ -155,13 +180,17 @@ const mergeCoursesByKey = (items = []) => {
 
 export const getCourses = async (req, res) => {
   const { search, category, sort = "latest" } = req.query;
-  const safeFallbackCourses = filterFallbackCourses({ search, category, sort });
+  const featuredOnly = truthyQuery(req.query.featured);
+  const safeFallbackCourses = filterVisibleCourses(filterFallbackCourses({ search, category, sort }), { featuredOnly });
 
   if (!isDatabaseConnected()) {
     return res.json(safeFallbackCourses);
   }
 
-  const filter = {};
+  const filter = { isActive: { $ne: false } };
+  if (featuredOnly) {
+    filter.featured = { $ne: false };
+  }
 
   if (search) {
     const safeSearch = String(search || "").trim();
@@ -185,7 +214,7 @@ export const getCourses = async (req, res) => {
     .sort(sortQuery);
 
   const normalizedDbCourses = Array.isArray(courses) ? courses : [];
-  const mergedCourses = await applyLiveOverrides(mergeCoursesByKey([...normalizedDbCourses, ...safeFallbackCourses]));
+  const mergedCourses = await applyLiveOverrides(filterVisibleCourses(mergeCoursesByKey([...normalizedDbCourses, ...safeFallbackCourses]), { featuredOnly }));
 
   res.json(mergedCourses);
 };
@@ -202,6 +231,22 @@ export const getCourseById = async (req, res) => {
   }
 
   if (!isValidObjectId(req.params.id)) {
+    const safeId = String(req.params.id || "").trim();
+    const courseBySlug = await Course.findOne({
+      $or: [
+        { slug: safeId },
+        { routeSlug: safeId },
+        { title: { $regex: `^${safeId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" } }
+      ],
+      isActive: { $ne: false }
+    }).populate("instructor", "name email");
+
+    if (courseBySlug) {
+      const reviews = await Review.find({ course: courseBySlug._id }).populate("student", "name");
+      const [courseWithLiveOverride] = await applyLiveOverrides([courseBySlug]);
+      return res.json({ course: courseWithLiveOverride, reviews });
+    }
+
     const fallbackCourse = findFallbackCourse(req.params.id);
     if (!fallbackCourse) {
       return res.status(404).json({ message: "Course not found" });
@@ -210,7 +255,7 @@ export const getCourseById = async (req, res) => {
     return res.json({ course, reviews: [] });
   }
 
-  const course = await Course.findById(req.params.id).populate("instructor", "name email");
+  const course = await Course.findOne({ _id: req.params.id, isActive: { $ne: false } }).populate("instructor", "name email");
   if (!course) {
     return res.status(404).json({ message: "Course not found" });
   }

@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function PwaBootstrap() {
+  const [showSplash, setShowSplash] = useState(true);
+
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
@@ -17,5 +19,20 @@ export default function PwaBootstrap() {
     registerWorker();
   }, []);
 
-  return null;
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShowSplash(false), 1300);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (!showSplash) return null;
+
+  return (
+    <div className="app-logo-splash" aria-label="Badam Singh Classes loading">
+      <div className="app-logo-splash-card">
+        <span className="app-logo-splash-ring" />
+        <img src="/new-logo.png" alt="Badam Singh Classes" />
+        <span className="app-logo-splash-shine" />
+      </div>
+    </div>
+  );
 }

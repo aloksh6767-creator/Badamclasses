@@ -25,7 +25,10 @@ const buildLivePatch = (body = {}) => ({
   liveClassEnabled: Boolean(body.liveClassEnabled),
   liveClassUrl: String(body.liveClassUrl || DEFAULT_LIVE_CLASS_URL).trim(),
   liveClassTitle: String(body.liveClassTitle || "").trim(),
-  liveStreamType: normalizeLiveStreamType(body.liveStreamType)
+  liveStreamType: normalizeLiveStreamType(body.liveStreamType),
+  ...(body.recordedVideoUrl !== undefined ? { recordedVideoUrl: String(body.recordedVideoUrl || "").trim() } : {}),
+  ...(body.recordedClassTitle !== undefined ? { recordedClassTitle: String(body.recordedClassTitle || "").trim() } : {}),
+  ...(body.liveEndedAt !== undefined ? { liveEndedAt: body.liveEndedAt || null } : {})
 });
 
 export const createCourse = async (req, res) => {
@@ -194,7 +197,8 @@ export const getInstructorCourses = async (req, res) => {
     return res.json(courses);
   }
 
-  const courses = await Course.find({ instructor: req.user._id });
+  const filter = req.user.role === "admin" ? {} : { instructor: req.user._id };
+  const courses = await Course.find(filter).sort({ createdAt: -1 });
   res.json(courses);
 };
 

@@ -672,38 +672,36 @@ export default function CourseDetailsPage() {
   const liveCountdown = sliderConfig ? getLiveCountdown(course, sliderConfig) : null;
   const liveClassEnabled = liveNow || Boolean(course.liveClassEnabled);
   const liveClassUrl = liveClassEnabled ? sanitizeExternalUrl(course.liveClassUrl || DEFAULT_LIVE_CLASS_URL) : "";
-  const liveClassVisible = liveNow || Boolean(liveClassUrl);
+  const recordedUrl = sanitizeExternalUrl(course.recordedVideoUrl || videoSources[0]?.url || "");
+  const recordedTitle = course.recordedClassTitle || course.liveClassTitle || "Recorded Class";
+  const liveClassVisible = liveNow || Boolean(liveClassUrl) || Boolean(recordedUrl);
   const liveClassCard = {
-    title: "Today's Class",
-    subtitle: liveNow
-      ? course.liveClassTitle || "Live class is running now"
-      : course.liveClassTitle || "Live session available",
-    actionLabel: liveClassUrl
+    title: liveClassUrl ? "Today's Class" : "Recorded Class",
+    subtitle: liveClassUrl
       ? liveNow
-        ? "Join Live Now"
-        : "Join Live"
-      : liveNow
-        ? "Live Link Updating"
-        : "Live Link Soon",
-    href: liveClassUrl,
-    videoSources: liveClassUrl
+        ? course.liveClassTitle || "Live class is running now"
+        : course.liveClassTitle || "Live session available"
+      : recordedTitle,
+    actionLabel: liveClassUrl ? (liveNow ? "LIVE NOW" : "Join Live") : "Watch Recording",
+    href: liveClassUrl || recordedUrl,
+    videoSources: liveClassUrl || recordedUrl
       ? [
           {
-            label: "Live",
-            url: liveClassUrl
+            label: liveClassUrl ? "Live" : "Recording",
+            url: liveClassUrl || recordedUrl
           }
         ]
       : []
   };
   const classCards = [
     ...(liveClassVisible ? [liveClassCard] : []),
-    {
+    ...(!liveClassVisible && videoSources.length ? [{
       title: course.subject || "Core Subject",
       subtitle: course.instructor?.name || course.instructor || "Badam Sir",
       actionLabel: videoSources.length ? "Watch Recording" : "Recording Soon",
       href: videoSources[0]?.url || "",
       videoSources
-    }
+    }] : [])
   ];
   const activeVideoSource =
     selectedVideo?.sources?.find((item) => item.label === selectedQuality) ||

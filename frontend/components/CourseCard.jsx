@@ -22,6 +22,7 @@ export default function CourseCard({ course, purchased = false }) {
   const [notice, setNotice] = useState("");
   const routeId = course.routeId || buildCourseRouteId(course);
   const hasPurchased = purchased;
+  const hasRecording = Boolean(course.recordedVideoUrl || course.videoSources?.length || course.videos?.length);
 
   const handleWishlist = async () => {
     setNotice("");
@@ -63,7 +64,11 @@ export default function CourseCard({ course, purchased = false }) {
         </div>
         {course.liveClassEnabled ? (
           <span className="absolute right-3 top-3 z-10 rounded-full border border-red-300/40 bg-red-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-red-100">
-            Live
+            LIVE NOW
+          </span>
+        ) : hasRecording ? (
+          <span className="absolute right-3 top-3 z-10 rounded-full border border-emerald-300/40 bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-100">
+            Recorded Class
           </span>
         ) : null}
         <img
@@ -151,6 +156,10 @@ export default function CourseCard({ course, purchased = false }) {
           {hasPurchased && course.liveClassEnabled ? (
             <Link href={`/live/${encodeURIComponent(routeId)}`} className="rounded-xl border border-red-300/50 bg-red-500/10 px-4 py-2 text-center text-sm font-semibold text-red-100">
               Join Live
+            </Link>
+          ) : hasPurchased && hasRecording ? (
+            <Link href={detailsHref} className="rounded-xl border border-emerald-300/50 bg-emerald-500/10 px-4 py-2 text-center text-sm font-semibold text-emerald-100">
+              Watch Recording
             </Link>
           ) : null}
           <button onClick={handleWishlist} className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-slate-200">

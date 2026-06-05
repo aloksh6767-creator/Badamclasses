@@ -128,6 +128,7 @@ function buildCourseFromForm(form) {
     liveClassTitle: form.liveClassTitle,
     liveStreamType: form.liveStreamType || "youtube",
     recordedVideoUrl: form.recordedVideoUrl,
+    recordedClassTitle: form.liveClassTitle,
     videoSources,
     pdfResources,
     classSections: parseClassSectionsText(form.classSectionsText)
@@ -160,6 +161,7 @@ function buildServerCoursePayload(course) {
     startDate: course.startDate || "",
     duration: course.duration || "Flexible",
     recordedVideoUrl: course.recordedVideoUrl || "",
+    recordedClassTitle: course.recordedClassTitle || course.liveClassTitle || "",
     classSections: course.classSections || [],
     pdfResources: (course.pdfResources || []).map((pdf) => ({
       title: pdf.title || "PDF",
@@ -353,6 +355,7 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
         liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
         liveClassTitle: course.liveClassTitle || "",
         liveStreamType: course.liveStreamType || "youtube",
+        recordedVideoUrl: course.recordedVideoUrl || "",
         ...current[storageKey],
         [key]: value
       }
@@ -369,6 +372,8 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
       setMessage(`${course.title}: ${liveValidation.message}`);
       return;
     }
+    const recordingUrl = String(draft.recordedVideoUrl || existing?.recordedVideoUrl || course.recordedVideoUrl || liveValidation.url || "").trim();
+    const liveTitle = String(draft.liveClassTitle || course.liveClassTitle || existing?.liveClassTitle || "").trim();
     const nextCourse = normalizeLocalCourseRecord({
       ...course,
       ...existing,
@@ -376,8 +381,15 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
       id: course.id || course._id || existing?.id,
       liveClassEnabled: enabled,
       liveClassUrl: liveValidation.url,
-      liveClassTitle: String(draft.liveClassTitle || course.liveClassTitle || existing?.liveClassTitle || "").trim(),
-      liveStreamType
+      liveClassTitle: liveTitle,
+      liveStreamType,
+      ...(!enabled
+        ? {
+            recordedVideoUrl: recordingUrl,
+            recordedClassTitle: liveTitle || course.title,
+            liveEndedAt: new Date().toISOString()
+          }
+        : {})
     });
 
     setPendingLiveKeys((current) => ({ ...current, [storageKey]: true }));
@@ -401,7 +413,14 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
           liveClassEnabled: enabled,
           liveClassUrl: nextCourse.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
           liveClassTitle: nextCourse.liveClassTitle || "",
-          liveStreamType: nextCourse.liveStreamType || "youtube"
+          liveStreamType: nextCourse.liveStreamType || "youtube",
+          ...(!enabled
+            ? {
+                recordedVideoUrl: nextCourse.recordedVideoUrl || "",
+                recordedClassTitle: nextCourse.recordedClassTitle || nextCourse.liveClassTitle || nextCourse.title,
+                liveEndedAt: nextCourse.liveEndedAt || new Date().toISOString()
+              }
+            : {})
         })
       });
       setMessage(`${course.title} live class ${enabled ? "enabled" : "disabled"} on server.`);
@@ -489,7 +508,8 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
         nextDrafts[key] = {
           liveClassUrl: course.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
           liveClassTitle: course.liveClassTitle || "",
-          liveStreamType: course.liveStreamType || "youtube"
+          liveStreamType: course.liveStreamType || "youtube",
+          recordedVideoUrl: course.recordedVideoUrl || ""
         };
       });
       return nextDrafts;
@@ -723,7 +743,7 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
               const livePending = Boolean(pendingLiveKeys[storageKey]);
 
               return (
-                <div key={storageKey} className="grid gap-3 rounded-xl border border-white/10 bg-[#081127] px-3 py-3 lg:grid-cols-[minmax(150px,0.8fr)_minmax(150px,0.9fr)_minmax(170px,1fr)_minmax(220px,1.4fr)_auto] lg:items-center">
+                <div key={storageKey} className="grid gap-3 rounded-xl border border-white/10 bg-[#081127] px-3 py-3 lg:grid-cols-[minmax(150px,0.8fr)_minmax(150px,0.9fr)_minmax(170px,1fr)_minmax(220px,1.2fr)_minmax(220px,1.2fr)_auto] lg:items-center">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-white">{course.title}</p>
                     <p className="text-xs text-slate-400">{course.subject || course.category || "General"}</p>
@@ -747,6 +767,12 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
                     value={draft.liveClassUrl}
                     onChange={(event) => updateLiveDraft(course, "liveClassUrl", event.target.value)}
                     placeholder="YouTube channel/live or video URL"
+                    className="w-full"
+                  />
+                  <Input
+                    value={draft.recordedVideoUrl || ""}
+                    onChange={(event) => updateLiveDraft(course, "recordedVideoUrl", event.target.value)}
+                    placeholder="Recording URL after live end"
                     className="w-full"
                   />
                   <div className="flex flex-wrap gap-2 lg:justify-end">

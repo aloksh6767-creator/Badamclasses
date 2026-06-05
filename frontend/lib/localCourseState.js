@@ -3,6 +3,7 @@ import { buildCourseRouteId } from "@/lib/courseIdentity";
 export const LOCAL_COURSE_KEY = "badamclasses_instructor_courses";
 export const LOCAL_DELETED_COURSE_KEY = "badamclasses_deleted_courses";
 export const DEFAULT_LIVE_CLASS_URL = "https://www.youtube.com/channel/UC9KopMZXd5is7KvOzhamTYw/live";
+export const LIVE_STREAM_TYPES = ["youtube", "hls", "mp4"];
 
 const normalizeStorageId = (value) => String(value || "").trim().toLowerCase();
 const DEMO_HOSTS = new Set(["example.com", "www.example.com", "example.org", "www.example.org", "example.net", "www.example.net"]);
@@ -99,10 +100,13 @@ export function normalizeLocalCourseRecord(course = {}) {
   const id = String(course._id || course.id || `local-course-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`).trim();
   const price = Number(course.price || course.priceValue || 0);
   const offerPrice = Number(course.offerPrice || 0);
-  const thumbnail = sanitizeStoredUrl(course.thumbnail || course.image, { allowRelative: true, allowDataImage: true });
+  const thumbnail = sanitizeStoredUrl(course.thumbnail || course.image || course.imageUrl, { allowRelative: true, allowDataImage: true });
   const liveClassEnabled = Object.prototype.hasOwnProperty.call(course, "liveClassEnabled")
     ? Boolean(course.liveClassEnabled)
     : Boolean(course.liveClassUrl);
+  const liveStreamType = LIVE_STREAM_TYPES.includes(String(course.liveStreamType || "").toLowerCase())
+    ? String(course.liveStreamType).toLowerCase()
+    : "youtube";
   const videoSources = (Array.isArray(course.videoSources) ? course.videoSources : [])
     .map((item) => ({
       quality: item.quality || item.label || "Auto",
@@ -123,6 +127,7 @@ export function normalizeLocalCourseRecord(course = {}) {
     _id: id,
     id: course.id || id,
     slug: course.slug || course.routeId || "",
+    routeSlug: course.routeSlug || course.slug || course.routeId || "",
     title: String(course.title || "Untitled Course").trim(),
     subtitle: String(course.subtitle || "").trim(),
     description: String(course.description || "").trim(),
@@ -130,15 +135,22 @@ export function normalizeLocalCourseRecord(course = {}) {
     category: String(course.category || course.subject || "General").trim(),
     instructor: course.instructor?.name || course.instructor || "BadamClasses",
     status: course.status === "draft" || course.status === "hidden" ? course.status : "active",
+    isActive: course.isActive !== undefined ? Boolean(course.isActive) : course.status !== "hidden",
+    featured: course.featured !== undefined ? Boolean(course.featured) : true,
+    type: String(course.type || "standard").trim(),
     price,
     priceValue: price,
     offerPrice: offerPrice > 0 ? offerPrice : "",
     thumbnail,
+    imageUrl: thumbnail || sanitizeStoredUrl(course.imageUrl, { allowRelative: true, allowDataImage: true }),
     image: thumbnail || course.image || "",
     liveClassEnabled,
     liveClassUrl: sanitizeStoredUrl(course.liveClassUrl) || DEFAULT_LIVE_CLASS_URL,
     liveClassTitle: String(course.liveClassTitle || "").trim(),
+    liveStreamType,
     recordedVideoUrl: sanitizeStoredUrl(course.recordedVideoUrl),
+    recordedClassTitle: String(course.recordedClassTitle || course.liveClassTitle || "").trim(),
+    liveEndedAt: course.liveEndedAt || "",
     videoSources,
     pdfResources,
     classSections: normalizeClassSectionsForStorage(course.classSections || []),

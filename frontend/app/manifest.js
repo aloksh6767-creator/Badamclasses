@@ -15,13 +15,7 @@ export default function manifest() {
         src: "/new-logo.png",
         sizes: "512x512",
         type: "image/png",
-        purpose: "any"
-      },
-      {
-        src: "/brand-logo.png",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "maskable"
+        purpose: "any maskable"
       }
     ],
     shortcuts: [

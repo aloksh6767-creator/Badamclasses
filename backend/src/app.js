@@ -16,6 +16,7 @@ import automationRoutes from "./routes/automationRoutes.js";
 import pdfRoutes from "./routes/pdfRoutes.js";
 import liveStatusRoutes from "./routes/liveStatusRoutes.js";
 import liveChatRoutes from "./routes/liveChatRoutes.js";
+import securityHeaders from "./middleware/securityHeaders.js";
 import { notifyErrorAlert } from "./utils/alertNotifier.js";
 import { getDatabaseStatus, isMongoEnvConfigured } from "./config/db.js";
 import { getPaymentDebugSummary } from "./controllers/paymentController.js";
@@ -23,6 +24,8 @@ import { startAutomationScheduler } from "./utils/automationScheduler.js";
 
 const app = express();
 startAutomationScheduler();
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
 
 const localAllowedOrigins = [
   "http://localhost:3000",
@@ -51,10 +54,13 @@ app.use(
         return callback(null, true);
       }
 
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
+      const error = new Error("Origin not allowed by CORS");
+      error.statusCode = 403;
+      return callback(error);
     }
   })
 );
+app.use(securityHeaders);
 app.use(express.json({ limit: "10mb" }));
 
 app.get("/api/health", (req, res) => {
@@ -93,13 +99,14 @@ app.use("/api/live-chat", liveChatRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);
-  if ((err.statusCode || 500) >= 500) {
+  const statusCode = err.statusCode || (String(err.code || "").startsWith("LIMIT_") ? 400 : 500);
+  if (statusCode >= 500) {
     void notifyErrorAlert({
       severity: "critical",
       source: "backend",
       title: "API request failed",
       message: err.message || "Server error",
-      statusCode: err.statusCode || 500,
+      statusCode,
       method: req.method,
       path: req.originalUrl,
       stack: err.stack
@@ -107,7 +114,9 @@ app.use((err, req, res, next) => {
       console.error("Backend alert failed:", alertError.message);
     });
   }
-  res.status(err.statusCode || 500).json({ message: err.message || "Server error" });
+
+  const safeMessage = statusCode >= 500 && process.env.NODE_ENV === "production" ? "Server error" : err.message || "Server error";
+  res.status(statusCode).json({ message: safeMessage });
 });
 
 export default app;

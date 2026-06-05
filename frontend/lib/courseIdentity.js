@@ -66,13 +66,13 @@ export const buildCourseSlug = (course = {}) => {
 };
 
 export const buildCourseRouteId = (course, index = 0) => {
+  const explicitRouteSlug = slugifyPart(course?.routeSlug || course?.slug);
+  if (explicitRouteSlug) {
+    return explicitRouteSlug;
+  }
+
   const rawId = String(course?._id || course?.id || "").trim();
   if (rawId) return rawId;
-
-  const explicitSlug = slugifyPart(course?.slug);
-  if (explicitSlug) {
-    return explicitSlug;
-  }
 
   const slug = buildCourseSlug(course);
   if (slug) {
@@ -92,7 +92,8 @@ export const normalizeCourseForRoute = (course, index = 0) => {
     ...course,
     _id: course?._id || course?.id || routeId,
     id: course?.id || course?._id || routeId,
-    slug: course?.slug || routeId,
+    slug: course?.slug || course?.routeSlug || routeId,
+    routeSlug: course?.routeSlug || course?.slug || routeId,
     routeId
   };
 };

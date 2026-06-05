@@ -1,4 +1,4 @@
-const CACHE_NAME = "badamclasses-app-v1";
+const CACHE_NAME = "badamclasses-app-v4";
 const APP_SHELL = ["/", "/courses", "/mock-tests", "/new-logo.png", "/brand-logo.png"];
 
 self.addEventListener("install", (event) => {
