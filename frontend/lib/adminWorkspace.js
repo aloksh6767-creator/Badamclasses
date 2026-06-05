@@ -208,7 +208,7 @@ const defaultNotifications = [
 ];
 
 const defaultMedia = [
-  { id: "media-1", name: "Homepage Banner", type: "image", url: "/promo-maths-special.jpg", tag: "banner" },
+  { id: "media-1", name: "Homepage Banner", type: "image", url: "/new-batch-starts-2026.png", tag: "banner" },
   { id: "media-2", name: "Arithmetic Notes PDF", type: "pdf", url: "https://example.com/arithmetic.pdf", tag: "notes" }
 ];
 

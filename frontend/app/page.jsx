@@ -45,9 +45,9 @@ const HOMEPAGE_BANNER_FALLBACKS = {
   newBatch: "/railway-batch-banner-2026.png",
   legacyBatch: "/new-batch-starts-2026.png",
   megaTest: "/mega-test-3-banner.png",
-  promo: "/promo-maths-special.jpg",
+  promo: "/new-batch-starts-2026.png",
   hero: "/ssc-complete.jpg",
-  offer: "/promo-maths-special.jpg"
+  offer: "/railway-batch-banner-2026.png"
 };
 
 const isRenderableImage = (value = "") => {
