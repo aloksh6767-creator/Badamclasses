@@ -185,25 +185,6 @@ const examResultStats = [
   { value: 36, label: "State Toppers", suffix: "" }
 ];
 
-const instituteTrustMetrics = [
-  { value: "50K+", label: "students mentored" },
-  { value: "4.8/5", label: "average course rating" },
-  { value: "24x7", label: "recorded access" }
-];
-
-const institutePrograms = [
-  { title: "SSC Foundation", text: "CGL, CHSL, MTS and GD with topic-wise tests." },
-  { title: "Railway Exams", text: "NTPC, ALP and Group D preparation with live practice." },
-  { title: "Banking + State", text: "Reasoning, maths, GS and bilingual exam support." }
-];
-
-const instituteProofPoints = [
-  "Live classroom discipline",
-  "Doubt support after class",
-  "Mock-test performance review",
-  "PDF notes and replay library"
-];
-
 const featureIconMap = {
   live: (
     <svg viewBox="0 0 24 24" className="h-6 w-6 text-orange-300" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -468,7 +449,6 @@ export default function HomePage() {
   const publishedBanner = remoteContent?.banner;
   const offerBannerImage = resolveBannerImage(publishedOfferBanner?.image || offerBanner?.image, HOMEPAGE_BANNER_FALLBACKS.offer);
   const heroBannerImage = resolveBannerImage(publishedBanner?.image, HOMEPAGE_BANNER_FALLBACKS.legacyBatch);
-  const coachingBannerImage = resolveBannerImage(publishedBanner?.image, HOMEPAGE_BANNER_FALLBACKS.newBatch);
   const canRenderLiveBadges = mounted;
 
   const updateRegistrationForm = (key, value) => {
@@ -533,87 +513,6 @@ export default function HomePage() {
           <p className="text-xs text-orange-100/80">{publishedNotice?.message || notice?.message}</p>
         </div>
       ) : null}
-
-      <section className="academy-hero animate-reveal mb-8" aria-label="Badam Singh Classes coaching institute">
-        <div className="academy-hero-media" aria-hidden="true">
-          <img
-            src={heroBannerImage}
-            alt=""
-            className="academy-hero-image"
-            onError={(event) => {
-              event.currentTarget.onerror = null;
-              event.currentTarget.src = HOMEPAGE_BANNER_FALLBACKS.hero;
-            }}
-          />
-          <span className="academy-hero-shade" />
-        </div>
-
-        <div className="academy-hero-content">
-          <div className="academy-hero-copy">
-            <p className="academy-kicker">Badam Singh Classes | Advanced Exam Prep Institute</p>
-            <h1>{publishedBanner?.title || "Structured Coaching for SSC, Railway, Banking and State Exams"}</h1>
-            <p className="academy-hero-text">
-              {publishedBanner?.subtitle || "Live classes, recorded lectures, disciplined test practice and faculty-led guidance built for serious competitive exam preparation."}
-            </p>
-
-            <div className="academy-hero-actions">
-              <Link href={publishedBanner?.ctaHref || "/batches"} className="academy-primary-action">
-                {publishedBanner?.ctaLabel || "Explore Batches"}
-              </Link>
-              <Link href="/mock-tests" className="academy-secondary-action">
-                Take Mock Test
-              </Link>
-            </div>
-
-            <div className="academy-proof-list">
-              {instituteProofPoints.map((point) => (
-                <span key={point}>{point}</span>
-              ))}
-            </div>
-          </div>
-
-          <div className="academy-hero-panel" aria-label="Institute highlights">
-            <div className="academy-banner-card">
-              <img
-                src={coachingBannerImage}
-                alt="Badam Singh Classes coaching admission banner"
-                onError={(event) => {
-                  event.currentTarget.onerror = null;
-                  event.currentTarget.src = HOMEPAGE_BANNER_FALLBACKS.legacyBatch;
-                }}
-              />
-              <div className="academy-banner-caption">
-                <span>Admissions Open</span>
-                <strong>Live + Recorded batches</strong>
-              </div>
-            </div>
-            <div className="academy-live-card">
-              <p>Current focus</p>
-              <h2>Mega Test 3.0</h2>
-              <span>{megaTestDetails.startsOn} | {megaTestDetails.timing}</span>
-              <a href="#mega-test-registration">Reserve seat</a>
-            </div>
-
-            <div className="academy-metrics-grid">
-              {instituteTrustMetrics.map((item) => (
-                <div key={item.label} className="academy-metric-card">
-                  <strong>{item.value}</strong>
-                  <span>{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="academy-program-strip animate-reveal stagger-1 mb-8" aria-label="Coaching programs">
-        {institutePrograms.map((program) => (
-          <Link key={program.title} href="/batches" className="academy-program-card">
-            <strong>{program.title}</strong>
-            <span>{program.text}</span>
-          </Link>
-        ))}
-      </section>
 
       <section className="mb-10 overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,17,39,0.94),rgba(4,9,22,0.98))] p-2 shadow-[0_28px_80px_rgba(2,6,23,0.38)]" aria-label="Badam Singh Classes featured banners">
         <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${activePromoBanner * 100}%)` }}>
