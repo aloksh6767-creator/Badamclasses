@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: badamclasses-backend
+    env: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: CURRENT_AFFAIRS_CRON
+        value: 0 7 * * *
+      - key: CURRENT_AFFAIRS_TZ
+        value: Asia/Kolkata
+      - key: NEWS_API_URL
+        value: https://newsapi.org/v2/top-headlines
+      - key: NEWS_COUNTRY
+        value: in
+      - key: NEWS_PAGE_SIZE
+        value: "30"
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
