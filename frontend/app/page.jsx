@@ -193,7 +193,9 @@ const stats = [
   { value: 50000, label: "Students", suffix: "+" },
   { value: 100, label: "Courses", suffix: "+" },
   { value: 500, label: "Practice Tests", suffix: "+" },
-  { value: 1000, label: "Video Lectures", suffix: "+" }
+  { value: 1000, label: "Video Lectures", suffix: "+" },
+  { value: 12, label: "Live Classes Today", suffix: "" },
+  { value: 95, label: "Success Rate", suffix: "%" }
 ];
 
 const examResultStats = [
@@ -201,6 +203,25 @@ const examResultStats = [
   { value: 980, label: "Top Ranks", suffix: "+" },
   { value: 88, label: "Success Rate", suffix: "%" },
   { value: 36, label: "State Toppers", suffix: "" }
+];
+
+const liveClassHighlights = [
+  { label: "LIVE", title: "Daily Maths + Reasoning", teacher: "Badam Sir", time: "08:00 AM", status: "Live support + replay" },
+  { label: "UPCOMING", title: "Railway Foundation Practice", teacher: "Badam Sir", time: "12:00 PM", status: "Class PDF included" },
+  { label: "SAVED", title: "Arithmetic Revision Replay", teacher: "Badam Sir", time: "Recorded", status: "Previous live saved" }
+];
+
+const mockTestCards = [
+  { exam: "SSC CGL", questions: 100, duration: "60 min", difficulty: "Moderate", attempts: "12K+" },
+  { exam: "Railway NTPC", questions: 100, duration: "90 min", difficulty: "Exam Level", attempts: "9K+" },
+  { exam: "Reasoning", questions: 50, duration: "35 min", difficulty: "Foundation", attempts: "6K+" }
+];
+
+const appFeatureList = [
+  "Live and recorded classes",
+  "PDF notes and downloads",
+  "Mock tests with performance review",
+  "Notifications for upcoming classes"
 ];
 
 const featureIconMap = {
@@ -649,7 +670,7 @@ export default function HomePage() {
         <div>
           <p className="mb-3 inline-block rounded-full border border-orange-300/30 bg-orange-500/10 px-3 py-1 text-xs text-orange-200">India's Trusted Online Exam Prep Platform</p>
           <h1 className="font-display text-4xl font-bold leading-tight md:text-5xl">{publishedBanner?.title || "Prepare Smarter with BadamClasses"}</h1>
-          <p className="mt-4 max-w-2xl text-slate-300">{publishedBanner?.subtitle || "Join India's growing learning platform for SSC, Railway, Banking and other competitive exams."}</p>
+          <p className="mt-4 max-w-2xl text-slate-300">{publishedBanner?.subtitle || "Join India's growing learning platform for SSC, Railway, Police, Teaching and other competitive exams."}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href={publishedBanner?.ctaHref || "/batches"} className="btn-gradient btn-anim rounded-xl px-5 py-3 font-semibold text-white">{publishedBanner?.ctaLabel || "Start Learning"}</Link>
             <Link href="/batches" className="btn-anim rounded-xl border border-white/20 px-5 py-3 font-semibold text-slate-100 transition hover:border-orange-300">View Batches</Link>
@@ -668,7 +689,7 @@ export default function HomePage() {
           />
           <span className="floating-chip chip-a">SSC</span>
           <span className="floating-chip chip-b">Railway</span>
-          <span className="floating-chip chip-c">Banking</span>
+          <span className="floating-chip chip-c">Teaching</span>
           <div className="absolute -bottom-4 left-4 rounded-xl border border-orange-300/40 bg-[#0c1f48]/90 px-4 py-2 text-sm text-orange-200">Live + Recorded + Mock Tests</div>
         </div>
       </section>
@@ -866,13 +887,59 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="animate-reveal stagger-2 mb-14 rounded-3xl border border-emerald-300/20 bg-[linear-gradient(135deg,rgba(6,78,59,0.26),rgba(13,26,58,0.82))] p-5 md:p-6">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-200">Live Classes</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold text-white">Today&apos;s Learning Schedule</h2>
+          </div>
+          <Link href="/dashboard" className="rounded-xl border border-emerald-300/35 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-100">
+            Open Dashboard
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {liveClassHighlights.map((item) => (
+            <article key={item.title} className="rounded-2xl border border-white/10 bg-[#071126]/70 p-4">
+              <span className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] ${item.label === "LIVE" ? "bg-red-500 text-white" : "border border-white/15 text-slate-200"}`}>
+                {item.label}
+              </span>
+              <h3 className="mt-4 font-display text-xl text-white">{item.title}</h3>
+              <p className="mt-2 text-sm text-slate-300">{item.teacher} | {item.time}</p>
+              <p className="mt-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-emerald-100">{item.status}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section id="mock-tests" className="animate-reveal stagger-2 mb-14">
-        <h2 className="mb-6 font-display text-3xl font-semibold">Popular Exams</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-3xl font-semibold">Free Mock Tests</h2>
+          <Link href="/mock-tests" className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-orange-300">
+            View All Tests
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {mockTestCards.map((test) => (
+            <article key={test.exam} className="card-anim rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5 transition hover:border-orange-300/40">
+              <p className="text-xs uppercase tracking-[0.22em] text-orange-300">{test.exam}</p>
+              <h3 className="mt-3 font-display text-2xl text-white">{test.questions} Questions</h3>
+              <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-300">
+                <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Duration: {test.duration}</span>
+                <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Level: {test.difficulty}</span>
+                <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Attempts: {test.attempts}</span>
+                <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Result: Instant</span>
+              </div>
+              <Link href="/mock-tests" className="btn-gradient btn-anim mt-5 inline-flex rounded-xl px-4 py-2 text-sm font-semibold text-white">
+                Start Test
+              </Link>
+            </article>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
           {exams.map((exam) => (
-            <div key={exam.label} className="card-anim flex items-center gap-3 rounded-xl border border-white/10 bg-[#0d1a3a]/70 p-4 transition hover:border-orange-300/40">
+            <div key={exam.label} className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#0d1a3a]/55 p-3">
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-orange-300/30 bg-orange-400/10">{examIconMap[exam.icon] ?? exam.icon}</span>
-              <p className="font-semibold text-slate-100">{exam.label}</p>
+              <p className="text-sm font-semibold text-slate-100">{exam.label}</p>
             </div>
           ))}
         </div>
@@ -904,16 +971,34 @@ export default function HomePage() {
       <TestimonialsCarousel items={testimonials} />
 
       <section className="animate-reveal stagger-3 mb-10 rounded-3xl border border-orange-300/30 bg-gradient-to-r from-[#10224e] to-[#1a2b57] p-6 md:p-10">
-        <h2 className="font-display text-3xl font-semibold">Study Anytime Anywhere with the BadamClasses App</h2>
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-orange-200">Mobile App</p>
+        <h2 className="mt-2 font-display text-3xl font-semibold">Study Anytime Anywhere with the BadamClasses App</h2>
         <p className="mt-2 text-slate-300">Access live classes, recorded lectures, quizzes, and notes directly from your mobile app.</p>
-        <div className="mt-6 grid items-center gap-6 md:grid-cols-2">
-          <div className="space-y-3">
-            <button className="btn-gradient btn-anim rounded-xl px-5 py-3 font-semibold text-white">Download Android App</button>
-            <button className="btn-anim rounded-xl border border-white/20 px-5 py-3 font-semibold text-slate-100 transition hover:border-orange-300">Download iOS App</button>
+        <div className="mt-6 grid items-center gap-6 md:grid-cols-[1fr_auto]">
+          <div>
+            <div className="flex flex-wrap gap-3">
+              <span className="btn-gradient rounded-xl px-5 py-3 font-semibold text-white">Android Coming Soon</span>
+              <span className="rounded-xl border border-white/20 px-5 py-3 font-semibold text-slate-100">iOS Coming Soon</span>
+            </div>
+            <ul className="mt-5 grid gap-2 text-sm text-slate-200 sm:grid-cols-2">
+              {appFeatureList.map((item) => (
+                <li key={item} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">{item}</li>
+              ))}
+            </ul>
           </div>
-          <div className="phone-mock">
-            <div className="phone-screen">
-              <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=700&q=80" alt="App Preview" className="h-full w-full object-cover" />
+          <div className="grid gap-4 sm:grid-cols-[auto_auto] sm:items-center">
+            <div className="rounded-2xl border border-white/15 bg-white p-4 text-center text-slate-950">
+              <div className="grid h-28 w-28 grid-cols-4 gap-1">
+                {Array.from({ length: 16 }).map((_, index) => (
+                  <span key={index} className={`${index % 3 === 0 ? "bg-slate-950" : "bg-slate-300"}`} />
+                ))}
+              </div>
+              <p className="mt-2 text-xs font-bold">QR Soon</p>
+            </div>
+            <div className="phone-mock">
+              <div className="phone-screen">
+                <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=700&q=80" alt="App Preview" className="h-full w-full object-cover" />
+              </div>
             </div>
           </div>
         </div>
