@@ -1,4 +1,8 @@
-const STUDENT_BATCH_IMAGE = "/students-carrying-bags.svg";
+const PHOOLBAGH_BATCH_IMAGE = "/phoolbagh-new-batch-2026.png";
+const MATHS_BATCH_IMAGE = "/maths-batch.jpg";
+const RECORDED_BATCH_IMAGE = "/recorded-batch.jpg";
+const SSC_COMPLETE_IMAGE = "/ssc-complete.jpg";
+const GENERAL_COURSE_BANNER = "/railway-batch-banner-2026.png";
 
 const fallbackCourses = [
   {
@@ -12,7 +16,7 @@ const fallbackCourses = [
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: STUDENT_BATCH_IMAGE,
+    thumbnail: PHOOLBAGH_BATCH_IMAGE,
     category: "SSC",
     duration: "12 Months",
     batchTime: "08:00 AM",
@@ -34,7 +38,7 @@ const fallbackCourses = [
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: STUDENT_BATCH_IMAGE,
+    thumbnail: MATHS_BATCH_IMAGE,
     category: "SSC",
     duration: "15 Months",
     batchTime: "07:00 AM",
@@ -53,7 +57,7 @@ const fallbackCourses = [
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: STUDENT_BATCH_IMAGE,
+    thumbnail: RECORDED_BATCH_IMAGE,
     category: "SSC",
     duration: "8 Months",
     ratingAverage: 4.7,
@@ -70,7 +74,7 @@ const fallbackCourses = [
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: STUDENT_BATCH_IMAGE,
+    thumbnail: RECORDED_BATCH_IMAGE,
     category: "General",
     duration: "12 Months",
     ratingAverage: 4.6,
@@ -87,7 +91,7 @@ const fallbackCourses = [
       name: "Ankit Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: STUDENT_BATCH_IMAGE,
+    thumbnail: GENERAL_COURSE_BANNER,
     category: "State",
     duration: "8 Months",
     ratingAverage: 4.7,
@@ -104,7 +108,7 @@ const fallbackCourses = [
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: STUDENT_BATCH_IMAGE,
+    thumbnail: MATHS_BATCH_IMAGE,
     category: "SSC",
     duration: "1 Year",
     ratingAverage: 4.8,
@@ -121,7 +125,7 @@ const fallbackCourses = [
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: STUDENT_BATCH_IMAGE,
+    thumbnail: MATHS_BATCH_IMAGE,
     category: "SSC",
     duration: "10 Months",
     ratingAverage: 4.7,
@@ -138,7 +142,7 @@ const fallbackCourses = [
       name: "Amit Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: STUDENT_BATCH_IMAGE,
+    thumbnail: SSC_COMPLETE_IMAGE,
     category: "SSC",
     duration: "12 Months",
     ratingAverage: 4.9,
@@ -155,7 +159,7 @@ const fallbackCourses = [
       name: "Vikas Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: STUDENT_BATCH_IMAGE,
+    thumbnail: GENERAL_COURSE_BANNER,
     category: "Banking",
     duration: "9 Months",
     ratingAverage: 4.8,

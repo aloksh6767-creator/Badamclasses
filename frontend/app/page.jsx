@@ -163,6 +163,24 @@ const dedupeBatchesById = (items = []) => {
   });
 };
 
+const getBatchTimestamp = (batch = {}) => {
+  const candidates = [batch.createdAt, batch.updatedAt, batch.startDate];
+  for (const value of candidates) {
+    const timestamp = Date.parse(value || "");
+    if (Number.isFinite(timestamp)) return timestamp;
+  }
+  return 0;
+};
+
+const sortLatestBatches = (items = []) => {
+  return [...items].sort((a, b) => {
+    const timestampDiff = getBatchTimestamp(b) - getBatchTimestamp(a);
+    if (timestampDiff !== 0) return timestampDiff;
+    if (b.isLatest !== a.isLatest) return b.isLatest ? 1 : -1;
+    return String(a.title || "").localeCompare(String(b.title || ""));
+  });
+};
+
 const shouldShowOnHomePage = (batch) => {
   if (Array.isArray(batch?.classSections) && batch.classSections.length > 0) {
     return false;
@@ -394,6 +412,8 @@ export default function HomePage() {
       offerLabel: course.offerLabel,
       batchTime: course.batchTime,
       startDate: course.startDate,
+      createdAt: course.createdAt,
+      updatedAt: course.updatedAt,
       liveClassEnabled: Boolean(course.liveClassEnabled),
       liveClassUrl: course.liveClassUrl,
       isLatest: true
@@ -404,7 +424,7 @@ export default function HomePage() {
   const safeBatches = useMemo(() => {
     const visibleFixtures = filterDeletedCourses(batches, deletedCourseKeys);
     const merged = localBatches.length ? [...localBatches, ...visibleFixtures] : visibleFixtures;
-    return dedupeBatchesById(merged.map((batch, index) => normalizeBatch(batch, index))).filter(shouldShowOnHomePage);
+    return sortLatestBatches(dedupeBatchesById(merged.map((batch, index) => normalizeBatch(batch, index))).filter(shouldShowOnHomePage));
   }, [deletedCourseKeys, localBatches]);
 
   const comparisonBatches = useMemo(() => {
@@ -423,7 +443,7 @@ export default function HomePage() {
       const matchP = b.priceValue <= maxPrice;
       const matchD = b.months <= maxMonths;
       return matchQ && matchC && matchP && matchD;
-    });
+    }).slice(0, 6);
   }, [query, category, maxPrice, maxMonths, displayBatches]);
 
   useEffect(() => {

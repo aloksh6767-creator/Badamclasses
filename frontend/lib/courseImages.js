@@ -1,4 +1,5 @@
 const STUDENT_BATCH_IMAGE = "/students-carrying-bags.svg";
+const DEFAULT_COURSE_BANNER = "/railway-batch-banner-2026.png";
 
 const EXACT_IMAGE_MAP = {
   "phoolbagh-branch-new-batch-2026": "/phoolbagh-new-batch-2026.png",
@@ -9,18 +10,38 @@ const EXACT_IMAGE_MAP = {
   "arithmetic special (recorded)": "/recorded-batch.jpg",
   "recorded-batch": "/recorded-batch.jpg",
   "recorded batch": "/recorded-batch.jpg",
+  "mp-police": DEFAULT_COURSE_BANNER,
+  "mp police batch": DEFAULT_COURSE_BANNER,
   "maths-special": "/maths-batch.jpg",
   "maths special batch": "/maths-batch.jpg",
+  "reasoning-batch": "/maths-batch.jpg",
+  "reasoning batch": "/maths-batch.jpg",
   "ssc-complete": "/ssc-complete.jpg",
-  "ssc complete batch": "/ssc-complete.jpg"
+  "ssc complete batch": "/ssc-complete.jpg",
+  "banking-foundation": DEFAULT_COURSE_BANNER,
+  "banking foundation batch": DEFAULT_COURSE_BANNER
 };
 
 const KEYWORD_IMAGE_MAP = [
   { keywords: ["phoolbagh"], image: "/phoolbagh-new-batch-2026.png" },
   { keywords: ["recorded"], image: "/recorded-batch.jpg" },
-  { keywords: ["math", "arithmetic", "advance", "udan"], image: "/maths-batch.jpg" },
-  { keywords: ["ssc"], image: "/ssc-complete.jpg" }
+  { keywords: ["math", "arithmetic", "advance", "udan", "udaan", "reasoning"], image: "/maths-batch.jpg" },
+  { keywords: ["ssc"], image: "/ssc-complete.jpg" },
+  { keywords: ["railway", "police", "state", "banking"], image: DEFAULT_COURSE_BANNER }
 ];
+
+const PLACEHOLDER_IMAGES = new Set([
+  STUDENT_BATCH_IMAGE,
+  "students-carrying-bags.svg",
+  "/students-carrying-bags.svg"
+]);
+
+const isPlaceholderImage = (value = "") => {
+  const normalized = String(value || "").trim();
+  if (!normalized) return true;
+  const withoutOrigin = normalized.replace(/^https?:\/\/[^/]+/i, "");
+  return PLACEHOLDER_IMAGES.has(normalized) || PLACEHOLDER_IMAGES.has(withoutOrigin);
+};
 
 export const getCourseFallbackImage = (course) => {
   const idKey = String(course?.id || course?._id || "").trim().toLowerCase();
@@ -31,11 +52,11 @@ export const getCourseFallbackImage = (course) => {
 
   const text = `${idKey} ${titleKey} ${course?.category || ""}`.toLowerCase();
   const match = KEYWORD_IMAGE_MAP.find((entry) => entry.keywords.some((keyword) => text.includes(keyword)));
-  return match?.image || STUDENT_BATCH_IMAGE;
+  return match?.image || DEFAULT_COURSE_BANNER;
 };
 
 export const resolveCourseImage = (course) => {
-  const candidate = course?.image || course?.thumbnail || "";
-  if (candidate && candidate !== STUDENT_BATCH_IMAGE) return candidate;
+  const candidate = course?.image || course?.thumbnail || course?.imageUrl || "";
+  if (!isPlaceholderImage(candidate)) return candidate;
   return getCourseFallbackImage(course);
 };
