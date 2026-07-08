@@ -1,38 +1,108 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { originalFreePracticeQuestions } from "@/lib/mockTestCatalog";
 
 export default function FreePracticePage() {
+  const [pdfTests, setPdfTests] = useState([]);
+  const [selectedTestId, setSelectedTestId] = useState("original");
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
 
+  useEffect(() => {
+    let active = true;
+    const loadPdfTests = async () => {
+      try {
+        const response = await fetch("/mock-pdfs/mock-question-bank.json");
+        const data = await response.json();
+        if (active) {
+          setPdfTests(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        if (active) {
+          setPdfTests([]);
+        }
+      }
+    };
+    loadPdfTests();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const selectedTest = useMemo(() => {
+    if (selectedTestId === "original") {
+      return {
+        id: "original",
+        title: "BadamClasses Original Free SSC Practice",
+        category: "SSC Practice",
+        questions: originalFreePracticeQuestions
+      };
+    }
+    return pdfTests.find((test) => test.id === selectedTestId) || {
+      id: "original",
+      title: "BadamClasses Original Free SSC Practice",
+      category: "SSC Practice",
+      questions: originalFreePracticeQuestions
+    };
+  }, [pdfTests, selectedTestId]);
+
+  const questions = selectedTest.questions || originalFreePracticeQuestions;
   const score = useMemo(
     () =>
-      originalFreePracticeQuestions.reduce((total, question) => {
+      questions.reduce((total, question) => {
         return answers[question.id] === question.answer ? total + 1 : total;
       }, 0),
-    [answers]
+    [answers, questions]
   );
 
   const attempted = Object.keys(answers).length;
   const accuracy = attempted ? Math.round((score / attempted) * 100) : 0;
+  const knownAnswerCount = questions.filter((question) => Number.isInteger(question.answer)).length;
+
+  const switchTest = (event) => {
+    setSelectedTestId(event.target.value);
+    setAnswers({});
+    setSubmitted(false);
+  };
 
   return (
     <main className="mx-auto w-[94%] max-w-6xl py-8 text-slate-100">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-orange-300">BadamClasses Original Mock</p>
-          <h1 className="mt-2 font-display text-4xl text-white">Free SSC Practice Test</h1>
+          <h1 className="mt-2 font-display text-4xl text-white">PDF Based Mock Test</h1>
           <p className="mt-2 text-sm text-slate-300">
-            Original questions uploaded on your website. No external test portal opens from this page.
+            PDF ke questions ko website ke andar mock-test format me convert kiya gaya hai. No external test portal opens from this page.
           </p>
         </div>
         <Link href="/mock-tests" className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-slate-100 hover:border-orange-300">
           Back to Mock Tests
         </Link>
       </div>
+
+      <section className="mb-5 rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5">
+        <label className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300" htmlFor="mock-select">
+          Select Mock Test
+        </label>
+        <select
+          id="mock-select"
+          value={selectedTestId}
+          onChange={switchTest}
+          className="mt-3 w-full rounded-xl border border-white/10 bg-[#071126] px-4 py-3 text-sm text-white outline-none focus:border-orange-300"
+        >
+          <option value="original">BadamClasses Original Free SSC Practice - {originalFreePracticeQuestions.length} Questions</option>
+          {pdfTests.map((test) => (
+            <option key={test.id} value={test.id}>
+              {test.title} - {test.questions?.length || 0} Questions
+            </option>
+          ))}
+        </select>
+        <p className="mt-3 text-sm text-slate-300">
+          Current: {selectedTest.title} | {selectedTest.category} | {questions.length} questions
+        </p>
+      </section>
 
       <section className="sticky top-20 z-10 mb-5 rounded-2xl border border-orange-300/25 bg-[#081127]/95 p-4 shadow-2xl shadow-black/20 backdrop-blur">
         <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-5">
@@ -42,7 +112,7 @@ export default function FreePracticePage() {
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
             <p className="text-xs text-slate-400">Questions</p>
-            <p className="font-semibold text-white">{originalFreePracticeQuestions.length}</p>
+            <p className="font-semibold text-white">{questions.length}</p>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
             <p className="text-xs text-slate-400">Attempted</p>
@@ -50,18 +120,18 @@ export default function FreePracticePage() {
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
             <p className="text-xs text-slate-400">Score</p>
-            <p className="font-semibold text-emerald-200">{submitted ? `${score}/${originalFreePracticeQuestions.length}` : "Hidden"}</p>
+            <p className="font-semibold text-emerald-200">{submitted && knownAnswerCount ? `${score}/${questions.length}` : "Review"}</p>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
             <p className="text-xs text-slate-400">Accuracy</p>
-            <p className="font-semibold text-cyan-200">{submitted ? `${accuracy}%` : "After submit"}</p>
+            <p className="font-semibold text-cyan-200">{submitted && knownAnswerCount ? `${accuracy}%` : "After submit"}</p>
           </div>
         </div>
       </section>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
         <section className="space-y-4">
-          {originalFreePracticeQuestions.map((question, index) => {
+          {questions.map((question, index) => {
             const selected = answers[question.id];
             return (
               <article key={question.id} id={question.id} className="rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5">
@@ -101,7 +171,7 @@ export default function FreePracticePage() {
                 </div>
                 {submitted ? (
                   <p className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-50">
-                    Explanation: {question.explanation}
+                    {Number.isInteger(question.answer) ? `Explanation: ${question.explanation}` : "Answer key pending expert review. Your selected response is saved for practice."}
                   </p>
                 ) : null}
               </article>
@@ -112,7 +182,7 @@ export default function FreePracticePage() {
         <aside className="h-fit rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5 lg:sticky lg:top-40">
           <h2 className="font-display text-2xl text-white">Question Palette</h2>
           <div className="mt-4 grid grid-cols-5 gap-2">
-            {originalFreePracticeQuestions.map((question, index) => (
+            {questions.map((question, index) => (
               <a
                 key={question.id}
                 href={`#${question.id}`}
@@ -135,7 +205,7 @@ export default function FreePracticePage() {
           </button>
           {submitted ? (
             <div className="mt-4 rounded-xl border border-emerald-300/20 bg-emerald-500/10 p-4 text-sm text-emerald-50">
-              Result: {score}/{originalFreePracticeQuestions.length} correct, {accuracy}% accuracy.
+              {knownAnswerCount ? `Result: ${score}/${questions.length} correct, ${accuracy}% accuracy.` : `${attempted}/${questions.length} attempted. Answer key pending expert review.`}
             </div>
           ) : null}
         </aside>

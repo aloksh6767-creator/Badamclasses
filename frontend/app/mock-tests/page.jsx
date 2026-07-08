@@ -58,6 +58,7 @@ const mergePublishedMocks = (workspaceMocks = []) => {
 export default function MockTestsPage() {
   const [mockTests, setMockTests] = useState(fallbackOnlineMocks);
   const [mcqSets, setMcqSets] = useState([]);
+  const [pdfMaterials, setPdfMaterials] = useState([]);
 
   useEffect(() => {
     const workspace = readAdminWorkspace();
@@ -86,11 +87,35 @@ export default function MockTestsPage() {
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    const loadPdfMaterials = async () => {
+      try {
+        const response = await fetch("/mock-pdfs/manifest.json");
+        const data = await response.json();
+        if (active) {
+          setPdfMaterials(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        if (active) {
+          setPdfMaterials([]);
+        }
+      }
+    };
+
+    loadPdfMaterials();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const publishedCount = useMemo(() => mockTests.length, [mockTests]);
   const mcqCount = useMemo(
     () => mcqSets.reduce((total, item) => total + (Array.isArray(item.questions) ? item.questions.length : 0), 0),
     [mcqSets]
   );
+  const availablePdfCount = useMemo(() => pdfMaterials.filter((item) => item.status === "available").length, [pdfMaterials]);
 
   return (
     <main className="mx-auto w-[92%] max-w-6xl py-10 text-slate-100">
@@ -276,6 +301,49 @@ export default function MockTestsPage() {
           {originalFreePracticeQuestions.length} original SSC-style questions with answer explanations are available inside the website.
         </p>
       </section>
+
+      {pdfMaterials.length ? (
+        <section className="mt-10 rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">PDF Mock Library</p>
+              <h2 className="mt-2 font-display text-3xl text-white">Railway, SSC & Exam PDF Practice</h2>
+              <p className="mt-2 text-sm text-slate-300">
+                {availablePdfCount} PDFs uploaded on website. Large PDFs are listed for cloud upload because direct Git/Vercel file size is too high.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {pdfMaterials.map((pdf) => (
+              <article key={pdf.id} className="rounded-2xl border border-white/10 bg-[#071126]/70 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.18em] text-orange-300">{pdf.category}</p>
+                    <h3 className="mt-2 font-display text-xl text-white">{pdf.title}</h3>
+                  </div>
+                  <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${pdf.status === "available" ? "bg-emerald-500/15 text-emerald-200" : "bg-amber-500/15 text-amber-200"}`}>
+                    {pdf.status === "available" ? "Uploaded" : "Cloud Needed"}
+                  </span>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-300">
+                  <span className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">{pdf.language}</span>
+                  <span className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">{pdf.sizeMb} MB</span>
+                </div>
+                {pdf.href ? (
+                  <a href={pdf.href} target="_blank" rel="noreferrer" className="btn-gradient btn-anim mt-4 inline-flex rounded-xl px-4 py-2 text-sm font-semibold text-white">
+                    Open PDF
+                  </a>
+                ) : (
+                  <button type="button" disabled className="mt-4 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-300 opacity-75">
+                    Upload via Cloud Storage
+                  </button>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
