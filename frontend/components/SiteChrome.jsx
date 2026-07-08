@@ -21,8 +21,8 @@ export default function SiteChrome({ children }) {
   return (
     <>
       <ScrollProgress />
-      {!isLiveRoute ? <AnnouncementTicker /> : null}
       <Navbar />
+      {!isLiveRoute ? <AnnouncementTicker /> : null}
       {children}
       <Footer />
       <FloatingEnrollButton />
