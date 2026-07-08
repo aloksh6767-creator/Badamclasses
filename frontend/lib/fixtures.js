@@ -168,15 +168,15 @@ export const batches = [
     highlights: ["Full syllabus", "Mock tests", "Concept videos"]
   },
   {
-    id: "banking-foundation",
-    title: "Banking Foundation Batch",
-    instructor: "Vikas Sir",
-    duration: "9 Months",
-    months: 9,
-    category: "Banking",
-    priceValue: 4299,
+    id: "railway-foundation",
+    title: "Railway Foundation Batch",
+    instructor: "Badam Sir",
+    duration: "12 Months",
+    months: 12,
+    category: "Railway",
+    priceValue: 1199,
     image: STUDENT_BATCH_IMAGE,
-    highlights: ["Banking basics", "Quants mastery", "Daily quizzes"]
+    highlights: ["Railway syllabus", "Live + recorded classes", "Daily PDFs"]
   }
 ];
 

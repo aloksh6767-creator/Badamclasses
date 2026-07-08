@@ -22,8 +22,8 @@ const EXACT_IMAGE_MAP = {
   "reasoning foundation batch 2026": REASONING_FOUNDATION_BANNER,
   "ssc-complete": "/ssc-complete.jpg",
   "ssc complete batch": "/ssc-complete.jpg",
-  "banking-foundation": DEFAULT_COURSE_BANNER,
-  "banking foundation batch": DEFAULT_COURSE_BANNER
+  "railway-foundation": DEFAULT_COURSE_BANNER,
+  "railway foundation batch": DEFAULT_COURSE_BANNER
 };
 
 const KEYWORD_IMAGE_MAP = [

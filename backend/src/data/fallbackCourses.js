@@ -152,18 +152,18 @@ const fallbackCourses = [
     createdAt: "2026-04-21T00:00:00.000Z"
   },
   {
-    _id: "banking-foundation",
-    id: "banking-foundation",
-    title: "Banking Foundation Batch",
-    description: "Banking basics, quants mastery, and daily quizzes for foundation prep.",
-    price: 4299,
+    _id: "railway-foundation",
+    id: "railway-foundation",
+    title: "Railway Foundation Batch",
+    description: "Railway foundation batch with complete syllabus coverage, live and recorded classes, daily PDFs, and regular practice.",
+    price: 1199,
     instructor: {
-      name: "Vikas Sir",
+      name: "Badam Sir",
       email: "support@badamclasses.com"
     },
     thumbnail: GENERAL_COURSE_BANNER,
-    category: "Banking",
-    duration: "9 Months",
+    category: "Railway",
+    duration: "12 Months",
     ratingAverage: 4.8,
     ratingCount: 190,
     createdAt: "2026-04-20T00:00:00.000Z"
