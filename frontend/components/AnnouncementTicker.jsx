@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { getPublicApiUrl } from "@/lib/apiConfig";
 
 const NOTICE_KEY = "badamclasses_site_notice";
-const DISMISS_KEY = "badamclasses_announcement_ticker_dismissed";
 
 const DEFAULT_ANNOUNCEMENT = {
   title: "Important Notice",
@@ -32,12 +31,6 @@ const BUILT_IN_ANNOUNCEMENTS = [
     priority: "Support"
   }
 ];
-
-const SPEEDS = {
-  slow: { label: "Slow", duration: "34s" },
-  normal: { label: "Normal", duration: "24s" },
-  fast: { label: "Fast", duration: "16s" }
-};
 
 const readLocalNotice = () => {
   if (typeof window === "undefined") return null;
@@ -100,17 +93,11 @@ export default function AnnouncementTicker() {
   const [localNotice, setLocalNotice] = useState(null);
   const [remoteAnnouncements, setRemoteAnnouncements] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [dismissed, setDismissed] = useState(false);
-  const [paused, setPaused] = useState(false);
-  const [speed, setSpeed] = useState("normal");
 
   useEffect(() => {
     try {
-      setDismissed(window.sessionStorage.getItem(DISMISS_KEY) === "1");
-      setSpeed(window.localStorage.getItem("badamclasses_announcement_speed") || "normal");
       setLocalNotice(readLocalNotice());
     } catch {
-      setDismissed(false);
       setLocalNotice(null);
     }
 
@@ -161,81 +148,35 @@ export default function AnnouncementTicker() {
   }, [announcements.length]);
 
   useEffect(() => {
-    if (paused || announcements.length <= 1) return undefined;
+    if (announcements.length <= 1) return undefined;
     const timer = window.setInterval(() => {
       setActiveIndex((current) => (current + 1) % announcements.length);
     }, 9000);
     return () => window.clearInterval(timer);
-  }, [announcements.length, paused]);
+  }, [announcements.length]);
 
   const announcement = announcements[activeIndex] || announcements[0] || DEFAULT_ANNOUNCEMENT;
   const text = [announcement.title, announcement.message].filter(Boolean).join(" - ");
-  const speedConfig = SPEEDS[speed] || SPEEDS.normal;
 
-  if (dismissed || !text.trim()) {
+  if (!text.trim()) {
     return null;
   }
-
-  const dismissTicker = () => {
-    setDismissed(true);
-    try {
-      window.sessionStorage.setItem(DISMISS_KEY, "1");
-    } catch {
-      // Session storage is optional; hiding for this render is enough.
-    }
-  };
-
-  const cycleSpeed = () => {
-    const nextSpeed = speed === "normal" ? "fast" : speed === "fast" ? "slow" : "normal";
-    setSpeed(nextSpeed);
-    try {
-      window.localStorage.setItem("badamclasses_announcement_speed", nextSpeed);
-    } catch {
-      // Local storage is only used for preference persistence.
-    }
-  };
-
-  const showNext = () => {
-    setActiveIndex((current) => (current + 1) % announcements.length);
-  };
 
   return (
     <div className="announcement-ticker" role="region" aria-label="Site announcements">
       <div className="announcement-ticker-icon" aria-hidden="true">!</div>
       <span className="announcement-ticker-priority">{announcement.priority || "Info"}</span>
       <div className="announcement-ticker-track" tabIndex={0}>
-        <div
-          className="announcement-ticker-copy"
-          style={{
-            animationDuration: speedConfig.duration,
-            animationPlayState: paused ? "paused" : undefined
-          }}
-        >
+        <div className="announcement-ticker-copy">
           <span>{text}</span>
           <span aria-hidden="true">{text}</span>
         </div>
-      </div>
-      <div className="announcement-ticker-controls" aria-label="Announcement controls">
-        <button type="button" onClick={() => setPaused((value) => !value)} className="announcement-ticker-control">
-          {paused ? "Play" : "Pause"}
-        </button>
-        <button type="button" onClick={cycleSpeed} className="announcement-ticker-control">
-          {speedConfig.label}
-        </button>
-        {announcements.length > 1 ? (
-          <button type="button" onClick={showNext} className="announcement-ticker-control">
-            {activeIndex + 1}/{announcements.length}
-          </button>
-        ) : null}
       </div>
       {announcement.link ? (
         <a href={announcement.link} className="announcement-ticker-link">
           {announcement.linkLabel || "Details"}
         </a>
       ) : null}
-      <button type="button" onClick={dismissTicker} className="announcement-ticker-close" aria-label="Hide announcement">
-        x
-      </button>
     </div>
   );
 }
