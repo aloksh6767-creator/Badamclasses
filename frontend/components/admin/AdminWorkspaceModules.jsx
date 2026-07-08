@@ -916,8 +916,16 @@ const initialMockForm = {
   title: "",
   examName: "",
   questions: "",
+  marks: "",
   duration: "",
+  sectionTiming: "",
+  negativeMarking: "",
+  language: "Hindi + English",
+  examMode: "Full Test",
+  accessType: "Free",
   difficulty: "Medium",
+  schedule: "",
+  resultVisibility: "Instant",
   testUrl: "",
   fileName: "",
   fileDataUrl: "",
@@ -942,6 +950,12 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
       return;
     }
 
+    const marks = form.marks === "" ? "" : Number(form.marks);
+    if (marks !== "" && (!Number.isFinite(marks) || marks < 1)) {
+      setNotice("Total marks valid number hona chahiye.");
+      return;
+    }
+
     setWorkspace((current) => ({
       ...current,
       mockTests: [
@@ -950,8 +964,16 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
           title: form.title.trim(),
           examName: form.examName.trim(),
           questions,
+          marks,
           duration: form.duration.trim(),
+          sectionTiming: form.sectionTiming.trim(),
+          negativeMarking: form.negativeMarking.trim(),
+          language: form.language,
+          examMode: form.examMode,
+          accessType: form.accessType,
           difficulty: form.difficulty,
+          schedule: form.schedule.trim(),
+          resultVisibility: form.resultVisibility,
           testUrl: form.testUrl.trim() || form.fileDataUrl,
           fileName: form.fileName,
           status: form.status
@@ -1016,8 +1038,44 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
               <Field label="Questions">
                 <Input type="number" min="1" value={form.questions} onChange={(e) => setForm({ ...form, questions: e.target.value })} placeholder="100" />
               </Field>
+              <Field label="Total Marks">
+                <Input type="number" min="1" value={form.marks} onChange={(e) => setForm({ ...form, marks: e.target.value })} placeholder="200" />
+              </Field>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Duration">
                 <Input value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} placeholder="60 min" />
+              </Field>
+              <Field label="Section Timing">
+                <Input value={form.sectionTiming} onChange={(e) => setForm({ ...form, sectionTiming: e.target.value })} placeholder="Maths 20m, Reasoning 20m" />
+              </Field>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Negative Marking">
+                <Input value={form.negativeMarking} onChange={(e) => setForm({ ...form, negativeMarking: e.target.value })} placeholder="0.50 mark" />
+              </Field>
+              <Field label="Question Language">
+                <Select value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })}>
+                  <option value="Hindi + English">Hindi + English</option>
+                  <option value="Hindi">Hindi</option>
+                  <option value="English">English</option>
+                </Select>
+              </Field>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Exam Mode">
+                <Select value={form.examMode} onChange={(e) => setForm({ ...form, examMode: e.target.value })}>
+                  <option value="Full Test">Full Test</option>
+                  <option value="Sectional Test">Sectional Test</option>
+                  <option value="Practice Test">Practice Test</option>
+                  <option value="Live Test">Live Test</option>
+                </Select>
+              </Field>
+              <Field label="Access">
+                <Select value={form.accessType} onChange={(e) => setForm({ ...form, accessType: e.target.value })}>
+                  <option value="Free">Free</option>
+                  <option value="Paid">Paid</option>
+                </Select>
               </Field>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -1027,6 +1085,18 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
                   <option value="Medium">Medium</option>
                   <option value="Hard">Hard</option>
                 </Select>
+              </Field>
+              <Field label="Result Visibility">
+                <Select value={form.resultVisibility} onChange={(e) => setForm({ ...form, resultVisibility: e.target.value })}>
+                  <option value="Instant">Instant</option>
+                  <option value="After Schedule">After Schedule</option>
+                  <option value="Manual Publish">Manual Publish</option>
+                </Select>
+              </Field>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Test Schedule">
+                <Input value={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.value })} placeholder="Sunday 10:00 AM" />
               </Field>
               <Field label="Status">
                 <Select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
@@ -1077,7 +1147,10 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
                     <div>
                       <p className="font-semibold text-white">{item.title}</p>
                       <p className="mt-1 text-sm text-slate-300">
-                        {[item.examName, item.questions ? `${item.questions} questions` : "", item.duration, item.difficulty].filter(Boolean).join(" | ")}
+                        {[item.examName, item.questions ? `${item.questions} questions` : "", item.marks ? `${item.marks} marks` : "", item.duration, item.difficulty, item.accessType].filter(Boolean).join(" | ")}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400">
+                        {[item.sectionTiming, item.negativeMarking, item.language, item.resultVisibility].filter(Boolean).join(" | ")}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">{item.fileName || item.testUrl || "No link/file added yet"}</p>
                     </div>

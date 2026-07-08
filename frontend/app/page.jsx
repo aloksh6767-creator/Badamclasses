@@ -10,6 +10,7 @@ import { getUser } from "@/lib/auth";
 import { getPublicApiUrl } from "@/lib/apiConfig";
 import { getCourseFallbackImage, resolveCourseImage } from "@/lib/courseImages";
 import { filterDeletedCourses, filterDeletedCoursesFromStorage, readDeletedCourseKeys, readLocalCourses } from "@/lib/localCourseState";
+import { mockExamCategories } from "@/lib/mockTestCatalog";
 import { applySliderConfig, getLiveCountdown, getOfferBanner, getSliderConfig, isBatchLiveNow, pruneExpiredLiveNow } from "@/lib/sliderConfig";
 const NOTICE_KEY = "badamclasses_site_notice";
 const MEGA_TEST_REGISTRATION_KEY = "badamclasses_mega_test_registrations";
@@ -211,11 +212,7 @@ const liveClassHighlights = [
   { label: "SAVED", title: "Arithmetic Revision Replay", teacher: "Badam Sir", time: "Recorded", status: "Previous live saved" }
 ];
 
-const mockTestCards = [
-  { exam: "SSC CGL", questions: 100, duration: "60 min", difficulty: "Moderate", attempts: "12K+" },
-  { exam: "Railway NTPC", questions: 100, duration: "90 min", difficulty: "Exam Level", attempts: "9K+" },
-  { exam: "Reasoning", questions: 50, duration: "35 min", difficulty: "Foundation", attempts: "6K+" }
-];
+const homepageMockTests = mockExamCategories.slice(0, 3);
 
 const appFeatureList = [
   "Live and recorded classes",
@@ -913,24 +910,28 @@ export default function HomePage() {
 
       <section id="mock-tests" className="animate-reveal stagger-2 mb-14">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-display text-3xl font-semibold">Free Mock Tests</h2>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-orange-300">Exam Pattern Based</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold">Free & Paid Mock Tests</h2>
+          </div>
           <Link href="/mock-tests" className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-orange-300">
             View All Tests
           </Link>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
-          {mockTestCards.map((test) => (
+          {homepageMockTests.map((test) => (
             <article key={test.exam} className="card-anim rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5 transition hover:border-orange-300/40">
               <p className="text-xs uppercase tracking-[0.22em] text-orange-300">{test.exam}</p>
-              <h3 className="mt-3 font-display text-2xl text-white">{test.questions} Questions</h3>
+              <h3 className="mt-3 font-display text-2xl text-white">{test.totalTests} Mock Tests</h3>
               <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-300">
-                <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Duration: {test.duration}</span>
+                <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Free: {test.freeTests}</span>
+                <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Paid: {test.paidTests}</span>
+                <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Time: {test.duration}</span>
                 <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Level: {test.difficulty}</span>
-                <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Attempts: {test.attempts}</span>
-                <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">Result: Instant</span>
               </div>
+              <p className="mt-3 text-xs text-slate-400">{test.pattern} | {test.sections}</p>
               <Link href="/mock-tests" className="btn-gradient btn-anim mt-5 inline-flex rounded-xl px-4 py-2 text-sm font-semibold text-white">
-                Start Test
+                Start Practice
               </Link>
             </article>
           ))}
