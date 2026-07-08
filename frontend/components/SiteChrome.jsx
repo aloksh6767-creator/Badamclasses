@@ -7,6 +7,7 @@ import ChatbotWidget from "@/components/ChatbotWidget";
 import ScrollProgress from "@/components/ScrollProgress";
 import FloatingEnrollButton from "@/components/FloatingEnrollButton";
 import BackToTop from "@/components/BackToTop";
+import AnnouncementTicker from "@/components/AnnouncementTicker";
 
 export default function SiteChrome({ children }) {
   const pathname = usePathname() || "";
@@ -20,6 +21,7 @@ export default function SiteChrome({ children }) {
   return (
     <>
       <ScrollProgress />
+      {!isLiveRoute ? <AnnouncementTicker /> : null}
       <Navbar />
       {children}
       <Footer />

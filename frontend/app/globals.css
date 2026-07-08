@@ -90,6 +90,15 @@ body {
   }
 }
 
+@keyframes announcementTickerScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 28px));
+  }
+}
+
 @keyframes orbDriftA {
   0% {
     transform: translate3d(-10%, -6%, 0) scale(1);
@@ -137,6 +146,90 @@ body {
 
 .animate-nav {
   animation: fadeDown 0.28s ease-out;
+}
+
+.announcement-ticker {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(251, 191, 36, 0.45);
+  background: #173f68;
+  color: #ffe100;
+  min-height: 34px;
+  padding: 4px 10px;
+  box-shadow: 0 10px 24px rgba(2, 8, 23, 0.22);
+}
+
+.announcement-ticker-icon {
+  display: inline-flex;
+  height: 18px;
+  width: 18px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffe100;
+  color: #ffe100;
+  clip-path: polygon(50% 0, 100% 92%, 0 92%);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.announcement-ticker-track {
+  min-width: 0;
+  overflow: hidden;
+  outline: none;
+  white-space: nowrap;
+}
+
+.announcement-ticker-copy {
+  display: inline-flex;
+  min-width: max-content;
+  gap: 56px;
+  animation: announcementTickerScroll 24s linear infinite;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.announcement-ticker-copy span {
+  color: #ffe100;
+}
+
+.announcement-ticker-copy span::first-letter {
+  color: #ff6b6b;
+}
+
+.announcement-ticker:hover .announcement-ticker-copy,
+.announcement-ticker-track:focus .announcement-ticker-copy {
+  animation-play-state: paused;
+}
+
+.announcement-ticker-link,
+.announcement-ticker-close {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 225, 0, 0.35);
+  background: rgba(2, 8, 23, 0.24);
+  color: #fff6a3;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 7px 9px;
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease;
+}
+
+.announcement-ticker-link:hover,
+.announcement-ticker-close:hover {
+  border-color: rgba(255, 225, 0, 0.85);
+  background: rgba(2, 8, 23, 0.42);
+  color: #ffffff;
+}
+
+.announcement-ticker-close {
+  min-width: 30px;
+  text-transform: uppercase;
 }
 
 .float-soft {
