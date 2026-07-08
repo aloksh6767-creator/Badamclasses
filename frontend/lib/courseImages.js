@@ -4,18 +4,18 @@ const DEFAULT_COURSE_BANNER = "/railway-batch-banner-2026.png";
 const EXACT_IMAGE_MAP = {
   "phoolbagh-branch-new-batch-2026": "/phoolbagh-new-batch-2026.png",
   "phoolbagh branch new batch 2.0": "/phoolbagh-new-batch-2026.png",
-  "udan-batch": "/maths-batch.jpg",
-  "udaan batch combo (maths + reasoning)": "/maths-batch.jpg",
+  "udan-batch": DEFAULT_COURSE_BANNER,
+  "udaan batch combo (maths + reasoning)": DEFAULT_COURSE_BANNER,
   "arithmetic-special": "/recorded-batch.jpg",
   "arithmetic special (recorded)": "/recorded-batch.jpg",
   "recorded-batch": "/recorded-batch.jpg",
   "recorded batch": "/recorded-batch.jpg",
   "mp-police": DEFAULT_COURSE_BANNER,
   "mp police batch": DEFAULT_COURSE_BANNER,
-  "maths-special": "/maths-batch.jpg",
-  "maths special batch": "/maths-batch.jpg",
-  "reasoning-batch": "/maths-batch.jpg",
-  "reasoning batch": "/maths-batch.jpg",
+  "maths-special": "/ssc-complete.jpg",
+  "maths special batch": "/ssc-complete.jpg",
+  "reasoning-batch": DEFAULT_COURSE_BANNER,
+  "reasoning batch": DEFAULT_COURSE_BANNER,
   "ssc-complete": "/ssc-complete.jpg",
   "ssc complete batch": "/ssc-complete.jpg",
   "banking-foundation": DEFAULT_COURSE_BANNER,
@@ -25,9 +25,9 @@ const EXACT_IMAGE_MAP = {
 const KEYWORD_IMAGE_MAP = [
   { keywords: ["phoolbagh"], image: "/phoolbagh-new-batch-2026.png" },
   { keywords: ["recorded"], image: "/recorded-batch.jpg" },
-  { keywords: ["math", "arithmetic", "advance", "udan", "udaan", "reasoning"], image: "/maths-batch.jpg" },
-  { keywords: ["ssc"], image: "/ssc-complete.jpg" },
-  { keywords: ["railway", "police", "state", "banking"], image: DEFAULT_COURSE_BANNER }
+  { keywords: ["arithmetic"], image: "/recorded-batch.jpg" },
+  { keywords: ["math", "ssc"], image: "/ssc-complete.jpg" },
+  { keywords: ["railway", "police", "state", "banking", "udan", "udaan", "reasoning"], image: DEFAULT_COURSE_BANNER }
 ];
 
 const PLACEHOLDER_IMAGES = new Set([

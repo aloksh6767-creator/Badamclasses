@@ -1,5 +1,4 @@
 const PHOOLBAGH_BATCH_IMAGE = "/phoolbagh-new-batch-2026.png";
-const MATHS_BATCH_IMAGE = "/maths-batch.jpg";
 const RECORDED_BATCH_IMAGE = "/recorded-batch.jpg";
 const SSC_COMPLETE_IMAGE = "/ssc-complete.jpg";
 const GENERAL_COURSE_BANNER = "/railway-batch-banner-2026.png";
@@ -38,7 +37,7 @@ const fallbackCourses = [
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: MATHS_BATCH_IMAGE,
+    thumbnail: GENERAL_COURSE_BANNER,
     category: "SSC",
     duration: "15 Months",
     batchTime: "07:00 AM",
@@ -108,7 +107,7 @@ const fallbackCourses = [
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: MATHS_BATCH_IMAGE,
+    thumbnail: SSC_COMPLETE_IMAGE,
     category: "SSC",
     duration: "1 Year",
     ratingAverage: 4.8,
@@ -125,7 +124,7 @@ const fallbackCourses = [
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: MATHS_BATCH_IMAGE,
+    thumbnail: GENERAL_COURSE_BANNER,
     category: "SSC",
     duration: "10 Months",
     ratingAverage: 4.7,
