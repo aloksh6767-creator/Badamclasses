@@ -9,17 +9,14 @@ import {
   mockInterfaceActions,
   originalFreePracticeQuestions,
   resultAnalysisList,
-  rojgarWithAnkitFreeMocks,
-  sscCglAdvancedMocks,
+  topicWiseAiMocks,
   timerFeatureList
 } from "@/lib/mockTestCatalog";
 
 const internalPracticeHref = "/mock-tests/free-practice";
-const isExternalCatalogEntry = (test = {}) => ["Test Ranking", "Rojgar With Ankit"].includes(test.sourceName);
 
 const fallbackOnlineMocks = [
-  ...sscCglAdvancedMocks,
-  ...rojgarWithAnkitFreeMocks,
+  ...topicWiseAiMocks,
   {
     id: "fallback-ssc-cgl-1",
     title: "SSC CGL Full Mock 1",
@@ -45,7 +42,7 @@ const mergePublishedMocks = (workspaceMocks = []) => {
     : [];
   const byId = new Map();
 
-  [...sscCglAdvancedMocks, ...rojgarWithAnkitFreeMocks, ...publishedWorkspaceMocks].forEach((item) => {
+  [...topicWiseAiMocks, ...publishedWorkspaceMocks].forEach((item) => {
     const key = item?.id || item?.title;
     if (key && !byId.has(key)) {
       byId.set(key, item);
@@ -186,7 +183,7 @@ export default function MockTestsPage() {
       </div>
 
       <div className="mb-6 rounded-2xl border border-orange-300/20 bg-orange-500/10 p-4 text-sm text-orange-100">
-        {publishedCount} online mock test{publishedCount === 1 ? "" : "s"} available with BadamClasses original practice content. External links open nahi honge; practice isi website par chalegi.
+        {publishedCount} topic-wise mock test{publishedCount === 1 ? "" : "s"} available with BadamClasses original practice content and AI-help guidance. External TestRanking/RWA cards removed.
       </div>
 
       <div id="published-tests" className="grid gap-4 md:grid-cols-2">
@@ -210,10 +207,14 @@ export default function MockTestsPage() {
               <p>Negative: {test.negativeMarking || "-"}</p>
               <p>Language: {test.language || "Hindi + English"}</p>
               <p>Mode: {test.examMode || "Online Mock"}</p>
-              <p>Result: {isExternalCatalogEntry(test) ? "Instant on BadamClasses" : test.resultVisibility || "Instant"}</p>
-              {test.sourceName ? <p>Practice: BadamClasses Original</p> : null}
+              <p>Result: {test.resultVisibility || "Instant"}</p>
               {test.groupLabel ? <p>Group: {test.groupLabel}</p> : null}
             </div>
+            {test.aiHint ? (
+              <p className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-50">
+                {test.aiHint}
+              </p>
+            ) : null}
             <div className="mt-4 flex flex-wrap gap-2">
               {(test.sectionTiming ? [test.sectionTiming] : ["Section timer ready"]).concat(mockInterfaceActions.slice(0, 3)).map((item) => (
                 <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-slate-200">{item}</span>
@@ -221,11 +222,7 @@ export default function MockTestsPage() {
             </div>
             {test.fileName ? <p className="mt-3 text-xs text-cyan-200">Material: {test.fileName}</p> : null}
             <div className="mt-4 flex flex-wrap gap-3">
-              {isExternalCatalogEntry(test) ? (
-                <Link href={internalPracticeHref} className="btn-gradient btn-anim rounded-lg px-4 py-2 text-sm font-semibold text-white">
-                  Start on BadamClasses
-                </Link>
-              ) : test.testUrl ? (
+              {test.testUrl && test.testUrl !== internalPracticeHref ? (
                 <a href={test.testUrl} target="_blank" rel="noreferrer" className="btn-gradient btn-anim rounded-lg px-4 py-2 text-sm font-semibold text-white">
                   Start Online Test
                 </a>

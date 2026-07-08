@@ -60,6 +60,26 @@ export default function FreePracticePage() {
   const attempted = Object.keys(answers).length;
   const accuracy = attempted ? Math.round((score / attempted) * 100) : 0;
   const knownAnswerCount = questions.filter((question) => Number.isInteger(question.answer)).length;
+  const topicBreakdown = useMemo(() => {
+    const counts = new Map();
+    questions.forEach((question) => {
+      const topic = question.section || selectedTest.category || "General";
+      counts.set(topic, (counts.get(topic) || 0) + 1);
+    });
+    return Array.from(counts, ([topic, count]) => ({ topic, count })).slice(0, 6);
+  }, [questions, selectedTest.category]);
+  const aiRecommendation = useMemo(() => {
+    const firstTopic = topicBreakdown[0]?.topic || selectedTest.category || "core topics";
+    if (!submitted) {
+      return `AI help: pehle ${firstTopic} ke easy questions attempt karein, phir marked questions review karein.`;
+    }
+    if (!knownAnswerCount) {
+      return `AI help: ${attempted}/${questions.length} attempted. Answer key pending hai, ab unattempted questions ko second round me solve karein.`;
+    }
+    return accuracy >= 75
+      ? "AI help: accuracy strong hai. Ab timer reduce karke same topic ka speed round karein."
+      : "AI help: weak questions ko error-log me likhein aur formula/concept revision ke baad retest karein.";
+  }, [accuracy, attempted, knownAnswerCount, questions.length, selectedTest.category, submitted, topicBreakdown]);
 
   const switchTest = (event) => {
     setSelectedTestId(event.target.value);
@@ -102,6 +122,16 @@ export default function FreePracticePage() {
         <p className="mt-3 text-sm text-slate-300">
           Current: {selectedTest.title} | {selectedTest.category} | {questions.length} questions
         </p>
+        <div className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-50">
+          {aiRecommendation}
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {topicBreakdown.map((item) => (
+            <span key={item.topic} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-slate-200">
+              {item.topic}: {item.count}
+            </span>
+          ))}
+        </div>
       </section>
 
       <section className="sticky top-20 z-10 mb-5 rounded-2xl border border-orange-300/25 bg-[#081127]/95 p-4 shadow-2xl shadow-black/20 backdrop-blur">
