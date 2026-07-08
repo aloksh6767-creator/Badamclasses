@@ -7,11 +7,15 @@ import { apiFetch } from "@/lib/api";
 import {
   mockExamCategories,
   mockInterfaceActions,
+  originalFreePracticeQuestions,
   resultAnalysisList,
   rojgarWithAnkitFreeMocks,
   sscCglAdvancedMocks,
   timerFeatureList
 } from "@/lib/mockTestCatalog";
+
+const internalPracticeHref = "/mock-tests/free-practice";
+const isExternalCatalogEntry = (test = {}) => ["Test Ranking", "Rojgar With Ankit"].includes(test.sourceName);
 
 const fallbackOnlineMocks = [
   ...sscCglAdvancedMocks,
@@ -157,7 +161,7 @@ export default function MockTestsPage() {
       </div>
 
       <div className="mb-6 rounded-2xl border border-orange-300/20 bg-orange-500/10 p-4 text-sm text-orange-100">
-        {publishedCount} online mock test{publishedCount === 1 ? "" : "s"} available, including SSC CGL free mock groups from Test Ranking and free weekly quizzes from Rojgar With Ankit. Admin panel se published mocks bhi yahan visible rahenge.
+        {publishedCount} online mock test{publishedCount === 1 ? "" : "s"} available with BadamClasses original practice content. External links open nahi honge; practice isi website par chalegi.
       </div>
 
       <div id="published-tests" className="grid gap-4 md:grid-cols-2">
@@ -181,8 +185,8 @@ export default function MockTestsPage() {
               <p>Negative: {test.negativeMarking || "-"}</p>
               <p>Language: {test.language || "Hindi + English"}</p>
               <p>Mode: {test.examMode || "Online Mock"}</p>
-              <p>Result: {test.resultVisibility || "Instant"}</p>
-              {test.sourceName ? <p>Source: {test.sourceName}</p> : null}
+              <p>Result: {isExternalCatalogEntry(test) ? "Instant on BadamClasses" : test.resultVisibility || "Instant"}</p>
+              {test.sourceName ? <p>Practice: BadamClasses Original</p> : null}
               {test.groupLabel ? <p>Group: {test.groupLabel}</p> : null}
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -192,23 +196,18 @@ export default function MockTestsPage() {
             </div>
             {test.fileName ? <p className="mt-3 text-xs text-cyan-200">Material: {test.fileName}</p> : null}
             <div className="mt-4 flex flex-wrap gap-3">
-              {test.testUrl ? (
-                <a
-                  href={test.testUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-gradient btn-anim rounded-lg px-4 py-2 text-sm font-semibold text-white"
-                >
+              {isExternalCatalogEntry(test) ? (
+                <Link href={internalPracticeHref} className="btn-gradient btn-anim rounded-lg px-4 py-2 text-sm font-semibold text-white">
+                  Start on BadamClasses
+                </Link>
+              ) : test.testUrl ? (
+                <a href={test.testUrl} target="_blank" rel="noreferrer" className="btn-gradient btn-anim rounded-lg px-4 py-2 text-sm font-semibold text-white">
                   Start Online Test
                 </a>
               ) : (
-                <button
-                  type="button"
-                  disabled
-                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-300 opacity-70"
-                >
-                  Link Coming Soon
-                </button>
+                <Link href={internalPracticeHref} className="btn-gradient btn-anim rounded-lg px-4 py-2 text-sm font-semibold text-white">
+                  Start Practice
+                </Link>
               )}
               <Link href="/contact" className="rounded-lg border border-white/20 px-4 py-2 text-sm text-slate-100 hover:border-orange-300">
                 Ask Support
@@ -262,6 +261,21 @@ export default function MockTestsPage() {
           </div>
         </section>
       ) : null}
+
+      <section className="mt-10 rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300">BadamClasses Original</p>
+            <h2 className="mt-2 font-display text-3xl text-white">Free Practice Questions Uploaded</h2>
+          </div>
+          <Link href={internalPracticeHref} className="btn-gradient btn-anim rounded-xl px-4 py-2 text-sm font-semibold text-white">
+            Attempt Now
+          </Link>
+        </div>
+        <p className="mt-3 text-sm text-slate-300">
+          {originalFreePracticeQuestions.length} original SSC-style questions with answer explanations are available inside the website.
+        </p>
+      </section>
     </main>
   );
 }
