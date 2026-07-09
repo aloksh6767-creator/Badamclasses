@@ -9,6 +9,7 @@ import {
   mockInterfaceActions,
   originalFreePracticeQuestions,
   resultAnalysisList,
+  topicWisePdfMockCards,
   topicWiseAiMocks,
   timerFeatureList
 } from "@/lib/mockTestCatalog";
@@ -56,6 +57,7 @@ export default function MockTestsPage() {
   const [mockTests, setMockTests] = useState(fallbackOnlineMocks);
   const [mcqSets, setMcqSets] = useState([]);
   const [pdfMaterials, setPdfMaterials] = useState([]);
+  const [pdfQuestionTests, setPdfQuestionTests] = useState([]);
 
   useEffect(() => {
     const workspace = readAdminWorkspace();
@@ -79,6 +81,29 @@ export default function MockTestsPage() {
     };
 
     loadMcqSets();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadPdfQuestionTests = async () => {
+      try {
+        const response = await fetch("/mock-pdfs/mock-question-bank.json");
+        const data = await response.json();
+        if (active) {
+          setPdfQuestionTests(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        if (active) {
+          setPdfQuestionTests([]);
+        }
+      }
+    };
+
+    loadPdfQuestionTests();
     return () => {
       active = false;
     };
@@ -113,6 +138,23 @@ export default function MockTestsPage() {
     [mcqSets]
   );
   const availablePdfCount = useMemo(() => pdfMaterials.filter((item) => item.status === "available").length, [pdfMaterials]);
+  const pdfQuestionCount = useMemo(
+    () => pdfQuestionTests.reduce((total, test) => total + (Array.isArray(test.questions) ? test.questions.length : 0), 0),
+    [pdfQuestionTests]
+  );
+  const subjectWisePdfMocks = useMemo(() => {
+    const subjects = new Map();
+    pdfQuestionTests.forEach((test) => {
+      (Array.isArray(test.questions) ? test.questions : []).forEach((question) => {
+        const subject = question.section || test.subject || "Mixed Practice";
+        const current = subjects.get(subject) || { subject, questions: 0, tests: new Set() };
+        current.questions += 1;
+        current.tests.add(test.title);
+        subjects.set(subject, current);
+      });
+    });
+    return Array.from(subjects.values()).map((item) => ({ ...item, tests: item.tests.size })).sort((a, b) => b.questions - a.questions);
+  }, [pdfQuestionTests]);
 
   return (
     <main className="mx-auto w-[92%] max-w-6xl py-10 text-slate-100">
@@ -185,6 +227,80 @@ export default function MockTestsPage() {
       <div className="mb-6 rounded-2xl border border-orange-300/20 bg-orange-500/10 p-4 text-sm text-orange-100">
         {publishedCount} topic-wise mock test{publishedCount === 1 ? "" : "s"} available with BadamClasses original practice content and AI-help guidance. External TestRanking/RWA cards removed.
       </div>
+
+      {subjectWisePdfMocks.length ? (
+        <section className="mb-8 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">PDF to Mock</p>
+              <h2 className="mt-2 font-display text-3xl text-white">Subject-wise Uploaded PDF Questions</h2>
+              <p className="mt-2 text-sm text-slate-300">
+                {pdfQuestionTests.length} PDF mock sets converted into {pdfQuestionCount} website questions with topic filters.
+              </p>
+            </div>
+            <Link href="/mock-tests/free-practice" className="btn-gradient btn-anim rounded-xl px-4 py-2 text-sm font-semibold text-white">
+              Attempt PDF Mock
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {subjectWisePdfMocks.map((item) => (
+              <article key={item.subject} className="rounded-xl border border-white/10 bg-[#071126]/75 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-orange-300">{item.subject}</p>
+                <h3 className="mt-2 font-display text-2xl text-white">{item.questions} Questions</h3>
+                <p className="mt-2 text-sm text-slate-300">{item.tests} PDF set{item.tests === 1 ? "" : "s"} covered</p>
+                <p className="mt-3 rounded-lg border border-cyan-300/20 bg-cyan-400/10 px-3 py-2 text-xs text-cyan-50">
+                  AI help: attempt weak topic, submit, then revise pending answer key notes.
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <section className="mb-8 rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300">Topic-wise Mock Database</p>
+            <h2 className="mt-2 font-display text-3xl text-white">PDF Questions Converted into Mock Cards</h2>
+            <p className="mt-2 text-sm text-slate-300">
+              Maths, Reasoning, General Awareness, General Science, English and State Exam topics are ready for practice.
+            </p>
+          </div>
+          <Link href="/mock-tests/free-practice" className="btn-gradient btn-anim rounded-xl px-4 py-2 text-sm font-semibold text-white">
+            Start Any Topic
+          </Link>
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {topicWisePdfMockCards.map((mock) => (
+            <article key={`${mock.subject}-${mock.title}`} className="rounded-2xl border border-white/10 bg-[#071126]/75 p-4 transition hover:border-orange-300/40">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-orange-300">{mock.subject}</p>
+                  <h3 className="mt-2 font-display text-xl text-white">{mock.title}</h3>
+                </div>
+                <span className="rounded-full border border-emerald-300/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-200">
+                  Active
+                </span>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-300">
+                <span className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">Topic: {mock.topic}</span>
+                <span className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">Questions: {mock.questions}</span>
+                <span className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">Level: {mock.difficulty}</span>
+                <span className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">Time: {mock.time}</span>
+                <span className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">Negative: {mock.negative}</span>
+                <span className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">{mock.type}</span>
+              </div>
+              <p className="mt-3 text-xs text-slate-400">Source PDF: {mock.source}</p>
+              <p className="mt-3 rounded-lg border border-cyan-300/20 bg-cyan-400/10 px-3 py-2 text-xs text-cyan-50">
+                AI help: attempt this topic, submit, then revise weak questions before next mock.
+              </p>
+              <Link href="/mock-tests/free-practice" className="btn-gradient btn-anim mt-4 inline-flex rounded-xl px-4 py-2 text-sm font-semibold text-white">
+                Start Mock
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <div id="published-tests" className="grid gap-4 md:grid-cols-2">
         {mockTests.map((test) => (

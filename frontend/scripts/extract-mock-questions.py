@@ -48,6 +48,25 @@ def category_from_name(name):
     return "Railway"
 
 
+def subject_from_name(name):
+    lowered = name.lower()
+    if "math" in lowered:
+        return "Maths"
+    if "reasoning" in lowered:
+        return "Reasoning"
+    if "general_awareness" in lowered or "general awareness" in lowered:
+        return "General Awareness"
+    if "science" in lowered:
+        return "General Science"
+    if "english" in lowered or "dictionary" in lowered:
+        return "English"
+    if "economics" in lowered:
+        return "Economics"
+    if "answerkey" in lowered or "answer_key" in lowered or "answer key" in lowered:
+        return "Previous Year Mixed"
+    return "Mixed Practice"
+
+
 def parse_options(block):
     patterns = [
         r"\[A\]\s*(.*?)\s*\[B\]\s*(.*?)\s*\[C\]\s*(.*?)\s*\[D\]\s*(.*)",
@@ -63,7 +82,7 @@ def parse_options(block):
     return []
 
 
-def parse_questions(path):
+def parse_questions(path, subject):
     reader = PdfReader(str(path))
     text = "\n".join(page.extract_text() or "" for page in reader.pages[:MAX_PAGES_PER_PDF])
     text = text.replace("Watch Video Solutions", " ").replace("Watch Video solutions", " ")
@@ -84,6 +103,7 @@ def parse_questions(path):
         questions.append(
             {
                 "id": f"{path.stem.lower()[:28]}-{len(questions) + 1}",
+                "section": subject,
                 "question": question_text,
                 "options": options,
                 "answer": None,
@@ -103,7 +123,8 @@ def main():
             continue
         if path.stat().st_size > MAX_FILE_MB * 1024 * 1024:
             continue
-        questions = parse_questions(path)
+        subject = subject_from_name(path.name)
+        questions = parse_questions(path, subject)
         if not questions:
             continue
         tests.append(
@@ -111,6 +132,7 @@ def main():
                 "id": re.sub(r"[^a-z0-9]+", "-", path.stem.lower()).strip("-")[:80],
                 "title": path.stem,
                 "category": category_from_name(path.name),
+                "subject": subject,
                 "language": "Hindi + English",
                 "questions": questions,
             }

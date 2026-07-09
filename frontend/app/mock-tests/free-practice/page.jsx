@@ -7,6 +7,7 @@ import { originalFreePracticeQuestions } from "@/lib/mockTestCatalog";
 export default function FreePracticePage() {
   const [pdfTests, setPdfTests] = useState([]);
   const [selectedTestId, setSelectedTestId] = useState("original");
+  const [selectedSubject, setSelectedSubject] = useState("all");
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -48,7 +49,15 @@ export default function FreePracticePage() {
     };
   }, [pdfTests, selectedTestId]);
 
-  const questions = selectedTest.questions || originalFreePracticeQuestions;
+  const allQuestions = selectedTest.questions || originalFreePracticeQuestions;
+  const subjectOptions = useMemo(() => {
+    const subjects = new Set(allQuestions.map((question) => question.section || selectedTest.subject || "Mixed Practice"));
+    return Array.from(subjects).sort();
+  }, [allQuestions, selectedTest.subject]);
+  const questions = useMemo(() => {
+    if (selectedSubject === "all") return allQuestions;
+    return allQuestions.filter((question) => (question.section || selectedTest.subject || "Mixed Practice") === selectedSubject);
+  }, [allQuestions, selectedSubject, selectedTest.subject]);
   const score = useMemo(
     () =>
       questions.reduce((total, question) => {
@@ -83,6 +92,13 @@ export default function FreePracticePage() {
 
   const switchTest = (event) => {
     setSelectedTestId(event.target.value);
+    setSelectedSubject("all");
+    setAnswers({});
+    setSubmitted(false);
+  };
+
+  const switchSubject = (event) => {
+    setSelectedSubject(event.target.value);
     setAnswers({});
     setSubmitted(false);
   };
@@ -122,6 +138,22 @@ export default function FreePracticePage() {
         <p className="mt-3 text-sm text-slate-300">
           Current: {selectedTest.title} | {selectedTest.category} | {questions.length} questions
         </p>
+        <label className="mt-5 block text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300" htmlFor="subject-select">
+          Subject / Topic Filter
+        </label>
+        <select
+          id="subject-select"
+          value={selectedSubject}
+          onChange={switchSubject}
+          className="mt-3 w-full rounded-xl border border-white/10 bg-[#071126] px-4 py-3 text-sm text-white outline-none focus:border-cyan-300"
+        >
+          <option value="all">All Subjects - {allQuestions.length} Questions</option>
+          {subjectOptions.map((subject) => (
+            <option key={subject} value={subject}>
+              {subject} - {allQuestions.filter((question) => (question.section || selectedTest.subject || "Mixed Practice") === subject).length} Questions
+            </option>
+          ))}
+        </select>
         <div className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-50">
           {aiRecommendation}
         </div>

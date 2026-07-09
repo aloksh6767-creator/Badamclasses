@@ -171,6 +171,29 @@ export const topicWiseAiMocks = [
 ];
 
 
+export const topicWisePdfMockCards = [
+  { title: "RRB NTPC Arithmetic Level", subject: "Maths", topic: "Arithmetic", questions: 120, difficulty: "Moderate", source: "RRB NTPC Maths PYQ", time: "60 min", negative: "1/3", type: "PYQ + Practice" },
+  { title: "Technician Grade 3 Maths", subject: "Maths", topic: "Railway Maths", questions: 120, difficulty: "Exam Level", source: "Technician Maths 2025", time: "60 min", negative: "1/3", type: "Shift Questions" },
+  { title: "RRB ALP Maths Top Questions", subject: "Maths", topic: "ALP Maths", questions: 118, difficulty: "Exam Level", source: "ALP Maths Top 118", time: "60 min", negative: "1/3", type: "Top Questions" },
+  { title: "Paramedical Maths Booster", subject: "Maths", topic: "Percentage + Profit Loss", questions: 36, difficulty: "Moderate", source: "Paramedical Maths", time: "25 min", negative: "1/3", type: "Topic Drill" },
+  { title: "SSC MTS Maths Geometry", subject: "Maths", topic: "Geometry", questions: 30, difficulty: "Moderate", source: "SSC MTS 2025", time: "25 min", negative: "0.50", type: "Shift Questions" },
+  { title: "SSC MTS Arithmetic Mix", subject: "Maths", topic: "Arithmetic Mix", questions: 35, difficulty: "Moderate", source: "SSC MTS 2025", time: "30 min", negative: "0.50", type: "Topic Drill" },
+  { title: "RRB NTPC Reasoning PYQ", subject: "Reasoning", topic: "Reasoning Mixed", questions: 120, difficulty: "Exam Level", source: "NTPC Reasoning PYQ", time: "55 min", negative: "1/3", type: "PYQ Practice" },
+  { title: "Technician Reasoning Set", subject: "Reasoning", topic: "Series + Coding", questions: 120, difficulty: "Moderate", source: "Technician Reasoning 2025", time: "50 min", negative: "1/3", type: "Shift Questions" },
+  { title: "Reasoning Speed Drill", subject: "Reasoning", topic: "Analogy + Classification", questions: 50, difficulty: "Foundation", source: "BadamClasses AI Mix", time: "30 min", negative: "0.25", type: "Speed Drill" },
+  { title: "Direction & Ranking Mock", subject: "Reasoning", topic: "Direction Sense", questions: 35, difficulty: "Foundation", source: "BadamClasses AI Mix", time: "25 min", negative: "0.25", type: "Topic Drill" },
+  { title: "General Awareness Railway PYQ", subject: "General Awareness", topic: "Static GK", questions: 120, difficulty: "Exam Level", source: "Railway GA PDF", time: "45 min", negative: "1/3", type: "PYQ Practice" },
+  { title: "NTPC General Awareness", subject: "General Awareness", topic: "GA Mixed", questions: 120, difficulty: "Exam Level", source: "NTPC GA PYQ", time: "45 min", negative: "1/3", type: "PYQ Practice" },
+  { title: "Economics Complete Mock", subject: "General Awareness", topic: "Economics", questions: 80, difficulty: "Moderate", source: "Economics Complete", time: "35 min", negative: "1/3", type: "Subject Mock" },
+  { title: "General Science Railway", subject: "General Science", topic: "Science Mixed", questions: 120, difficulty: "Exam Level", source: "Railway Science PDF", time: "45 min", negative: "1/3", type: "PYQ Practice" },
+  { title: "Technician Science + GA", subject: "General Science", topic: "Science + GA", questions: 120, difficulty: "Exam Level", source: "Technician Science GA", time: "45 min", negative: "1/3", type: "Shift Questions" },
+  { title: "Physics Quick Mock", subject: "General Science", topic: "Physics", questions: 40, difficulty: "Moderate", source: "Railway Science PDF", time: "25 min", negative: "1/3", type: "Topic Drill" },
+  { title: "Biology Quick Mock", subject: "General Science", topic: "Biology", questions: 40, difficulty: "Moderate", source: "Railway Science PDF", time: "25 min", negative: "1/3", type: "Topic Drill" },
+  { title: "Chemistry Quick Mock", subject: "General Science", topic: "Chemistry", questions: 40, difficulty: "Moderate", source: "Railway Science PDF", time: "25 min", negative: "1/3", type: "Topic Drill" },
+  { title: "SSC English Vocabulary", subject: "English", topic: "Vocabulary", questions: 50, difficulty: "Daily Practice", source: "BadamClasses AI Mix", time: "20 min", negative: "0.25", type: "Topic Drill" },
+  { title: "UP Constable Mixed Mock", subject: "State Exams", topic: "UP Police Mixed", questions: 100, difficulty: "State Level", source: "UP Constable Shifts", time: "60 min", negative: "0.25", type: "Shift Questions" }
+];
+
 export const originalFreePracticeQuestions = [
   {
     id: "q1",
