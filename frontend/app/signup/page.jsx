@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { apiFetch } from "@/lib/api";
-import { getDefaultRouteForUser, getSafeRedirectPath, getToken, getUser } from "@/lib/auth";
+import { getDefaultRouteForUser, getSafeRedirectPath, getToken, getUser, saveAuth } from "@/lib/auth";
 import AuthShowcase from "@/components/AuthShowcase";
 
 function FieldIcon({ type }) {
@@ -41,6 +41,7 @@ export default function SignupPage() {
   const [otpMode, setOtpMode] = useState("server");
   const [devCode, setDevCode] = useState("");
   const DEMO_OTP_KEY = "bsc_demo_otp_";
+  const LOCAL_SIGNUP_USERS_KEY = "bsc_local_signup_users";
   const redirectTarget = getSafeRedirectPath(searchParams.get("redirect"), "");
 
   const normalizedPhone = phone.replace(/\s+/g, "");
@@ -142,7 +143,26 @@ export default function SignupPage() {
       return;
     }
     if (otpMode === "demo") {
-      setError("Demo OTP mode cannot create the account. Tap Resend after the backend reconnects, then verify the new OTP.");
+      const localUser = {
+        id: `local-${Date.now()}`,
+        name: name.trim(),
+        email: normalizedEmail,
+        phone: normalizedPhone,
+        role: role === "admin" ? "admin" : "student",
+        phoneVerified: true,
+        localOnly: true,
+        createdAt: new Date().toISOString()
+      };
+      const existingUsers = JSON.parse(localStorage.getItem(LOCAL_SIGNUP_USERS_KEY) || "[]");
+      const alreadyExists = existingUsers.some((user) => user.email === normalizedEmail || user.phone === normalizedPhone);
+      if (alreadyExists) {
+        setError("This email or phone is already registered locally. Please login or use another number.");
+        return;
+      }
+      localStorage.setItem(LOCAL_SIGNUP_USERS_KEY, JSON.stringify([localUser, ...existingUsers]));
+      saveAuth(`local-demo-${Date.now()}`, localUser);
+      localStorage.removeItem(`${DEMO_OTP_KEY}${normalizedPhone}`);
+      window.location.href = redirectTarget || getDefaultRouteForUser(localUser);
       return;
     }
 
