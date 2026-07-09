@@ -15,6 +15,27 @@ const DEFAULT_ANNOUNCEMENT = {
 };
 
 const BUILT_IN_ANNOUNCEMENTS = [
+  {
+    title: "Website Update",
+    message: "PDF questions are now converted into subject-wise and topic-wise mock tests on BadamClasses.",
+    link: "/mock-tests",
+    linkLabel: "Open Mocks",
+    priority: "New"
+  },
+  {
+    title: "Mock Test Upgrade",
+    message: "Full-screen real mock mode is live with timer, question palette, review controls, and auto-submit.",
+    link: "/mock-tests/free-practice",
+    linkLabel: "Start Test",
+    priority: "Live"
+  },
+  {
+    title: "Account Update",
+    message: "Signup and admin access fallback have been improved for smoother login during backend reconnects.",
+    link: "/signup",
+    linkLabel: "Register",
+    priority: "Fixed"
+  },
   DEFAULT_ANNOUNCEMENT,
   {
     title: "Admissions Open",

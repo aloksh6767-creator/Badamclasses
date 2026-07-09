@@ -37,7 +37,8 @@ export default function AdminPage() {
         const message = String(apiError?.message || "").trim();
         const isBackendUnavailable =
           message === "Server is temporarily unavailable. Please try again." ||
-          message === "Server response is taking too long. Please retry in a moment.";
+          message === "Server response is taking too long. Please retry in a moment." ||
+          message.includes("Production API URL is not configured");
 
         if (isBackendUnavailable && isAdminUser(localUser)) {
           setUser(localUser);
