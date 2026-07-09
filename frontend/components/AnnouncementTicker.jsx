@@ -6,12 +6,11 @@ import { getPublicApiUrl } from "@/lib/apiConfig";
 const NOTICE_KEY = "badamclasses_site_notice";
 
 const DEFAULT_ANNOUNCEMENT = {
-  title: "Important Notice",
-  message:
-    "The Objection/Grievance Portal for TET (01/UPTET/2026) will be open from 08 Jul 2026 18:00:00 to 14 Jul 2026 23:59:00. Candidates are advised to check updates on time.",
-  link: "/contact",
-  linkLabel: "Help",
-  priority: "High"
+  title: "Website Update",
+  message: "PDF questions are now converted into subject-wise and topic-wise mock tests on BadamClasses.",
+  link: "/mock-tests",
+  linkLabel: "Open Mocks",
+  priority: "New"
 };
 
 const BUILT_IN_ANNOUNCEMENTS = [
@@ -36,7 +35,6 @@ const BUILT_IN_ANNOUNCEMENTS = [
     linkLabel: "Register",
     priority: "Fixed"
   },
-  DEFAULT_ANNOUNCEMENT,
   {
     title: "Admissions Open",
     message: "New batches are available for SSC, Railway, Reasoning, Arithmetic, and other competitive exams.",
