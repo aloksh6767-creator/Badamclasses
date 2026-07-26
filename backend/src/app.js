@@ -43,7 +43,8 @@ const localAllowedOrigins = [
 // The public Next.js application is deployed separately from this API. Keep
 // this explicit rather than allowing arbitrary Vercel preview origins.
 const productionAllowedOrigins = [
-  "https://badamclasses-frontend.vercel.app"
+  "https://badamclasses-frontend.vercel.app",
+  "https://frontend-sigma-ashen-91.vercel.app"
 ];
 
 const envOrigins = String(process.env.FRONTEND_URL || "")
