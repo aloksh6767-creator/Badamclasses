@@ -40,26 +40,36 @@ const localAllowedOrigins = [
   "http://127.0.0.1:3002"
 ];
 
+// The public Next.js application is deployed separately from this API. Keep
+// this explicit rather than allowing arbitrary Vercel preview origins.
+const productionAllowedOrigins = [
+  "https://badamclasses-frontend.vercel.app"
+];
+
 const envOrigins = String(process.env.FRONTEND_URL || "")
   .split(",")
   .map((value) => value.trim())
   .filter(Boolean);
 
-const allowedOrigins = Array.from(new Set([...localAllowedOrigins, ...envOrigins]));
+const allowedOrigins = Array.from(new Set([...localAllowedOrigins, ...productionAllowedOrigins, ...envOrigins]));
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      const error = new Error("Origin not allowed by CORS");
-      error.statusCode = 403;
-      return callback(error);
+const corsOptions = {
+  credentials: true,
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Authorization", "Content-Type"],
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
-  })
-);
+
+    const error = new Error("Origin not allowed by CORS");
+    error.statusCode = 403;
+    return callback(error);
+  }
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(securityHeaders);
 app.use(express.json({ limit: "10mb" }));
 
