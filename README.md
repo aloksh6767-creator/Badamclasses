@@ -98,6 +98,26 @@ Frontend runs on `http://localhost:3000`.
 4. After success, call `/api/payments/confirm` to create enrollment and unlock course.
 
 ## Notes
+
+## Search indexing for `badamclasses.in`
+
+The production canonical URL is `https://www.badamclasses.in`. After the Vercel deployment is complete, use these manual steps to register the domain with search engines:
+
+1. **Bing Webmaster Tools**
+   - Add `https://www.badamclasses.in` as a site (or import it from Google Search Console).
+   - Verify ownership using the DNS, HTML meta tag, or HTML file method provided by Bing.
+   - Submit the sitemap: `https://www.badamclasses.in/sitemap.xml`.
+   - Use **URL Submission** to submit the homepage and important new public course URLs after publishing them.
+
+2. **Google Search Console**
+   - Add a **Domain property** for `badamclasses.in` and complete the DNS TXT verification shown by Google. This verifies both the apex and `www` versions.
+   - Also add the URL-prefix property `https://www.badamclasses.in/` if you want page-level reporting for the canonical host.
+   - Submit `https://www.badamclasses.in/sitemap.xml` in **Sitemaps**.
+   - Use **URL inspection** for the homepage and important new public pages, then choose **Request indexing** after confirming the live canonical URL.
+
+3. **Vercel domain check**
+   - Add both `badamclasses.in` and `www.badamclasses.in` to the same frontend Vercel project.
+   - Set `www.badamclasses.in` as the Production Domain. The included Vercel rule redirects the apex host to `www` with HTTP 308 once both domains point to Vercel.
 - `role: admin` users can access instructor panel APIs.
 - Course completion at 100% progress generates a certificate link.
 - Existing root files (`index.html`, `styles.css`) were left untouched.

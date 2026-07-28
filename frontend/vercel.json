@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "badamclasses.in"
+        }
+      ],
+      "destination": "https://www.badamclasses.in/$1",
+      "permanent": true
+    }
+  ]
+}
