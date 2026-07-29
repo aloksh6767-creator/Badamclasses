@@ -417,6 +417,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!mounted) return undefined;
+    if (window.matchMedia("(max-width: 768px)").matches) return undefined;
     let interval;
     const initialDelay = window.setTimeout(() => {
       setActivePromoBanner((current) => (current + 1) % homepagePrimaryBanners.length);
