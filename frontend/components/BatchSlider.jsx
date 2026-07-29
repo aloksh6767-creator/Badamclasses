@@ -95,7 +95,7 @@ export default function BatchSlider({ batches = [] }) {
         <div className="min-w-0">
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <img
-              src="/new-logo.png"
+              src="/new-logo.webp"
               alt="Badam Singh Classes"
               className="h-12 w-20 rounded-xl border border-orange-300/30 object-cover shadow-[0_12px_24px_rgba(2,8,23,0.28)]"
             />

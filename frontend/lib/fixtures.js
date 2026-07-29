@@ -33,6 +33,7 @@ export const batches = [
           {
             title: "Arithmetic Foundation",
             subtitle: "08:00 AM | Daily Live Class",
+            note: "Daily class timing 08:00 AM hai. Schedule change ya important notice yahin update hoga.",
             href: "",
             actionLabel: "View Now",
             pdfUrl: "",
@@ -41,6 +42,7 @@ export const batches = [
           {
             title: "Advance Maths Practice",
             subtitle: "08:00 AM | Recorded + Live Support",
+            note: "Recorded class ke saath live support 08:00 AM slot me milega. Extra update yahin dikhega.",
             href: "",
             actionLabel: "View Now",
             pdfUrl: "",
@@ -54,6 +56,7 @@ export const batches = [
           {
             title: "Reasoning Core Session",
             subtitle: "08:00 AM | Daily Class",
+            note: "Reasoning session daily 08:00 AM par planned hai. Important update yahin milega.",
             href: "",
             actionLabel: "View Now",
             pdfUrl: "",
@@ -67,6 +70,7 @@ export const batches = [
           {
             title: "English Grammar & Vocabulary",
             subtitle: "08:00 AM | Bilingual Session",
+            note: "Bilingual English session ka timing 08:00 AM hai. Notes aur class notice yahin update honge.",
             href: "",
             actionLabel: "View Now",
             pdfUrl: "",
@@ -80,6 +84,7 @@ export const batches = [
           {
             title: "GS Daily Concepts",
             subtitle: "08:00 AM | Smart Learning Session",
+            note: "GS class timing 08:00 AM hai. Topic ya timing change ka notice yahin dikhega.",
             href: "",
             actionLabel: "View Now",
             pdfUrl: "",
@@ -110,6 +115,17 @@ export const batches = [
     category: "SSC",
     priceValue: 799,
     image: STUDENT_BATCH_IMAGE,
+    recordedVideoUrl: "https://www.youtube.com/watch?v=1mYQW3Tp55I",
+    recordedClassTitle: "ESB Mensuration Class 02",
+    demoVideoUrl: "https://www.youtube.com/watch?v=1mYQW3Tp55I",
+    demoVideoTitle: "Demo Class: ESB Mensuration Class 02",
+    videoSources: [
+      {
+        label: "Auto",
+        quality: "Auto",
+        url: "https://www.youtube.com/watch?v=1mYQW3Tp55I"
+      }
+    ],
     highlights: ["Recorded classes", "Notes & booklets", "Class PDFs"]
   },
   {
@@ -119,6 +135,7 @@ export const batches = [
     duration: "12 Months",
     months: 12,
     category: "General",
+    includesMaths: true,
     priceValue: 599,
     image: STUDENT_BATCH_IMAGE,
     highlights: ["Recorded lectures", "PDF notes", "Mock tests"]
@@ -143,7 +160,18 @@ export const batches = [
     category: "SSC",
     priceValue: 999,
     image: STUDENT_BATCH_IMAGE,
-    highlights: ["Complete arithmetic", "Practice sheets", "Weekly tests"]
+    highlights: ["Complete arithmetic", "Practice sheets", "6500+ chapterwise PYQs"],
+    tests: [
+      {
+        title: "SSC Maths Chapterwise 6500+ PYQs",
+        duration: "Self-paced",
+        status: "Available",
+        questions: "6500+",
+        exam: "SSC exams",
+        shift: "Exam and shift mentioned with each question in the PDF",
+        pdfUrl: "/mock-pdfs/ssc-maths-chapterwise-6500-pyqs-3rd-edition-english.pdf"
+      }
+    ]
   },
   {
     id: "reasoning-batch",
@@ -200,22 +228,40 @@ export const exams = [
 
 export const testimonials = [
   {
-    name: "Priya Sharma",
-    exam: "SSC CGL",
-    review: "Mock tests and classes helped me clear SSC CGL in my first attempt.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
+    name: 'Rahul Gurjar',
+    exam: 'Uttar Pradesh Police 2025 - Sub Inspector (SI)',
+    review: 'Selected as Sub Inspector in Uttar Pradesh Police.',
+    image: '/success-stories/rahul-gurjar-up-police-si-2025-clean.jpg'
   },
   {
-    name: "Aman Kumar",
-    exam: "Railway NTPC",
-    review: "The daily quizzes and revision plan were extremely useful for NTPC.",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80"
+    name: 'Manish Jatav',
+    exam: 'RPF Constable 2025',
+    review: 'Selected as RPF Constable.',
+    image: '/success-stories/manish-jatav-rpf-constable-2025-clean.jpg'
   },
   {
-    name: "Neha Singh",
-    exam: "Banking",
-    review: "Best platform for banking preparation with structured live classes.",
-    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80"
+    name: "Akshay Morya",
+    exam: "Madhya Pradesh Police Sub Inspector (SI)",
+    review: "Selected in Madhya Pradesh Police as Sub Inspector.",
+    image: "/success-stories/akshay-morya-mp-police-si.webp"
+  },
+  {
+    name: "Rohit Singh & Akshay Morya",
+    exam: "Madhya Pradesh Police 2025 - Sub Inspector (SI)",
+    review: "Congratulations on being selected as Sub Inspectors in Madhya Pradesh Police.",
+    image: "/success-stories/rohit-singh-akshay-morya-mp-police-si.webp"
+  },
+  {
+    name: "Shruti Rajawat",
+    exam: "RPF Constable",
+    review: "Selected as RPF Constable.",
+    image: "/success-stories/shruti-rajawat-rpf-constable.webp"
+  },
+  {
+    name: "Jayraj Yadav",
+    exam: "Madhya Pradesh Police 2025 - Sub Inspector (SI)",
+    review: "Selected in Madhya Pradesh Police as Sub Inspector.",
+    image: "/success-stories/jayraj-yadav-mp-police-si.webp"
   }
 ];
 

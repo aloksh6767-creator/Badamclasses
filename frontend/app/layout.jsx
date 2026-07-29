@@ -15,22 +15,18 @@ export const metadata = {
     template: "%s | Badam Classes"
   },
   description: seoDescription,
-  alternates: {
-    canonical: "/"
-  },
   openGraph: {
     type: "website",
-    url: "/",
     siteName: "Badam Classes",
     title: seoTitle,
     description: seoDescription,
-    images: [{ url: "/new-logo.png", type: "image/png" }]
+    images: [{ url: "/new-logo.webp", type: "image/png" }]
   },
   twitter: {
     card: "summary_large_image",
     title: seoTitle,
     description: seoDescription,
-    images: ["/new-logo.png"]
+    images: ["/new-logo.webp"]
   },
   robots: {
     index: true,
@@ -49,9 +45,9 @@ export const metadata = {
   },
   icons: {
     icon: [
-      { url: "/new-logo.png", type: "image/png" }
+      { url: "/new-logo.webp", type: "image/png" }
     ],
-    apple: [{ url: "/new-logo.png", type: "image/png" }]
+    apple: [{ url: "/new-logo.webp", type: "image/png" }]
   }
 };
 
@@ -75,7 +71,7 @@ export default function RootLayout({ children }) {
       "@type": "Organization",
       name: "Badam Classes",
       url: productionUrl,
-      logo: `${productionUrl}/new-logo.png`
+      logo: `${productionUrl}/new-logo.webp`
     }
   ];
 
@@ -88,6 +84,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="page-enter">
+        <a className="skip-link" href="#main-content">Skip to main content</a>
         <ErrorMonitoringBootstrap />
         <PwaBootstrap />
         <StartupSanitizer />

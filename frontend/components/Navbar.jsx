@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getUser, isAdminUser, logout } from "@/lib/auth";
 import { getUserScopedStorageEventName, readUserScopedString } from "@/lib/userScopedStorage";
@@ -9,6 +10,7 @@ const menuItems = [
   { label: "Home", href: "/" },
   { label: "Courses", href: "/courses" },
   { label: "Mock Tests", href: "/mock-tests" },
+  { label: "AI Planner", href: "/exam-planner" },
   { label: "Current Affairs", href: "/current-affairs" },
   { label: "Results", href: "/results" },
   { label: "Contact", href: "/contact" }
@@ -17,6 +19,7 @@ const menuItems = [
 const AVATAR_KEY = "bsc_avatar";
 
 export default function Navbar() {
+  const pathname = usePathname() || "/";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
   const [profileOpen, setProfileOpen] = useState(false);
@@ -63,10 +66,15 @@ export default function Navbar() {
       }
     };
 
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const previousOverflow = document.body.style.overflow;
+    const previousPaddingRight = document.body.style.paddingRight;
     document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPaddingRight;
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [mobileOpen]);
@@ -77,6 +85,7 @@ export default function Navbar() {
   }, [user]);
 
   const isAdmin = isAdminUser(user);
+  const isActivePath = (href) => href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
@@ -101,8 +110,11 @@ export default function Navbar() {
             <span className="logo-light-dot" />
           </span>
           <img
-            src="/new-logo.png"
+            src="/new-logo.webp"
             alt="Badam Singh Classes Logo"
+            width="1536"
+            height="1024"
+            fetchPriority="high"
             className="relative z-10 h-14 w-auto max-w-[260px] rounded-md border border-white/15 object-contain"
           />
         </Link>
@@ -112,7 +124,8 @@ export default function Navbar() {
             <Link
               key={item.label}
               href={item.href}
-              className="nav-trail group relative overflow-hidden rounded-full border border-indigo-300/20 bg-white/5 px-4 py-2 font-medium text-slate-200 transition duration-200 hover:-translate-y-0.5 hover:border-orange-300/60 hover:text-white hover:shadow-[0_0_22px_rgba(251,146,60,0.4)]"
+              aria-current={isActivePath(item.href) ? "page" : undefined}
+              className={`nav-trail group relative overflow-hidden rounded-full border px-4 py-2 font-medium transition duration-200 hover:-translate-y-0.5 hover:border-orange-300/60 hover:text-white hover:shadow-[0_0_22px_rgba(251,146,60,0.4)] ${isActivePath(item.href) ? "border-orange-300/60 bg-orange-500/15 text-white shadow-[0_0_18px_rgba(251,146,60,0.22)]" : "border-indigo-300/20 bg-white/5 text-slate-200"}`}
             >
               <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-indigo-400/0 via-orange-300/10 to-cyan-300/0 opacity-0 transition duration-200 group-hover:opacity-100" />
               <span className="relative z-10">{item.label}</span>
@@ -132,6 +145,16 @@ export default function Navbar() {
             <span className="btn-light-sweep" />
             <span className="relative z-10">My Courses</span>
           </Link>
+
+          {isAdmin ? (
+            <Link
+              href="/admin"
+              className="btn-light-wrap btn-anim relative overflow-hidden rounded-lg border border-cyan-300/40 bg-cyan-400/10 px-3 py-2 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-400/20"
+            >
+              <span className="btn-light-sweep" />
+              <span className="relative z-10">Admin</span>
+            </Link>
+          ) : null}
 
           {user ? (
             <div className="relative" ref={profileRef}>
@@ -198,7 +221,7 @@ export default function Navbar() {
           onClick={() => setMobileOpen((v) => !v)}
           aria-expanded={mobileOpen}
           aria-controls="mobile-navigation-drawer"
-          className="btn-anim inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-slate-100 lg:hidden"
+          className="btn-anim inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-slate-100 lg:hidden"
         >
           <span className="sr-only">{mobileOpen ? "Close navigation" : "Open navigation"}</span>
           <span className="flex w-4 flex-col gap-1">
@@ -229,7 +252,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-lg leading-none text-white"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-lg leading-none text-white"
                 aria-label="Close navigation"
               >
                 &times;
@@ -270,7 +293,8 @@ export default function Navbar() {
                     key={item.label}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm font-medium text-slate-100 transition hover:border-orange-300/50 hover:bg-orange-500/10"
+                    aria-current={isActivePath(item.href) ? "page" : undefined}
+                    className={`flex items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-medium transition hover:border-orange-300/50 hover:bg-orange-500/10 ${isActivePath(item.href) ? "border-orange-300/45 bg-orange-500/15 text-white" : "border-white/10 bg-white/[0.04] text-slate-100"}`}
                   >
                     <span>{item.label}</span>
                     <span className="text-slate-500">&rsaquo;</span>

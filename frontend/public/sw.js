@@ -1,5 +1,5 @@
 const CACHE_NAME = "badamclasses-app-v5";
-const APP_SHELL = ["/", "/courses", "/mock-tests", "/new-logo.png", "/brand-logo.png"];
+const APP_SHELL = ["/", "/courses", "/mock-tests", "/new-logo.webp", "/brand-logo.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

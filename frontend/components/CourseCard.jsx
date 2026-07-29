@@ -50,7 +50,7 @@ export default function CourseCard({ course, purchased = false }) {
 
   return (
     <GlassCard className="group flex h-full flex-col overflow-hidden p-0 transition duration-300 hover:-translate-y-1 hover:border-orange-300/35 hover:shadow-[0_26px_70px_rgba(15,23,42,0.38)]">
-      <Link href={primaryHref} className="relative flex h-64 w-full items-center justify-center overflow-hidden bg-slate-950/50 p-3 focus:outline-none focus:ring-2 focus:ring-orange-300/70">
+      <Link href={primaryHref} className="relative flex h-56 w-full items-center justify-center overflow-hidden bg-slate-950/50 p-3 focus:outline-none focus:ring-2 focus:ring-orange-300/70 sm:h-64">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.24),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.2),transparent_38%)] opacity-90" />
         <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-2">
           {course.isLatest || hasOffer ? (
@@ -74,6 +74,11 @@ export default function CourseCard({ course, purchased = false }) {
         <img
           src={resolveCourseImage(course)}
           alt={course.title}
+          width="1024"
+          height="1536"
+          sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 30vw"
+          loading="lazy"
+          decoding="async"
           onError={(event) => {
             event.currentTarget.onerror = null;
             event.currentTarget.src = getCourseFallbackImage(course);
@@ -143,14 +148,14 @@ export default function CourseCard({ course, purchased = false }) {
           </span>
         ) : null}
         {notice ? <p className="mt-2 text-xs text-orange-200">{notice}</p> : null}
-        <div className="mt-auto grid grid-cols-[1fr_auto] gap-2 pt-4">
+        <div className="mt-auto grid grid-cols-1 gap-2 pt-4 sm:grid-cols-[1fr_auto]">
           <Link
             href={hasPurchased ? learningHref : `/checkout?course=${encodeURIComponent(routeId)}`}
             className={`btn-gradient btn-anim rounded-xl px-4 py-2.5 text-center text-sm font-bold text-white shadow-[0_14px_30px_rgba(249,115,22,0.22)] ${hasPurchased ? "from-emerald-500 to-cyan-500" : ""}`}
           >
             {hasPurchased ? "Start Learning" : "Enroll Now"}
           </Link>
-          <Link href={detailsHref} className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100">
+          <Link href={detailsHref} className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-center text-sm font-semibold text-slate-100">
             Details
           </Link>
           {hasPurchased && course.liveClassEnabled ? (
