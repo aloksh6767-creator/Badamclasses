@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import StatsCounter from "@/components/StatsCounter";
@@ -411,8 +411,10 @@ export default function HomePage() {
   });
 
   useEffect(() => {
-    setMounted(true);
-    setDeletedCourseKeys(readDeletedCourseKeys());
+    startTransition(() => {
+      setMounted(true);
+      setDeletedCourseKeys(readDeletedCourseKeys());
+    });
   }, []);
 
   useEffect(() => {
@@ -465,10 +467,14 @@ export default function HomePage() {
 
         const data = await response.json();
         if (active) {
-          setRemoteBatches(Array.isArray(data) ? data : []);
+          startTransition(() => {
+            setRemoteBatches(Array.isArray(data) ? data : []);
+          });
         }
       } catch {
-        if (active) setRemoteBatches([]);
+        if (active) {
+          startTransition(() => setRemoteBatches([]));
+        }
       }
     };
 
@@ -525,11 +531,13 @@ export default function HomePage() {
         }
         const data = await response.json();
         if (active) {
-          setRemoteContent(data?.content || null);
+          startTransition(() => {
+            setRemoteContent(data?.content || null);
+          });
         }
       } catch {
         if (active) {
-          setRemoteContent(null);
+          startTransition(() => setRemoteContent(null));
         }
       }
     };
@@ -562,7 +570,7 @@ export default function HomePage() {
       liveClassUrl: course.liveClassUrl,
       isLatest: true
     }));
-    setLocalBatches(locals);
+    startTransition(() => setLocalBatches(locals));
   }, []);
 
   const allBatches = useMemo(() => {
@@ -607,7 +615,7 @@ export default function HomePage() {
       window.localStorage.setItem("badamclasses_slider_config", JSON.stringify(pruned));
       cfg = pruned;
     }
-    setSliderConfig(cfg);
+    startTransition(() => setSliderConfig(cfg));
   }, [safeBatches]);
   const closeAdmissionPopup = () => {
     setShowAdmissionPopup(false);
