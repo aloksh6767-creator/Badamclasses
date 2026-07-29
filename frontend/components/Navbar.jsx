@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getUser, isAdminUser, logout } from "@/lib/auth";
@@ -109,11 +110,13 @@ export default function Navbar() {
           <span className="logo-light-orbit">
             <span className="logo-light-dot" />
           </span>
-          <img
+          <Image
             src="/new-logo.webp"
             alt="Badam Singh Classes Logo"
-            width="1536"
-            height="1024"
+            width={1536}
+            height={1024}
+            sizes="100px"
+            priority
             fetchPriority="high"
             className="relative z-10 h-14 w-auto max-w-[260px] rounded-md border border-white/15 object-contain"
           />

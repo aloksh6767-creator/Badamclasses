@@ -417,11 +417,18 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!mounted) return undefined;
-    const timer = window.setInterval(() => {
+    let interval;
+    const initialDelay = window.setTimeout(() => {
       setActivePromoBanner((current) => (current + 1) % homepagePrimaryBanners.length);
-    }, 4200);
+      interval = window.setInterval(() => {
+        setActivePromoBanner((current) => (current + 1) % homepagePrimaryBanners.length);
+      }, 8000);
+    }, 10000);
 
-    return () => window.clearInterval(timer);
+    return () => {
+      window.clearTimeout(initialDelay);
+      if (interval) window.clearInterval(interval);
+    };
   }, [mounted]);
 
   useEffect(() => {
@@ -475,7 +482,7 @@ export default function HomePage() {
   useEffect(() => {
     if (!mounted) return undefined;
     const popupConfig = remoteContent?.enquiryPopup;
-    if (popupConfig?.enabled === false) {
+    if (popupConfig?.enabled !== true) {
       setShowAdmissionPopup(false);
       return undefined;
     }
@@ -716,13 +723,13 @@ export default function HomePage() {
         </div>
 
         <div className="relative">
-          <img
+          <Image
             src={heroBannerImage}
             alt="Students learning"
-            width="1536"
-            height="1024"
-            loading="lazy"
-            decoding="async"
+            width={1536}
+            height={1024}
+            sizes="(max-width: 768px) 92vw, 50vw"
+            unoptimized={/^https?:\/\//i.test(heroBannerImage)}
             className="cinematic-zoom float-soft homepage-hero-image h-auto max-h-[70svh] w-full rounded-2xl bg-[#08122b] object-contain md:h-96"
             onError={(event) => {
               event.currentTarget.onerror = null;
