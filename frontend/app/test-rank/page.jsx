@@ -394,8 +394,8 @@ export default function TestRankPage() {
             </div>
             <nav aria-label="TestRank sections" className="relative isolate grid grid-cols-2 rounded-full border border-violet-400/40 bg-[#070810] p-1 shadow-[0_0_20px_rgba(91,33,182,.2)]">
               <span aria-hidden="true" className="nav-switch-indicator nav-switch-rank absolute inset-y-1 left-1 z-0 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-violet-700 to-indigo-600 shadow-md shadow-violet-950/50" />
-              <Link href="https://www.badamclasses.in" className="relative z-10 flex min-h-11 min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-full px-1 text-[11px] font-semibold tracking-tight text-slate-300 transition-colors duration-300 hover:text-white sm:gap-2 sm:px-3 sm:text-sm"><Icon name="home" className="h-4 w-4 shrink-0" />Badam Classes</Link>
-              <Link href="/test-rank" aria-current="page" className="relative z-10 flex min-h-11 min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-full px-1 text-[11px] font-bold tracking-tight text-white transition-colors duration-300 sm:gap-2 sm:px-3 sm:text-sm"><Icon name="chart" className="h-4 w-4 shrink-0" />BadamTestRanker</Link>
+              <a href="https://www.badamclasses.in" className="relative z-10 flex min-h-11 min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-full px-1 text-[11px] font-semibold tracking-tight text-slate-300 transition-colors duration-300 hover:text-white sm:gap-2 sm:px-3 sm:text-sm"><Icon name="home" className="h-4 w-4 shrink-0" />Badam Classes</a>
+              <a href="/test-rank" aria-current="page" className="relative z-10 flex min-h-11 min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-full px-1 text-[11px] font-bold tracking-tight text-white transition-colors duration-300 sm:gap-2 sm:px-3 sm:text-sm"><Icon name="chart" className="h-4 w-4 shrink-0" />BadamTestRanker</a>
             </nav>
             <label className="flex w-full items-center gap-2 rounded-xl border border-blue-300/20 bg-[#071a33] px-3.5 py-2.5 shadow-inner shadow-blue-950/40"><Icon name="search" className="h-[18px] w-[18px] shrink-0 text-sky-300" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search tests, exams and subjects" className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400" aria-label="Search tests and topics" /></label>
           </div>
@@ -405,8 +405,8 @@ export default function TestRankPage() {
           </div>
           <nav aria-label="TestRank sections" className="relative isolate mx-auto mt-3 hidden w-full max-w-[520px] grid-cols-2 rounded-full border border-violet-400/35 bg-[#070810] p-1 shadow-[0_0_24px_rgba(91,33,182,.18)] md:grid">
             <span aria-hidden="true" className="nav-switch-indicator nav-switch-rank absolute inset-y-1 left-1 z-0 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-violet-700 to-indigo-600 shadow-md shadow-violet-950/50" />
-            <Link href="https://www.badamclasses.in" className="relative z-10 flex min-h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold text-slate-300 transition-colors duration-300 hover:text-white"><Icon name="home" className="h-4 w-4" />Badam Classes</Link>
-            <Link href="/test-rank" aria-current="page" className="relative z-10 flex min-h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-bold text-white transition-colors duration-300"><Icon name="chart" className="h-4 w-4" />BadamTestRanker</Link>
+            <a href="https://www.badamclasses.in" className="relative z-10 flex min-h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold text-slate-300 transition-colors duration-300 hover:text-white"><Icon name="home" className="h-4 w-4" />Badam Classes</a>
+            <a href="/test-rank" aria-current="page" className="relative z-10 flex min-h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-bold text-white transition-colors duration-300"><Icon name="chart" className="h-4 w-4" />BadamTestRanker</a>
           </nav>
         </header>
 

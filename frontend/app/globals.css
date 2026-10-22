@@ -382,37 +382,16 @@ img, svg, video, canvas { max-width: 100%; }
   animation: fadeDown 0.28s ease-out;
 }
 
-@keyframes navSwitchFromRight {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes navSwitchToRight {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
 .nav-switch-indicator {
   pointer-events: none;
-  animation-duration: 0.62s;
-  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
-  animation-fill-mode: both;
 }
 
 .nav-switch-home {
-  animation-name: navSwitchFromRight;
+  transform: translateX(0);
 }
 
 .nav-switch-rank {
-  animation-name: navSwitchToRight;
+  transform: translateX(100%);
 }
 
 .success-group-transition {
