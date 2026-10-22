@@ -49,17 +49,24 @@ export default function CurrentAffairsSection() {
   const [topic, setTopic] = useState("All");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [pdfOpen, setPdfOpen] = useState(false);
 
   const load = async (selectedTopic = "All") => {
     setLoading(true);
+    setError("");
     try {
       const res = await apiFetch(`/current-affairs/dashboard?topic=${encodeURIComponent(selectedTopic)}`);
       setData(res);
-    } catch {
-      setData({ ...fallbackData, topic: selectedTopic });
+    } catch (requestError) {
+      if (process.env.NODE_ENV !== "production") {
+        setData({ ...fallbackData, topic: selectedTopic });
+      } else {
+        setData(null);
+        setError(requestError.message || "Current affairs could not be loaded.");
+      }
     } finally {
       setLoading(false);
     }
@@ -100,6 +107,7 @@ export default function CurrentAffairsSection() {
 
         <div className="flex flex-wrap gap-2">
           <select
+            aria-label="Filter current affairs by topic"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             className="rounded-lg border border-white/20 bg-[#0b1634] px-3 py-2 text-sm text-slate-100"
@@ -137,6 +145,13 @@ export default function CurrentAffairsSection() {
       </div>
 
       {loading ? <div className="rounded-xl border border-white/10 bg-[#0b1634] p-4 text-slate-300">Loading current affairs...</div> : null}
+
+      {!loading && error ? (
+        <div className="rounded-xl border border-rose-300/30 bg-rose-500/10 p-4 text-sm text-rose-100">
+          <span>{error}</span>
+          <button type="button" onClick={() => load(topic)} className="ml-3 rounded-lg border border-rose-200/40 px-3 py-1 font-semibold">Retry</button>
+        </div>
+      ) : null}
 
       {!loading && data && tab === "daily" ? (
         <div>

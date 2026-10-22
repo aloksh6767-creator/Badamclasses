@@ -75,7 +75,7 @@ const performanceBars = [
 
 function PremiumLiveStudio({ course, completionPercent, watchTimeMinutes }) {
   const focusTitle = course?.title || "Badam Classes Live Batch";
-  const focusImage = course ? resolveCourseImage(course) : "/new-logo.png";
+  const focusImage = course ? resolveCourseImage(course) : "/new-logo.webp";
 
   return (
     <section className="mt-6 overflow-hidden rounded-[36px] border border-white/10 bg-[linear-gradient(135deg,#08111f_0%,#101b31_45%,#07111f_100%)] shadow-[0_30px_90px_rgba(2,6,23,0.42)]">
@@ -614,9 +614,10 @@ export default function DashboardPage() {
       {status !== "ready" ? (
         <div className="mt-5 rounded-2xl border border-orange-300/40 bg-orange-500/10 p-4 text-orange-100">
           Login to see purchased courses. You can still browse all courses below and purchase.
-          <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex gap-2">
             <Link href="/login" className="rounded-lg border border-white/25 px-3 py-2 text-sm text-white">Login</Link>
             <Link href="/courses" className="rounded-lg bg-accent px-3 py-2 text-sm text-white">Browse Courses</Link>
+            <Link href="/exam-planner" className="rounded-lg border border-cyan-300/30 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-100">AI Planner</Link>
           </div>
         </div>
       ) : null}
@@ -627,6 +628,7 @@ export default function DashboardPage() {
         </div>
       ) : null}
 
+      {status === "ready" && mergedPurchasedCourses.length ? (
       <section className="mt-6 rounded-md bg-[#eaf8ff] px-5 py-5 text-black shadow-[0_12px_28px_rgba(2,6,23,0.18)]">
         <div className="flex items-center gap-3">
           <svg viewBox="0 0 24 24" aria-hidden="true" className="h-8 w-8 text-red-600">
@@ -647,6 +649,20 @@ export default function DashboardPage() {
             <p className="text-2xl font-semibold">{formatMinutes(watchTimeMinutes)}</p>
             <p className="mt-3 text-lg text-slate-700">Watch Time</p>
           </div>
+        </div>
+      </section>
+      ) : null}
+
+      <section className="mt-6 rounded-xl border border-cyan-300/20 bg-cyan-500/10 px-5 py-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-200">AI Exam Planner</p>
+            <h2 className="mt-2 text-2xl font-bold text-white">Plan exams, study sessions, and revision</h2>
+            <p className="mt-2 text-sm text-slate-300">Use the local-first planner for countdowns, syllabus progress, daily goals, and smart task suggestions.</p>
+          </div>
+          <Link href="/exam-planner" className="rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-orange-100">
+            Open Planner
+          </Link>
         </div>
       </section>
 

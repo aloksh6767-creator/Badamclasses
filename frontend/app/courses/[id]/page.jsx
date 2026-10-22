@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -7,7 +7,7 @@ import PdfViewer from "@/components/PdfViewer";
 import SecureYouTubePlayer from "@/components/live/SecureYouTubePlayer";
 import { apiFetch } from "@/lib/api";
 import { getCourseFallbackImage, resolveCourseImage } from "@/lib/courseImages";
-import { matchCourseByRoute, normalizeCourseForRoute, normalizeCourseRouteValue } from "@/lib/courseIdentity";
+import { buildCourseRouteId, matchCourseByRoute, normalizeCourseForRoute, normalizeCourseRouteValue } from "@/lib/courseIdentity";
 import { batches } from "@/lib/fixtures";
 import { DEFAULT_LIVE_CLASS_URL, filterDeletedCourses, filterDeletedCoursesFromStorage, readDeletedCourseKeys, readLocalCourses as readVisibleLocalCourses } from "@/lib/localCourseState";
 import { hasLocalPurchase } from "@/lib/purchaseState";
@@ -16,6 +16,15 @@ import { readUserScopedJson, writeUserScopedJson } from "@/lib/userScopedStorage
 import { YOUTUBE_IFRAME_ALLOW, buildYouTubeEmbedUrl, getYouTubeWatchUrl, normalizeLiveStatus, parseYouTubeUrl } from "@/lib/youtubeEmbed";
 
 const LOCAL_PDF_KEY = "badamclasses_local_pdfs";
+const SSC_MATHS_6500_TEST = {
+  title: "SSC Maths Chapterwise 6500+ PYQs",
+  duration: "Self-paced",
+  status: "Available",
+  questions: "6500+",
+  exam: "SSC exams",
+  shift: "Exam and shift mentioned with each question in the PDF",
+  pdfUrl: "/mock-pdfs/ssc-maths-chapterwise-6500-pyqs-3rd-edition-english.pdf"
+};
 const VIDEO_QUALITY_ORDER = ["240", "360", "420", "720", "1080"];
 
 function readLocalPdfs() {
@@ -237,17 +246,19 @@ function normalizeClassSectionItems(items = []) {
       const safeHref = sanitizeExternalUrl(item.href);
       const safeViewUrl = sanitizeExternalUrl(item.viewUrl || item.href);
       const safePdfUrl = sanitizeExternalUrl(item.pdfUrl || item.pdf || item.notesUrl);
+      const updateText = item.note || item.update || item.importantUpdate || item.updateMessage || "";
 
       return {
         id: item.id || `${String(item.title || "class").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") || "class"}-${index}`,
         title: item.title || `Class ${index + 1}`,
         subtitle: item.subtitle || "",
         dateTime: item.dateTime || item.subtitle || "",
+        note: updateText,
         href: safeHref,
         viewUrl: safeViewUrl,
         pdfUrl: safePdfUrl,
         actionLabel: item.actionLabel || (safeHref ? "Open Class" : "Coming Soon"),
-        icon: item.icon || "🎓"
+        icon: item.icon || "Ã°Å¸Å½â€œ"
       };
     });
 }
@@ -281,7 +292,7 @@ function buildAutomaticClassSections(course) {
   const instructor = course.instructor?.name || course.instructor || "Badam Sir";
   const schedule = course.classTiming || course.batchTime || "Schedule will be updated";
 
-  const makeItem = (itemTitle, subtitle, icon = "🎓") => ({
+  const makeItem = (itemTitle, subtitle, icon = "Ã°Å¸Å½â€œ") => ({
     title: itemTitle,
     subtitle: `${schedule} | ${subtitle}`,
     href: "",
@@ -292,17 +303,17 @@ function buildAutomaticClassSections(course) {
 
   const commonSSCSections = [
     makeAutoSection("Mathematics", [
-      makeItem(`${title} Maths Foundation`, "Daily Live Class", "📘"),
-      makeItem(`${title} Advanced Practice`, "Recorded + Live Support", "🧮")
+      makeItem(`${title} Maths Foundation`, "Daily Live Class", "Ã°Å¸â€œËœ"),
+      makeItem(`${title} Advanced Practice`, "Recorded + Live Support", "Ã°Å¸Â§Â®")
     ]),
     makeAutoSection("Reasoning", [
-      makeItem(`${title} Reasoning Concepts`, "Daily Practice Session", "🧠")
+      makeItem(`${title} Reasoning Concepts`, "Daily Practice Session", "Ã°Å¸Â§Â ")
     ]),
     makeAutoSection("English", [
-      makeItem(`${title} English Grammar`, "Vocabulary + Grammar", "📖")
+      makeItem(`${title} English Grammar`, "Vocabulary + Grammar", "Ã°Å¸â€œâ€“")
     ]),
     makeAutoSection("General Studies (GS)", [
-      makeItem(`${title} GS Daily Concepts`, "Smart Learning Session", "🌍")
+      makeItem(`${title} GS Daily Concepts`, "Smart Learning Session", "Ã°Å¸Å’Â")
     ])
   ];
 
@@ -313,16 +324,16 @@ function buildAutomaticClassSections(course) {
   if (category === "banking") {
     return [
       makeAutoSection("Quantitative Aptitude", [
-        makeItem(`${title} Quant Basics`, "Daily Live Class", "📘")
+        makeItem(`${title} Quant Basics`, "Daily Live Class", "Ã°Å¸â€œËœ")
       ]),
       makeAutoSection("Reasoning", [
-        makeItem(`${title} Banking Reasoning`, "Daily Practice Session", "🧠")
+        makeItem(`${title} Banking Reasoning`, "Daily Practice Session", "Ã°Å¸Â§Â ")
       ]),
       makeAutoSection("English", [
-        makeItem(`${title} Banking English`, "Grammar + Reading", "📖")
+        makeItem(`${title} Banking English`, "Grammar + Reading", "Ã°Å¸â€œâ€“")
       ]),
       makeAutoSection("General Awareness", [
-        makeItem(`${title} GA Updates`, "Current Affairs + Banking Awareness", "🌍")
+        makeItem(`${title} GA Updates`, "Current Affairs + Banking Awareness", "Ã°Å¸Å’Â")
       ])
     ];
   }
@@ -330,24 +341,24 @@ function buildAutomaticClassSections(course) {
   if (category === "state") {
     return [
       makeAutoSection("Reasoning", [
-        makeItem(`${title} Reasoning Core`, "Daily Live Class", "🧠")
+        makeItem(`${title} Reasoning Core`, "Daily Live Class", "Ã°Å¸Â§Â ")
       ]),
       makeAutoSection("General Knowledge", [
-        makeItem(`${title} GK Concepts`, "Static + Dynamic GK", "🌍")
+        makeItem(`${title} GK Concepts`, "Static + Dynamic GK", "Ã°Å¸Å’Â")
       ]),
       makeAutoSection("Current Affairs", [
-        makeItem(`${title} Current Affairs Roundup`, "Daily Updates", "📰")
+        makeItem(`${title} Current Affairs Roundup`, "Daily Updates", "Ã°Å¸â€œÂ°")
       ])
     ];
   }
 
   return [
     makeAutoSection("Core Classes", [
-      makeItem(`${title} Main Session`, "Daily Class", "📘"),
-      makeItem(`${title} Practice Session`, "Revision + Practice", "📝")
+      makeItem(`${title} Main Session`, "Daily Class", "Ã°Å¸â€œËœ"),
+      makeItem(`${title} Practice Session`, "Revision + Practice", "Ã°Å¸â€œÂ")
     ]),
     makeAutoSection("Mentor Support", [
-      makeItem(`${instructor} Guidance Session`, "Doubt + Strategy Session", "👨‍🏫")
+      makeItem(`${instructor} Guidance Session`, "Doubt + Strategy Session", "Ã°Å¸â€˜Â¨Ã¢â‚¬ÂÃ°Å¸ÂÂ«")
     ])
   ];
 }
@@ -359,6 +370,18 @@ function resolveClassSections(course, preferredSections = []) {
   }
 
   return normalizeClassSections(buildAutomaticClassSections(course));
+}
+
+function ScheduleIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+      <path d="M7.25 3.5v3M16.75 3.5v3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M5.75 5h12.5A2.25 2.25 0 0 1 20.5 7.25v10.5A2.25 2.25 0 0 1 18.25 20H5.75A2.25 2.25 0 0 1 3.5 17.75V7.25A2.25 2.25 0 0 1 5.75 5Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      <path d="M4 9h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M12 12.25v2.5l1.75 1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="14.5" r="4" stroke="currentColor" strokeWidth="1.7" />
+    </svg>
+  );
 }
 
 export default function CourseDetailsPage() {
@@ -406,7 +429,14 @@ export default function CourseDetailsPage() {
             liveClassUrl: batch.liveClassUrl,
             liveClassEnabled: batch.liveClassEnabled,
             liveClassTitle: batch.liveClassTitle,
+            recordedVideoUrl: batch.recordedVideoUrl,
+            recordedClassTitle: batch.recordedClassTitle,
+            videoSources: batch.videoSources,
+            demoVideoUrl: batch.demoVideoUrl,
+            demoVideoTitle: batch.demoVideoTitle,
             description: batch.description,
+            notificationTitle: batch.notificationTitle,
+            notificationMessage: batch.notificationMessage,
             duration: batch.duration,
             months: batch.months,
             highlights: batch.highlights,
@@ -457,7 +487,13 @@ export default function CourseDetailsPage() {
     console.debug("[course-details] loading route", { routeId });
     try {
       const data = await apiFetch(`/courses/${routeId}`);
-      const mergedCourse = mergeCourseWithLocalPdfs(data?.course || data);
+      const remoteCourse = data?.course || data;
+      const mergedCourse = mergeCourseWithLocalPdfs({
+        ...(matchedFallback || {}),
+        ...remoteCourse,
+        demoVideoUrl: remoteCourse?.demoVideoUrl || matchedFallback?.demoVideoUrl || "",
+        demoVideoTitle: remoteCourse?.demoVideoTitle || matchedFallback?.demoVideoTitle || ""
+      });
       console.debug("[course-details] api success", {
         routeId,
         title: mergedCourse?.title,
@@ -674,6 +710,8 @@ export default function CourseDetailsPage() {
   const liveClassUrl = liveClassEnabled ? sanitizeExternalUrl(course.liveClassUrl || DEFAULT_LIVE_CLASS_URL) : "";
   const recordedUrl = sanitizeExternalUrl(course.recordedVideoUrl || videoSources[0]?.url || "");
   const recordedTitle = course.recordedClassTitle || course.liveClassTitle || "Recorded Class";
+  const demoVideoUrl = sanitizeExternalUrl(course.demoVideoUrl || "");
+  const demoVideoTitle = course.demoVideoTitle || "Demo Class";
   const liveClassVisible = liveNow || Boolean(liveClassUrl) || Boolean(recordedUrl);
   const liveClassCard = {
     title: liveClassUrl ? "Today's Class" : "Recorded Class",
@@ -682,6 +720,7 @@ export default function CourseDetailsPage() {
         ? course.liveClassTitle || "Live class is running now"
         : course.liveClassTitle || "Live session available"
       : recordedTitle,
+    note: course.notificationMessage || course.notificationTitle || "Class timing and important updates will appear here.",
     actionLabel: liveClassUrl ? (liveNow ? "LIVE NOW" : "Join Live") : "Watch Recording",
     href: liveClassUrl || recordedUrl,
     videoSources: liveClassUrl || recordedUrl
@@ -698,6 +737,7 @@ export default function CourseDetailsPage() {
     ...(!liveClassVisible && videoSources.length ? [{
       title: course.subject || "Core Subject",
       subtitle: course.instructor?.name || course.instructor || "Badam Sir",
+      note: course.notificationMessage || "Class timing and important updates will appear here.",
       actionLabel: videoSources.length ? "Watch Recording" : "Recording Soon",
       href: videoSources[0]?.url || "",
       videoSources
@@ -724,12 +764,28 @@ export default function CourseDetailsPage() {
     liveClassVisible && sectionClassCards !== classCards
       ? [liveClassCard, ...sectionClassCards]
       : sectionClassCards;
-  const tests = Array.isArray(course.tests) && course.tests.length
+  const courseTests = Array.isArray(course.tests) && course.tests.length
     ? course.tests
     : [
         { title: "Weekly Practice Test", duration: "30 min", status: "Available Soon" },
         { title: "Revision Mock Test", duration: "45 min", status: "Unlocking Soon" }
       ];
+  const courseSearchText = [
+    course.title,
+    course.category,
+    ...(Array.isArray(course.highlights) ? course.highlights : []),
+    ...classSections.map((section) => section.title)
+  ].join(" ").toLowerCase();
+  const isSingleSubjectNonMaths = /reasoning|english|general awareness|general studies/.test(String(course.title || "").toLowerCase());
+  const includesMaths =
+    course.includesMaths === true ||
+    (!isSingleSubjectNonMaths &&
+    (/math|mathematics|arithmetic|quantitative|quant\b/.test(courseSearchText) ||
+      /ssc|railway|banking|police|state|teaching/.test(String(course.category || "").toLowerCase())));
+  const tests =
+    includesMaths && !courseTests.some((test) => test.pdfUrl === SSC_MATHS_6500_TEST.pdfUrl)
+      ? [SSC_MATHS_6500_TEST, ...courseTests]
+      : courseTests;
   const isLocked = accessChecked && !hasPurchased;
   const instructorName = course.instructor?.name || course.instructor || "Badam Sir";
   const courseMode = course.courseType || (course.liveClassEnabled ? "Live + Recorded" : "Recorded");
@@ -863,20 +919,61 @@ export default function CourseDetailsPage() {
                   <Link href={`/checkout?course=${encodeURIComponent(course.routeId || course._id || course.title)}`} className="btn-gradient btn-anim rounded-xl px-5 py-3 text-center font-semibold text-white">
                     Enroll Now
                   </Link>
-                  <button
-                    onClick={() => setActiveTab("Classes")}
-                    className="rounded-xl border border-white/20 px-5 py-3 font-semibold text-slate-100 transition hover:border-orange-300"
-                  >
-                    Preview Content
-                  </button>
+                  {demoVideoUrl ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedVideo({
+                          title: demoVideoTitle,
+                          sources: [{ label: "Auto", url: demoVideoUrl }]
+                        });
+                        setSelectedQuality("Auto");
+                      }}
+                      className="rounded-xl border border-orange-300/40 bg-orange-500/10 px-5 py-3 font-semibold text-orange-100 transition hover:bg-orange-500/20"
+                    >
+                      Watch Demo Class
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setActiveTab("Classes")}
+                      className="rounded-xl border border-white/20 px-5 py-3 font-semibold text-slate-100 transition hover:border-orange-300"
+                    >
+                      Preview Content
+                    </button>
+                  )}
                 </>
               )}
+              {hasPurchased && demoVideoUrl ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedVideo({
+                      title: demoVideoTitle,
+                      sources: [{ label: "Auto", url: demoVideoUrl }]
+                    });
+                    setSelectedQuality("Auto");
+                  }}
+                  className="rounded-xl border border-orange-300/40 bg-orange-500/10 px-5 py-3 font-semibold text-orange-100 transition hover:bg-orange-500/20 sm:col-span-2"
+                >
+                  Watch Demo Class
+                </button>
+              ) : null}
             </div>
 
             <div className="mt-5 rounded-2xl border border-white/10 bg-[#0b1634]/80 p-4 text-sm leading-6 text-slate-300">
               {course.description ||
                 "Comprehensive preparation with structured classes, sheets, tests, and mentor support."}
             </div>
+            {course.notificationTitle || course.notificationMessage ? (
+              <div className="mt-4 rounded-2xl border border-orange-300/25 bg-orange-500/10 p-4 text-sm leading-6 text-orange-50">
+                {course.notificationTitle ? (
+                  <p className="font-semibold text-white">{course.notificationTitle}</p>
+                ) : null}
+                {course.notificationMessage ? (
+                  <p className={course.notificationTitle ? "mt-1 text-orange-100" : "text-orange-100"}>{course.notificationMessage}</p>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -952,9 +1049,25 @@ export default function CourseDetailsPage() {
               ) : null}
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {displayedClassCards.map((item) => (
-                  <div key={item.id || item.title} className="rounded-[28px] border border-white/10 bg-[#152349] p-5 text-white">
+                  <div key={item.id || item.title} className="relative rounded-[28px] border border-white/10 bg-[#152349] p-5 text-white">
+                    <details className="group absolute right-4 top-4 z-10">
+                      <summary
+                        className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-amber-300/35 bg-amber-400/15 text-amber-100 transition hover:border-amber-200 hover:bg-amber-400/25 [&::-webkit-details-marker]:hidden"
+                        aria-label={`${item.title} timing and important update`}
+                        title="Schedule and important update"
+                      >
+                        <ScheduleIcon className="h-5 w-5" />
+                      </summary>
+                      <div className="absolute right-0 top-12 w-[min(16rem,calc(100vw-3rem))] rounded-2xl border border-amber-300/30 bg-[#091224] p-4 text-left shadow-[0_18px_48px_rgba(2,8,23,0.55)]">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-200">Schedule / Update</p>
+                        <p className="mt-2 text-sm font-semibold leading-5 text-white">{item.dateTime || item.subtitle || "Timing will be updated soon."}</p>
+                        <p className="mt-2 text-xs leading-5 text-slate-300">
+                          {item.note || "No important update yet. New notice will appear here."}
+                        </p>
+                      </div>
+                    </details>
                     <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-blue-700/90 text-5xl">
-                      {item.icon || (item.title === "Today's Class" ? "📅" : "👨‍🏫")}
+                      {item.icon || (item.title === "Today's Class" ? "Ã°Å¸â€œâ€¦" : "Ã°Å¸â€˜Â¨Ã¢â‚¬ÂÃ°Å¸ÂÂ«")}
                     </div>
                     <h3 className="mt-4 text-2xl font-semibold">{item.title}</h3>
                     <p className="mt-2 text-lg text-slate-300">{item.subtitle}</p>
@@ -1047,8 +1160,20 @@ export default function CourseDetailsPage() {
                 {tests.map((test) => (
                   <div key={test.title} className="rounded-2xl border border-white/10 bg-[#152349] p-5">
                     <p className="text-xl font-semibold text-white">{test.title}</p>
+                    {test.questions ? <p className="mt-2 text-sm text-slate-300">Questions: {test.questions}</p> : null}
+                    {test.exam ? <p className="mt-2 text-sm text-slate-300">Exam: {test.exam}</p> : null}
+                    {test.shift ? <p className="mt-2 text-sm text-slate-300">Shift: {test.shift}</p> : null}
                     <p className="mt-2 text-sm text-slate-300">Duration: {test.duration}</p>
                     <p className="mt-3 text-sm text-orange-200">{test.status}</p>
+                    {test.pdfUrl ? (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPdf({ title: test.title, url: test.pdfUrl })}
+                        className="mt-4 inline-flex rounded-xl border border-orange-300/40 bg-orange-500/10 px-4 py-2 text-sm font-semibold text-orange-100 transition hover:bg-orange-500/20"
+                      >
+                        Open Question PDF
+                      </button>
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -1062,7 +1187,7 @@ export default function CourseDetailsPage() {
       </section>
 
       {selectedPdf ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
           <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#091224] shadow-[0_24px_80px_rgba(15,23,42,0.65)]">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
               <div>
@@ -1095,8 +1220,8 @@ export default function CourseDetailsPage() {
       ) : null}
 
       {selectedVideo ? (
-        <div className="fixed inset-0 z-50 bg-[#050914]">
-          <div className="flex h-[100dvh] w-screen flex-col overflow-hidden bg-[#091224]">
+        <div className="fixed inset-0 z-[100] bg-[#050914]">
+          <div className="flex h-[100dvh] w-full min-w-0 flex-col overflow-hidden bg-[#091224]">
             <div className="flex flex-col gap-3 border-b border-white/10 bg-[#091224]/95 px-4 py-3 shadow-[0_12px_40px_rgba(2,6,23,0.35)] sm:flex-row sm:items-center sm:justify-between sm:px-5">
               <div className="min-w-0">
                 <p className="text-xs uppercase tracking-[0.3em] text-orange-300">Class Player</p>
@@ -1138,7 +1263,7 @@ export default function CourseDetailsPage() {
                 </button>
               </div>
             </div>
-            <div className="flex min-h-0 flex-1 flex-col p-2 sm:p-4">
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-2 sm:p-4">
               {shouldUseExternalLivePlayer ? (
                 <p className="mb-3 px-1 text-xs text-slate-300 sm:text-sm">
                   {liveStatusLoading ? "Checking live class status..." : "Live status refreshes automatically every 30 seconds."}
@@ -1148,7 +1273,7 @@ export default function CourseDetailsPage() {
                   Available quality adapts to your screen by default. Switch manually anytime if multiple sources are configured.
                 </p>
               )}
-              <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-white/10 bg-black sm:rounded-[24px]">
+              <div className="aspect-video w-full shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black sm:min-h-0 sm:flex-1 sm:aspect-auto sm:rounded-[24px]">
                 {shouldUseExternalLivePlayer && activeVideoSource ? (
                   <SecureYouTubePlayer
                     sourceUrl={activeVideoSource.url}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { siteContact } from "@/lib/siteContact";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -41,13 +42,14 @@ export default function ContactPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-2xl border border-white/10 bg-card/70 p-6">
           <h2 className="font-display text-2xl">Support Desk</h2>
-          <p className="mt-2 text-sm text-slate-300">Email: support@badamclasses.com</p>
-          <p className="text-sm text-slate-300">WhatsApp: +91 90000 11111</p>
-          <p className="text-sm text-slate-300">Office Hours: 7 AM - 10 PM (IST)</p>
-          <p className="mt-3 text-sm text-slate-300">Address: BadamClasses, Bhopal, Madhya Pradesh</p>
+          {siteContact.email ? <p className="mt-2 text-sm text-slate-300">Email: {siteContact.email}</p> : null}
+          {siteContact.whatsappDisplay ? <p className="text-sm text-slate-300">WhatsApp: {siteContact.whatsappDisplay}</p> : null}
+          {siteContact.officeHours ? <p className="text-sm text-slate-300">Office Hours: {siteContact.officeHours}</p> : null}
+          {siteContact.address ? <p className="mt-3 text-sm text-slate-300">Address: {siteContact.address}</p> : null}
           <div className="mt-5 flex flex-wrap gap-3">
-            <a href="mailto:support@badamclasses.com" className="rounded-lg border border-white/20 px-4 py-2 text-sm hover:border-orange-300">Email Support</a>
-            <a href="tel:+919000011111" className="rounded-lg border border-white/20 px-4 py-2 text-sm hover:border-orange-300">Call Support</a>
+            {siteContact.email ? <a href={`mailto:${siteContact.email}`} className="min-h-11 rounded-lg border border-white/20 px-4 py-2 text-sm hover:border-orange-300">Email Support</a> : null}
+            {siteContact.whatsapp ? <a href={`https://wa.me/${siteContact.whatsapp}`} className="min-h-11 rounded-lg border border-white/20 px-4 py-2 text-sm hover:border-orange-300">WhatsApp Support</a> : null}
+            {siteContact.mapsUrl ? <a href={siteContact.mapsUrl} target="_blank" rel="noopener noreferrer" className="min-h-11 rounded-lg border border-white/20 px-4 py-2 text-sm hover:border-orange-300">Open in Maps</a> : null}
             <Link href="/results" className="rounded-lg border border-white/20 px-4 py-2 text-sm hover:border-orange-300">Offline Test Desk</Link>
           </div>
         </div>

@@ -56,8 +56,8 @@ export default function AdminPage() {
 
   if (!ready) {
     return (
-      <main className="mx-auto grid min-h-[70vh] w-[92%] max-w-5xl place-items-center py-10">
-        <p className="text-slate-300">Loading admin panel...</p>
+      <main className="grid min-h-screen place-items-center bg-slate-50 px-4 text-slate-700">
+        <p role="status" className="rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm shadow-sm">Loading admin workspace…</p>
       </main>
     );
   }
@@ -68,28 +68,28 @@ export default function AdminPage() {
       : "Please sign in with an admin or instructor account to manage courses, offers, live controls, and support chat.";
 
     return (
-      <main className="mx-auto grid min-h-[70vh] w-[92%] max-w-2xl place-items-center py-10">
-        <section className="w-full rounded-2xl border border-white/10 bg-card/70 p-6 text-center backdrop-blur">
-          <p className="mb-2 text-xs uppercase tracking-[0.2em] text-orange-300">Restricted Area</p>
-          <h1 className="font-display text-3xl text-white">Admin Panel Access Required</h1>
-          <p className="mt-3 text-sm text-slate-300">{actionMessage}</p>
+      <main className="grid min-h-screen place-items-center bg-slate-50 px-4 py-10 text-slate-900">
+        <section className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">Restricted area</p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Admin access required</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">{actionMessage}</p>
           {error ? (
-            <div className="mt-4 rounded-xl border border-orange-300/40 bg-orange-500/10 px-4 py-3 text-sm text-orange-100">
+            <div role="alert" className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
               {error}
             </div>
           ) : null}
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Link
               href="/login?redirect=%2Fadmin"
-              className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-400"
+              className="inline-flex min-h-11 items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
             >
               Login
             </Link>
             <Link
               href="/"
-              className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-slate-100 hover:border-orange-300"
+              className="inline-flex min-h-11 items-center rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
             >
-              Back to Home
+              Back to website
             </Link>
           </div>
         </section>

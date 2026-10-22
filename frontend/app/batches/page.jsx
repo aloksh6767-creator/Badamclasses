@@ -55,6 +55,24 @@ const getBatchMeta = (batch) => ({
   rating: Number(batch.ratingAverage || 4.8)
 });
 
+const getBatchModeText = (batch = {}) => [
+  batch.courseType,
+  batch.type,
+  batch.mode,
+  batch.title,
+  batch.description,
+  ...(Array.isArray(batch.highlights) ? batch.highlights : [])
+].filter(Boolean).join(" ").toLowerCase();
+
+const matchesBatchMode = (batch, mode) => {
+  if (!mode) return true;
+  const modeText = getBatchModeText(batch);
+  const hasRecording = Boolean(batch.recordedVideoUrl || batch.videoSources?.length || batch.videos?.length);
+  if (mode === "live") return Boolean(batch.liveClassEnabled) || modeText.includes("live");
+  if (mode === "recorded") return hasRecording || modeText.includes("recorded") || modeText.includes("replay");
+  return true;
+};
+
 export default function BatchesPage() {
   const searchParams = useSearchParams();
   const [deletedCourseKeys, setDeletedCourseKeys] = useState([]);
@@ -62,6 +80,7 @@ export default function BatchesPage() {
   const [visibleBatches, setVisibleBatches] = useState(fallbackBatches);
   const [error, setError] = useState("");
   const search = String(searchParams.get("search") || "").trim().toLowerCase();
+  const mode = String(searchParams.get("mode") || "").trim().toLowerCase();
 
   useEffect(() => {
     setDeletedCourseKeys(readDeletedCourseKeys());
@@ -109,9 +128,10 @@ export default function BatchesPage() {
   }, [fallbackBatches]);
 
   const filteredBatches = useMemo(() => {
-    if (!search) return visibleBatches;
-
     return visibleBatches.filter((batch) => {
+      if (!matchesBatchMode(batch, mode)) return false;
+      if (!search) return true;
+
       const haystack = [
         batch.title,
         batch.category,
@@ -124,12 +144,15 @@ export default function BatchesPage() {
 
       return haystack.includes(search);
     });
-  }, [search, visibleBatches]);
+  }, [mode, search, visibleBatches]);
 
-  const heading = search
+  const modeLabel = mode === "live" ? "Live Batches" : mode === "recorded" ? "Recorded Batches" : "";
+  const heading = modeLabel || (search
     ? `${search.charAt(0).toUpperCase()}${search.slice(1)} Batches`
-    : "All Batches";
-  const subheading = search
+    : "All Batches");
+  const subheading = modeLabel
+    ? `Showing ${modeLabel.toLowerCase()} uploaded for students.`
+    : search
     ? `Showing batches related to ${search}.`
     : "Choose a batch that matches your exam target and timeline.";
 

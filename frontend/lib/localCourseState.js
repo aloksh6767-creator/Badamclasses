@@ -156,7 +156,9 @@ export function normalizeLocalCourseRecord(course = {}) {
     classSections: normalizeClassSectionsForStorage(course.classSections || []),
     batchTime: String(course.batchTime || "").trim(),
     startDate: String(course.startDate || "").trim(),
-    duration: String(course.duration || "Flexible").trim()
+    duration: String(course.duration || "Flexible").trim(),
+    notificationTitle: String(course.notificationTitle || course.noticeTitle || "").trim(),
+    notificationMessage: String(course.notificationMessage || course.noticeMessage || "").trim()
   };
 }
 

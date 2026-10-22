@@ -7,7 +7,18 @@ export const mockExamCategories = [
     duration: "60-90 min",
     difficulty: "Exam Level",
     pattern: "CBT pattern",
-    sections: "Maths, Reasoning, GK"
+    sections: "Maths, Reasoning, GK",
+    logoImage: "/mock-test-logos/rrb-mock-test.webp",
+    logoAlt: "RRB mock test logo",
+    logo: "🚆",
+    subExams: [
+      { name: "RRB NTPC", logo: "🚆" },
+      { name: "RRB Group D", logo: "🛤️" },
+      { name: "RRB ALP", logo: "🚉" },
+      { name: "RRB Technician", logo: "🛠️" },
+      { name: "RPF SI", logo: "🛡️" },
+      { name: "Railway JE", logo: "⚙️" }
+    ]
   },
   {
     exam: "SSC",
@@ -17,7 +28,18 @@ export const mockExamCategories = [
     duration: "15-60 min",
     difficulty: "Moderate",
     pattern: "Tier pattern",
-    sections: "Quant, Reasoning, English, GS"
+    sections: "Quant, Reasoning, English, GS",
+    logoImage: "/mock-test-logos/ssc-mock-test.webp",
+    logoAlt: "SSC mock test logo",
+    logo: "📋",
+    subExams: [
+      { name: "SSC CGL", logo: "📊" },
+      { name: "SSC CHSL", logo: "⌨️" },
+      { name: "SSC MTS", logo: "📄" },
+      { name: "SSC GD", logo: "🛡️" },
+      { name: "CPO SI", logo: "⭐" },
+      { name: "Steno", logo: "✍️" }
+    ]
   },
   {
     exam: "Banking",
@@ -27,7 +49,16 @@ export const mockExamCategories = [
     duration: "60-120 min",
     difficulty: "Sectional",
     pattern: "Prelims + mains",
-    sections: "Quant, Reasoning, English"
+    sections: "Quant, Reasoning, English",
+    logoImage: "/mock-test-logos/banker-mock-test.webp",
+    logoAlt: "Banker mock test logo",
+    logo: "🏦",
+    subExams: [
+      { name: "IBPS PO", logo: "🏦" },
+      { name: "IBPS Clerk", logo: "💼" },
+      { name: "SBI PO", logo: "💳" },
+      { name: "RBI Assistant", logo: "₹" }
+    ]
   },
   {
     exam: "Police",
@@ -37,7 +68,16 @@ export const mockExamCategories = [
     duration: "90 min",
     difficulty: "State Level",
     pattern: "State police pattern",
-    sections: "Reasoning, GK, Maths"
+    sections: "Reasoning, GK, Maths",
+    logoImage: "/mock-test-logos/police-mock-test.webp",
+    logoAlt: "Police mock test logo",
+    logo: "👮",
+    subExams: [
+      { name: "UP Police", logo: "👮" },
+      { name: "MP Police", logo: "🛡️" },
+      { name: "Delhi Police", logo: "⭐" },
+      { name: "SI", logo: "🎖️" }
+    ]
   },
   {
     exam: "Teaching",
@@ -47,7 +87,16 @@ export const mockExamCategories = [
     duration: "150 min",
     difficulty: "TET Level",
     pattern: "TET pattern",
-    sections: "CDP, Language, Maths, EVS"
+    sections: "CDP, Language, Maths, EVS",
+    logoImage: "/mock-test-logos/teaching-mock-test.webp",
+    logoAlt: "Teaching mock test logo",
+    logo: "📚",
+    subExams: [
+      { name: "CTET", logo: "📚" },
+      { name: "UPTET", logo: "🧑‍🏫" },
+      { name: "REET", logo: "📝" },
+      { name: "TGT/PGT", logo: "🎓" }
+    ]
   },
   {
     exam: "State Exams",
@@ -57,7 +106,16 @@ export const mockExamCategories = [
     duration: "90-120 min",
     difficulty: "Mixed",
     pattern: "State exam pattern",
-    sections: "GK, Reasoning, Maths, Hindi"
+    sections: "GK, Reasoning, Maths, Hindi",
+    logoImage: "/mock-test-logos/state-exam-mock-test.webp",
+    logoAlt: "State exam mock test logo",
+    logo: "🏛️",
+    subExams: [
+      { name: "UP Exams", logo: "🏛️" },
+      { name: "MP Exams", logo: "🗺️" },
+      { name: "Bihar Exams", logo: "📍" },
+      { name: "State PSC", logo: "⚖️" }
+    ]
   }
 ];
 
@@ -86,6 +144,68 @@ export const mockInterfaceActions = [
   "Submit Test",
   "Question Palette"
 ];
+
+export const aiMockPipelineSteps = [
+  "PDF Upload",
+  "OCR",
+  "Question Extraction",
+  "Answer Validation",
+  "Topic Detection",
+  "Difficulty Detection",
+  "Duplicate Detection",
+  "Full Mock Generation",
+  "Topic Mock Generation",
+  "Admin Review",
+  "Publish"
+];
+
+export const enterpriseExamModes = [
+  "Full Test",
+  "Sectional Test",
+  "Chapter Test",
+  "Previous-Year Test",
+  "Daily Quiz",
+  "Custom Test",
+  "Adaptive Test"
+];
+
+export const examPatternDefaults = {
+  Railway: {
+    questions: 100,
+    marks: 100,
+    duration: "90 min",
+    negativeMarking: "1/3 mark",
+    sectionTiming: "Single CBT timer"
+  },
+  SSC: {
+    questions: 100,
+    marks: 200,
+    duration: "60 min",
+    negativeMarking: "0.50 mark",
+    sectionTiming: "Single tier timer"
+  },
+  Banking: {
+    questions: 100,
+    marks: 100,
+    duration: "60 min",
+    negativeMarking: "0.25 mark",
+    sectionTiming: "Section-wise timer"
+  },
+  Teaching: {
+    questions: 150,
+    marks: 150,
+    duration: "150 min",
+    negativeMarking: "No negative marking",
+    sectionTiming: "Single paper timer"
+  },
+  Defence: {
+    questions: 120,
+    marks: 120,
+    duration: "120 min",
+    negativeMarking: "Exam pattern based",
+    sectionTiming: "Paper-wise timer"
+  }
+};
 
 export const topicWiseAiMocks = [
   {

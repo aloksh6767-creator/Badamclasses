@@ -9,7 +9,7 @@ function PlayerFallback({ status = "unknown", loading = false, message = "", rec
   const isError = status === "error";
 
   return (
-    <div className="flex h-full min-h-[320px] items-center justify-center bg-[radial-gradient(circle_at_top,#1e3a8a_0%,#08111f_44%,#020617_100%)] p-6 text-center text-slate-200">
+    <div className="flex h-full min-h-[240px] items-center justify-center bg-[radial-gradient(circle_at_top,#1e3a8a_0%,#08111f_44%,#020617_100%)] p-4 text-center text-slate-200 sm:min-h-[320px] sm:p-6">
       <div className="max-w-xl">
         <span
           className={`inline-flex rounded-full border px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em] ${
@@ -22,7 +22,7 @@ function PlayerFallback({ status = "unknown", loading = false, message = "", rec
         >
           {loading ? "Checking" : isOffline ? "Offline" : isPrivate ? "Embed Blocked" : isError ? "Check Failed" : "Live Class"}
         </span>
-        <h4 className="mt-5 text-3xl font-semibold text-white sm:text-4xl">
+        <h4 className="mt-4 text-xl font-semibold leading-tight text-white sm:mt-5 sm:text-4xl">
           {isOffline
             ? "Live class abhi active nahi hai"
             : isPrivate
@@ -97,7 +97,7 @@ export default function SecureYouTubePlayer({
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 z-10 h-20 w-72 bg-gradient-to-r from-black via-black/95 to-black/0"
+            className="pointer-events-none absolute left-0 top-0 z-10 h-12 w-1/2 max-w-72 bg-gradient-to-r from-black via-black/95 to-black/0 sm:h-20"
           />
           {loading ? (
             <div className="pointer-events-none absolute left-3 bottom-3 rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-xs font-semibold text-slate-100 backdrop-blur">

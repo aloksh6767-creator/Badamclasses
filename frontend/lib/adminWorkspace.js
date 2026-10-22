@@ -208,7 +208,7 @@ const defaultNotifications = [
 ];
 
 const defaultMedia = [
-  { id: "media-1", name: "Homepage Banner", type: "image", url: "/new-batch-starts-2026.png", tag: "banner" },
+  { id: "media-1", name: "Homepage Banner", type: "image", url: "/new-batch-starts-2026.webp", tag: "banner" },
   { id: "media-2", name: "Arithmetic Notes PDF", type: "pdf", url: "https://example.com/arithmetic.pdf", tag: "notes" }
 ];
 
@@ -229,6 +229,13 @@ const defaultMockTests = [
     resultVisibility: "Instant",
     testUrl: "",
     fileName: "",
+    pipelineStage: "Publish",
+    reviewStatus: "approved",
+    sourceType: "manual",
+    topicsDetected: ["Quantitative Aptitude", "Reasoning", "English", "General Awareness"],
+    duplicateCheck: "clear",
+    validationStatus: "answer-key verified",
+    version: 1,
     status: "published"
   },
   {
@@ -247,12 +254,19 @@ const defaultMockTests = [
     resultVisibility: "After Schedule",
     testUrl: "",
     fileName: "",
+    pipelineStage: "Admin Review",
+    reviewStatus: "pending",
+    sourceType: "pdf",
+    topicsDetected: ["Quantitative Aptitude", "Reasoning", "English", "General Awareness"],
+    duplicateCheck: "pending",
+    validationStatus: "needs review",
+    version: 1,
     status: "draft"
   }
 ];
 
 const defaultSettings = {
-  logoUrl: "/new-logo.png",
+  logoUrl: "/new-logo.webp",
   bannerTitle: "Prepare Smarter with BadamClasses",
   seoTitle: "BadamClasses - Courses & Live Batches",
   seoDescription: "Manage courses, batches, tests, and learning content from the admin panel.",

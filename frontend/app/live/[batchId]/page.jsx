@@ -44,12 +44,13 @@ function formatClassDate(value = "") {
 }
 
 function deriveNotes(course = {}) {
-  const category = normalizeLabel(course.category || "");
-  const teacher = course.instructor?.name || course.instructor || "Faculty";
+  const safeCourse = course || {};
+  const category = normalizeLabel(safeCourse.category || "");
+  const teacher = safeCourse.instructor?.name || safeCourse.instructor || "Faculty";
   return [
     `Focus on ${category || "today's topic"} concepts and write down all important formulae before class ends.`,
     `Mark doubts in chat so ${teacher} ya support team follow-up kar sake.`,
-    recordedFallbackUrlFromCourse(course)
+    recordedFallbackUrlFromCourse(safeCourse)
       ? "Live session khatam hone ke baad isi card me recording fallback available rahegi."
       : "Recording upload hone par isi batch card se later revision access milega."
   ];
@@ -295,23 +296,23 @@ export default function LiveClassPage() {
   return (
     <main
       onContextMenu={(event) => event.preventDefault()}
-      className={`min-h-screen bg-[radial-gradient(circle_at_top,#11254f_0%,#071226_32%,#020816_72%)] text-slate-100 ${theaterMode ? "px-0 py-0" : "px-4 py-5 sm:px-6 sm:py-8"}`}
+      className={`min-h-screen bg-[radial-gradient(circle_at_top,#11254f_0%,#071226_32%,#020816_72%)] text-slate-100 ${theaterMode ? "mobile-fullscreen-main px-0 py-0" : "px-3 py-3 sm:px-6 sm:py-8"}`}
     >
-      <section className={`${theaterMode ? "mx-0 max-w-none rounded-none border-0" : "mx-auto max-w-7xl rounded-[36px] border border-white/10"} overflow-hidden bg-[linear-gradient(145deg,#08142c_0%,#081224_38%,#030712_100%)] shadow-[0_36px_120px_rgba(2,6,23,0.55)]`}>
+      <section className={`${theaterMode ? "mx-0 max-w-none rounded-none border-0" : "mx-auto max-w-7xl rounded-[22px] border border-white/10 sm:rounded-[30px] lg:rounded-[36px]"} overflow-hidden bg-[linear-gradient(145deg,#08142c_0%,#081224_38%,#030712_100%)] shadow-[0_36px_120px_rgba(2,6,23,0.55)]`}>
         {!theaterMode ? (
-          <div className="relative overflow-hidden border-b border-white/10 px-5 py-6 sm:px-7">
+          <div className="relative overflow-hidden border-b border-white/10 px-4 py-5 sm:px-7 sm:py-6">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_34%),radial-gradient(circle_at_top_right,rgba(249,115,22,0.16),transparent_32%)]" />
             <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className={`inline-flex rounded-full border px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${liveEnabled ? "border-red-300/45 bg-red-500/15 text-red-100" : "border-white/15 bg-white/10 text-slate-300"}`}>
+                  <span className={`inline-flex rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] sm:px-4 sm:text-[11px] sm:tracking-[0.3em] ${liveEnabled ? "border-red-300/45 bg-red-500/15 text-red-100" : "border-white/15 bg-white/10 text-slate-300"}`}>
                     {liveEnabled ? "LIVE NOW" : "RECORDING READY"}
                   </span>
                   <span className="inline-flex rounded-full border border-cyan-300/25 bg-cyan-400/10 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-cyan-100">
                     {batchLabel}
                   </span>
                 </div>
-                <h1 className="mt-4 max-w-4xl font-display text-3xl leading-tight text-white sm:text-4xl xl:text-[2.9rem]">
+                <h1 className="mt-3 max-w-4xl break-words font-display text-2xl leading-tight sm:mt-4 sm:text-4xl text-white sm:text-4xl xl:text-[2.9rem]">
                   {classTitle}
                 </h1>
                 <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-300">
@@ -321,7 +322,7 @@ export default function LiveClassPage() {
                 </div>
               </div>
 
-              <div className="grid w-full gap-3 sm:grid-cols-2 xl:w-[25rem]">
+              <div className="grid w-full grid-cols-2 gap-2 sm:gap-3 xl:w-[25rem]">
                 <QuickStat label="Class Timing" value={scheduleLabel} />
                 <QuickStat label="Access" value={hasAccess ? "Enrolled student" : "Locked"} accent={hasAccess ? "text-emerald-300" : "text-orange-200"} />
                 <QuickStat label="Teacher" value={teacherName} />
@@ -333,15 +334,15 @@ export default function LiveClassPage() {
 
         <div className={`${theaterMode ? "p-0" : "grid gap-0 xl:grid-cols-[minmax(0,1.2fr)_360px]"}`}>
           <section className="min-w-0 border-r border-white/10">
-            <div className={`${theaterMode ? "" : "p-4 sm:p-6"}`}>
-              <div className={`${theaterMode ? "rounded-none border-0" : "rounded-[30px] border border-white/10"} overflow-hidden bg-[#020617]`}>
+            <div className={`${theaterMode ? "" : "p-2 sm:p-6"}`}>
+              <div className={`${theaterMode ? "rounded-none border-0" : "rounded-[18px] border border-white/10 sm:rounded-[30px]"} overflow-hidden bg-[#020617]`}>
                 {!theaterMode ? (
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[linear-gradient(90deg,rgba(8,20,44,0.96),rgba(3,7,18,0.92))] px-4 py-3 sm:px-5">
+                  <div className="flex flex-col items-stretch justify-between gap-3 border-b sm:flex-row sm:items-center border-white/10 bg-[linear-gradient(90deg,rgba(8,20,44,0.96),rgba(3,7,18,0.92))] px-4 py-3 sm:px-5">
                     <div className="min-w-0">
                       <p className="text-[11px] uppercase tracking-[0.26em] text-cyan-200">Premium live classroom</p>
                       <p className="mt-1 truncate text-sm text-slate-300">{course.title} with {teacherName}</p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
                       <HeaderAction onClick={() => setPlayerKey((value) => value + 1)}>Refresh stream</HeaderAction>
                       <HeaderAction onClick={() => setTheaterMode((value) => !value)}>Theater mode</HeaderAction>
                     </div>
@@ -364,8 +365,8 @@ export default function LiveClassPage() {
                               refresh();
                             }}
                             recordedFallbackUrl={recordedFallbackUrl}
-                            className={`${theaterMode ? "h-screen" : "aspect-video"} w-full bg-black`}
-                            fallbackClassName={theaterMode ? "h-screen" : "aspect-video"}
+                            className={`${theaterMode ? "h-[100dvh]" : "aspect-video max-h-[70dvh]"} w-full bg-black`}
+                            fallbackClassName={theaterMode ? "h-[100dvh]" : "aspect-video max-h-[70dvh]"}
                           />
                         )}
                       </LiveStatusChecker>
@@ -374,10 +375,10 @@ export default function LiveClassPage() {
                         sourceUrl={liveUrl}
                         streamType={liveStreamType}
                         title={classTitle}
-                        className={`${theaterMode ? "h-screen" : "aspect-video"} w-full bg-black`}
+                        className={`${theaterMode ? "h-[100dvh]" : "aspect-video max-h-[70dvh]"} w-full bg-black`}
                       />
                     ) : (
-                      <div className={`${theaterMode ? "h-screen" : "aspect-video"} flex items-center justify-center bg-[#050816] p-6 text-center`}>
+                      <div className={`${theaterMode ? "h-[100dvh]" : "aspect-video max-h-[70dvh]"} flex items-center justify-center bg-[#050816] p-6 text-center`}>
                         <div className="max-w-xl">
                           <p className="text-sm uppercase tracking-[0.28em] text-orange-300">Unsupported Live Source</p>
                           <h2 className="mt-3 font-display text-3xl text-white">Stream type aur live URL match nahi kar rahe.</h2>
@@ -386,7 +387,7 @@ export default function LiveClassPage() {
                       </div>
                     )
                   ) : (
-                    <div className={`${theaterMode ? "h-screen" : "aspect-video"} flex items-center justify-center bg-[#050816] p-6 text-center`}>
+                    <div className={`${theaterMode ? "h-[100dvh]" : "aspect-video max-h-[70dvh]"} flex items-center justify-center bg-[#050816] p-6 text-center`}>
                       <div className="max-w-xl">
                         <p className="text-sm uppercase tracking-[0.28em] text-orange-300">Access Protected</p>
                         <h2 className="mt-3 font-display text-3xl text-white">{!liveEnabled ? "Live class abhi start nahi hui hai." : "Live class locked hai."}</h2>
@@ -410,7 +411,7 @@ export default function LiveClassPage() {
                       <div className="rounded-full border border-white/10 bg-black/45 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.26em] text-white backdrop-blur">
                         {liveEnabled ? "LIVE CLASS" : "RECORDED REVIEW"}
                       </div>
-                      <div className="rounded-full border border-cyan-300/30 bg-slate-950/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-100 backdrop-blur">
+                      <div className="max-w-[42%] truncate rounded-full border border-cyan-300/30 bg-slate-950/70 px-2 py-1 text-[9px] sm:max-w-none sm:px-3 sm:text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-100 backdrop-blur">
                         {teacherName}
                       </div>
                     </div>
@@ -477,7 +478,7 @@ export default function LiveClassPage() {
                 <LiveClassChat batchId={routeId || batchId} title={classTitle} teacherName={teacherName} />
               ) : (
                 <div className="p-5">
-                  <div className="rounded-[30px] border border-white/10 bg-white/[0.03] p-5">
+                  <div className="rounded-[18px] border border-white/10 sm:rounded-[30px] bg-white/[0.03] p-5">
                     <p className="text-[11px] uppercase tracking-[0.28em] text-slate-400">Why locked?</p>
                     <h3 className="mt-2 text-xl font-semibold text-white">Join the batch to unlock live classroom</h3>
                     <p className="mt-3 text-sm leading-6 text-slate-300">Streaming, notes, attendance aur discussion panel sirf enrolled students aur admins ke liye available hai.</p>

@@ -1,0 +1,173 @@
+.workspace {
+  --admin-ink: #172033;
+  --admin-muted: #667085;
+  --admin-line: #e4e8f0;
+  --admin-indigo: #4f46e5;
+  --admin-indigo-soft: #eef2ff;
+  font-family: Inter, Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.workspace :global(.admin-nav-link) {
+  color: #475467;
+}
+
+.workspace :global(.admin-nav-link:hover) {
+  color: #27334a;
+  background: #f8f9fc;
+}
+
+.workspace :global(.admin-nav-link.is-active) {
+  color: #4338ca;
+  background: #eef2ff;
+}
+
+.workspace :global(.admin-nav-link.is-active .admin-nav-icon) {
+  color: #ffffff;
+  background: #4f46e5;
+}
+
+.workspace :global(.admin-nav-icon) {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.workspace :global(.text-white),
+.workspace :global(.text-white\/90),
+.workspace :global(.text-slate-100),
+.workspace :global(.text-slate-200) {
+  color: var(--admin-ink) !important;
+}
+
+.workspace :global(.text-slate-300) {
+  color: #475467 !important;
+}
+
+.workspace :global(.text-slate-400),
+.workspace :global(.text-slate-500) {
+  color: var(--admin-muted) !important;
+}
+
+.workspace :global(.text-orange-100),
+.workspace :global(.text-orange-200),
+.workspace :global(.text-orange-300),
+.workspace :global(.text-cyan-100),
+.workspace :global(.text-cyan-200) {
+  color: var(--admin-indigo) !important;
+}
+
+.workspace :global(.border-white\/10),
+.workspace :global(.border-white\/15),
+.workspace :global(.border-orange-300\/30),
+.workspace :global(.border-orange-300\/40),
+.workspace :global(.border-orange-300\/50),
+.workspace :global(.border-cyan-300) {
+  border-color: var(--admin-line) !important;
+}
+
+.workspace :global([class*="bg-[#0b1634]"],
+  [class*="bg-[#081127]"],
+  [class*="bg-card"],
+  [class*="bg-white/5"],
+  [class*="bg-white/10"],
+  [class*="bg-white/15"]) {
+  background-color: #f8fafc !important;
+  background-image: none !important;
+}
+
+.workspace :global([class*="bg-[radial-gradient"], [class*="bg-[linear-gradient"]) {
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+.workspace :global(.bg-orange-500\/10),
+.workspace :global(.bg-orange-500\/15),
+.workspace :global(.bg-cyan-400\/10),
+.workspace :global(.bg-cyan-500\/10) {
+  background-color: var(--admin-indigo-soft) !important;
+}
+
+.workspace :global(button[class*="bg-orange-500"],
+  button[class*="bg-orange-400"],
+  button[class*="bg-cyan-500"],
+  button[class*="bg-cyan-400"],
+  a[class*="bg-orange-500"]) {
+  border-color: var(--admin-indigo) !important;
+  color: #ffffff !important;
+  background: var(--admin-indigo) !important;
+}
+
+.workspace :global(button[class*="bg-orange-500"]:hover,
+  button[class*="bg-orange-400"]:hover,
+  button[class*="bg-cyan-500"]:hover,
+  button[class*="bg-cyan-400"]:hover,
+  a[class*="bg-orange-500"]:hover) {
+  background: #4338ca !important;
+}
+
+.workspace :global(.text-emerald-100),
+.workspace :global(.text-emerald-200) {
+  color: #047857 !important;
+}
+
+.workspace :global(.text-rose-100),
+.workspace :global(.text-rose-200) {
+  color: #be123c !important;
+}
+
+.workspace :global(input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea) {
+  border-color: #d0d5dd !important;
+  color: #172033 !important;
+  background-color: #ffffff !important;
+}
+
+.workspace :global(input::placeholder),
+.workspace :global(textarea::placeholder) {
+  color: #98a2b3 !important;
+}
+
+.workspace :global(input:focus),
+.workspace :global(select:focus),
+.workspace :global(textarea:focus) {
+  border-color: #818cf8 !important;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
+}
+
+.workspace :global(table) {
+  color: #344054;
+}
+
+.workspace :global(th) {
+  color: #667085 !important;
+  font-weight: 600;
+}
+
+.workspace :global(td),
+.workspace :global(th) {
+  border-color: var(--admin-line) !important;
+}
+
+.workspace :global(tr:hover) {
+  background-color: #f8f9fc;
+}
+
+.workspace :global(a:focus-visible),
+.workspace :global(button:focus-visible),
+.workspace :global(input:focus-visible),
+.workspace :global(select:focus-visible),
+.workspace :global(textarea:focus-visible) {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace :global(*),
+  .workspace :global(*::before),
+  .workspace :global(*::after) {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

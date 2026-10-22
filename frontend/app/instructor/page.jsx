@@ -30,6 +30,7 @@ const initialState = {
 const createEmptyClassDraft = () => ({
   title: "",
   subtitle: "",
+  note: "",
   href: "",
   actionLabel: "Open Class",
   icon: "🎓"
@@ -230,6 +231,7 @@ const normalizeClassSectionItems = (items = []) => {
       id: item.id || `${String(item.title || "class").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") || "class"}-${index}`,
       title: item.title || `Class ${index + 1}`,
       subtitle: item.subtitle || "",
+      note: item.note || item.update || item.importantUpdate || item.updateMessage || "",
       href: sanitizeStoredUrl(item.href),
       actionLabel: item.actionLabel || (sanitizeStoredUrl(item.href) ? "Open Class" : "Coming Soon"),
       icon: item.icon || "🎓"
@@ -256,7 +258,7 @@ const parseClassSectionsText = (value = "") => {
   const sectionMap = new Map();
 
   lines.forEach((line) => {
-    const [sectionTitle, cardTitle, subtitle, href, actionLabel, icon] = line
+    const [sectionTitle, cardTitle, subtitle, href, actionLabel, icon, note] = line
       .split("|")
       .map((part) => part.trim());
 
@@ -269,6 +271,7 @@ const parseClassSectionsText = (value = "") => {
     sectionMap.get(sectionTitle).items.push({
       title: cardTitle,
       subtitle: subtitle || "",
+      note: note || "",
       href: href || "",
       actionLabel: actionLabel || (href ? "Open Class" : "Coming Soon"),
       icon: icon || "🎓"
@@ -282,7 +285,7 @@ const stringifyClassSections = (sections = []) => {
   return normalizeClassSections(sections)
     .flatMap((section) =>
       section.items.map((item) =>
-        [section.title, item.title, item.subtitle || "", item.href || "", item.actionLabel || "", item.icon || ""].join(" | ")
+        [section.title, item.title, item.subtitle || "", item.href || "", item.actionLabel || "", item.icon || "", item.note || ""].join(" | ")
       )
     )
     .join("\n");
@@ -297,6 +300,7 @@ const buildSectionDraftsFromText = (value = "") => {
     items: (section.items || []).map((item) => ({
       title: item.title || "",
       subtitle: item.subtitle || "",
+      note: item.note || "",
       href: item.href || "",
       actionLabel: item.actionLabel || "Open Class",
       icon: item.icon || "🎓"
@@ -312,6 +316,7 @@ const stringifySectionDrafts = (drafts = []) =>
       items: (section.items || []).map((item) => ({
         title: item.title,
         subtitle: item.subtitle,
+        note: item.note,
         href: item.href,
         actionLabel: item.actionLabel,
         icon: item.icon
@@ -1595,6 +1600,12 @@ export default function InstructorPage({
                           className="rounded-lg bg-bg px-3 py-2"
                         />
                         <input
+                          placeholder="Important update / note"
+                          value={item.note}
+                          onChange={(e) => updateClassDraft(section.id, itemIndex, "note", e.target.value)}
+                          className="rounded-lg bg-bg px-3 py-2 md:col-span-2"
+                        />
+                        <input
                           placeholder="Class URL"
                           value={item.href}
                           onChange={(e) => updateClassDraft(section.id, itemIndex, "href", e.target.value)}
@@ -1631,7 +1642,7 @@ export default function InstructorPage({
             <details className="rounded-xl border border-white/10 bg-[#081127]/80 p-3">
               <summary className="cursor-pointer text-sm font-semibold text-slate-200">Advanced Raw Format</summary>
               <textarea
-                placeholder="Sections & Classes: one class per line. Format: Section Name | Class Title | Subtitle/Timing | URL | Button Label | Icon"
+                placeholder="Sections & Classes: one class per line. Format: Section Name | Class Title | Subtitle/Timing | URL | Button Label | Icon | Important Update"
                 value={form.classSectionsText}
                 onChange={(e) => {
                   setForm({ ...form, classSectionsText: e.target.value });

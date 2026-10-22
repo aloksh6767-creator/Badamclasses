@@ -1,3 +1,9 @@
+export const metadata = {
+  title: "Privacy Policy",
+  description: "How Badam Classes handles student, payment, and support data.",
+  alternates: { canonical: "/privacy" }
+};
+
 export default function PrivacyPage() {
   return (
     <main className="mx-auto w-[92%] max-w-5xl py-10 text-slate-100">

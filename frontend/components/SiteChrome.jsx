@@ -8,13 +8,17 @@ import ScrollProgress from "@/components/ScrollProgress";
 import FloatingEnrollButton from "@/components/FloatingEnrollButton";
 import BackToTop from "@/components/BackToTop";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
+import SiteNotificationPopup from "@/components/SiteNotificationPopup";
 
 export default function SiteChrome({ children }) {
   const pathname = usePathname() || "";
   const isSaasRoute = pathname === "/ai-saas" || pathname.startsWith("/ai-saas/");
   const isLiveRoute = pathname === "/live" || pathname.startsWith("/live/");
+  const isMaintenanceRoute = pathname === "/maintenance";
+  const isTestRankRoute = pathname === "/test-rank" || pathname.startsWith("/test-rank/");
+  const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
 
-  if (isSaasRoute) {
+  if (isSaasRoute || isMaintenanceRoute || isTestRankRoute || isAdminRoute) {
     return children;
   }
 
@@ -23,11 +27,12 @@ export default function SiteChrome({ children }) {
       <ScrollProgress />
       <Navbar />
       {!isLiveRoute ? <AnnouncementTicker /> : null}
-      {children}
+      <div id="main-content" tabIndex={-1}>{children}</div>
       <Footer />
-      <FloatingEnrollButton />
-      <BackToTop />
+      {!isLiveRoute ? <FloatingEnrollButton /> : null}
+      {!isLiveRoute ? <BackToTop /> : null}
       {!isLiveRoute ? <ChatbotWidget /> : null}
+      {!isLiveRoute ? <SiteNotificationPopup /> : null}
     </>
   );
 }

@@ -39,7 +39,7 @@ export default function FloatingEnrollButton() {
   return (
     <button
       onClick={handleClick}
-      className="floating-enroll btn-gradient btn-anim fixed bottom-6 left-6 z-50 rounded-full px-5 py-3 text-sm font-semibold text-white shadow-xl"
+      className="floating-enroll btn-gradient btn-anim fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 z-50 min-h-11 rounded-full px-5 py-3 text-sm font-semibold text-white shadow-xl sm:bottom-6 sm:left-6"
     >
       {loading ? "Checking..." : "My Courses"}
     </button>

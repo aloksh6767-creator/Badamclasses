@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 const footerLinks = [
   { label: "About Us", href: "/about" },
@@ -8,7 +8,10 @@ const footerLinks = [
   { label: "Current Affairs", href: "/current-affairs" },
   { label: "Contact", href: "/contact" },
   { label: "Privacy Policy", href: "/privacy" },
-  { label: "Terms & Conditions", href: "/terms" }
+  { label: "Terms & Conditions", href: "/terms" },
+  { label: "Refund Policy", href: "/refund-policy" },
+  { label: "Payment Policy", href: "/payment-policy" },
+  { label: "Course Access", href: "/course-access-policy" }
 ];
 
 function InstagramIcon() {
@@ -43,10 +46,6 @@ export default function Footer() {
             <p className="max-w-sm text-slate-400">
               Smart preparation platform for SSC, Railway, Banking and State exam aspirants.
             </p>
-            <div className="mt-3 space-y-1 text-xs text-slate-400">
-              <p>Support: support@badamclasses.com</p>
-              <p>Helpline: +91 90000 11111</p>
-            </div>
           </div>
           <div>
             <h4 className="mb-2 text-white">Quick Links</h4>
@@ -65,18 +64,6 @@ export default function Footer() {
           <div>
             <h4 className="mb-2 text-white">Social Media</h4>
             <div className="flex gap-3 text-slate-300">
-              <a
-                href="mailto:support@badamclasses.com"
-                className="btn-anim rounded-md border border-white/15 px-3 py-1 hover:border-orange-300"
-              >
-                Email
-              </a>
-              <a
-                href="tel:+919000011111"
-                className="btn-anim rounded-md border border-white/15 px-3 py-1 hover:border-orange-300"
-              >
-                Call
-              </a>
               <a
                 href="https://www.instagram.com/badamsinghclassesgwalior/"
                 target="_blank"

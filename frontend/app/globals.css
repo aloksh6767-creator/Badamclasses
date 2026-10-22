@@ -33,7 +33,16 @@ body {
   background-size: 46px 46px, 46px 46px, auto, auto, auto;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 html, body { overflow-x: clip; }
+body, #main-content { min-width: 0; max-width: 100%; }
+main, section, article, aside, header, footer, nav, form { min-width: 0; }
+img, svg, video, canvas { height: auto; }
+input, select, textarea, button { max-width: 100%; box-sizing: border-box; }
 body { padding-bottom: 6.5rem; font-size: 16px; line-height: 1.5; }
 img, svg, video, canvas { max-width: 100%; }
 .skip-link {
@@ -54,6 +63,89 @@ img, svg, video, canvas { max-width: 100%; }
 .comparison-scroll { position: relative; scrollbar-color: #fb923c rgba(255,255,255,.12); scrollbar-width: thin; }
 .comparison-scroll::after { content: "Swipe to compare →"; display: block; width: fit-content; margin: .5rem 0 0 auto; color: #fdba74; font-size: .75rem; font-weight: 700; }
 @media (max-width: 640px) {
+  .homepage-main,
+  main:not(.mobile-fullscreen-main):not(.mock-exam-console) {
+    width: min(94%, calc(100% - 1.5rem));
+    min-width: 0;
+  }
+
+  .homepage-main > *,
+  #main-content > * {
+    min-width: 0;
+  }
+
+  p, li, td, th, label, summary {
+    overflow-wrap: anywhere;
+  }
+
+  [class*="fixed"] {
+    max-width: calc(100vw - 1rem);
+  }
+
+  /* Keep the marketing homepage recognizably the same, while giving it a
+     purpose-built phone density instead of a narrowed desktop composition. */
+  .homepage-main {
+    padding-top: 1.25rem !important;
+    padding-bottom: 2rem;
+  }
+
+  .homepage-main > section {
+    margin-bottom: 2.5rem;
+  }
+
+  .homepage-main > section.rounded-3xl,
+  .homepage-main > section.rounded-2xl {
+    border-radius: 1.25rem;
+  }
+
+  #batches > div:last-child {
+    gap: 0.75rem;
+  }
+
+  #batches article {
+    border-radius: 1.1rem;
+  }
+
+  #batches article > div:last-child {
+    padding: 0.75rem;
+  }
+
+  #batches article h3 {
+    font-size: 1rem;
+  }
+
+  #batches article h3 + p {
+    font-size: 0.75rem;
+  }
+
+  #batches article > div:last-child > div:first-child {
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  #batches article > div:last-child > div:first-child > div:last-child,
+  #batches article > div:last-child > div:nth-child(2) > div {
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  #batches article > div:last-child > div:nth-child(2) {
+    gap: 0.4rem;
+    margin-top: 0.65rem;
+  }
+
+  #batches article > div:last-child > div:nth-child(2) p,
+  #batches article > div:last-child > div:last-child p {
+    font-size: 0.68rem;
+    line-height: 1.25;
+  }
+
+  #batches article .btn-gradient {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.4rem;
+    font-size: 0.78rem;
+  }
+
   main { padding-top: 1.5rem !important; }
   main.mobile-fullscreen-main { padding-top: 0 !important; }
   h1 { font-size: clamp(2rem, 9vw, 2.5rem) !important; line-height: 1.12 !important; overflow-wrap: anywhere; }
@@ -70,6 +162,60 @@ img, svg, video, canvas { max-width: 100%; }
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+}
+
+/* Match the compact two-column composition used by modern large phones without
+   affecting the single-column layout on narrow devices or desktop. */
+@media (min-width: 480px) and (max-width: 767px) {
+  .homepage-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .homepage-hero h1 {
+    font-size: clamp(2rem, 6vw, 2.4rem) !important;
+  }
+
+  .homepage-hero p {
+    font-size: 0.82rem;
+  }
+
+  .homepage-hero .homepage-hero-image {
+    max-height: 15rem;
+  }
+
+  .homepage-quick-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .homepage-quick-tabs a {
+    min-height: 7.25rem;
+    padding: 0.9rem;
+  }
+
+  .homepage-quick-tabs a > span:nth-child(2) {
+    width: 4.25rem;
+    height: 4.25rem;
+  }
+
+  .homepage-quick-tabs a > span:nth-child(3) {
+    margin-top: 0.55rem;
+    font-size: 1rem;
+  }
+
+  .homepage-course-filters > div {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .homepage-course-filters input,
+  .homepage-course-filters select,
+  .homepage-course-filters label {
+    min-width: 0;
+    padding: 0.55rem;
+    font-size: 0.68rem;
   }
 }
 
@@ -3360,6 +3506,9 @@ img, svg, video, canvas { max-width: 100%; }
 }
 
 body.mock-test-active footer,
+body.mock-test-active .animate-nav,
+body.mock-test-active .announcement-ticker,
+body.mock-test-active .top-progress-wrap,
 body.mock-test-active .floating-enroll,
 body.mock-test-active .back-top,
 body.mock-test-active .pulse-glow {
@@ -3367,7 +3516,7 @@ body.mock-test-active .pulse-glow {
 }
 
 body.mock-test-active {
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* Full-screen mock runner: clean government-exam style console. */

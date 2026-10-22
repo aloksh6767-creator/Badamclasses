@@ -40,12 +40,14 @@ const mapApiError = (message) => {
 
 const tryFetchJson = async (baseUrl, path, options, headers) => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeoutMs = Number(options.timeoutMs || REQUEST_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const { timeoutMs: _timeoutMs, ...fetchOptions } = options;
 
   let response;
   try {
     response = await fetch(`${baseUrl}${path}`, {
-      ...options,
+      ...fetchOptions,
       headers,
       cache: "no-store",
       signal: controller.signal

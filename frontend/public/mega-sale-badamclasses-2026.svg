@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="600" viewBox="0 0 1920 600" role="img" aria-labelledby="title desc">
+  <title id="title">BadamClasses SSC and Railway 2026 batch</title>
+  <desc id="desc">Premium blue and yellow website banner for BadamClasses.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071d4e"/><stop offset=".5" stop-color="#0b3c9d"/><stop offset="1" stop-color="#071a46"/></linearGradient>
+    <linearGradient id="price" x1="0" x2="1"><stop stop-color="#ffed57"/><stop offset="1" stop-color="#f8bd20"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#010719" flood-opacity=".33"/></filter>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#8ab2ff" stroke-opacity=".12"/></pattern>
+  </defs>
+  <rect width="1920" height="600" fill="url(#bg)"/><rect width="1920" height="600" fill="url(#grid)"/>
+  <circle cx="1740" cy="42" r="330" fill="#1c65d1" opacity=".24"/><circle cx="1780" cy="550" r="440" fill="#123581" opacity=".38"/>
+  <path d="M0 494C272 422 352 640 659 523c252-96 302-304 667-205 215 58 324 25 594-107V600H0Z" fill="#041536" opacity=".47"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="122" y="108" width="214" height="46" rx="23" fill="#ffde38"/><text x="229" y="139" text-anchor="middle" fill="#092052" font-size="20" font-weight="800" letter-spacing="2">BADAMCLASSES</text>
+    <text x="118" y="246" fill="#fff" font-size="76" font-weight="800" letter-spacing="-2">SSC &amp; RAILWAY</text><text x="118" y="324" fill="#fff" font-size="76" font-weight="800" letter-spacing="-2">MEGA BATCH <tspan fill="#ffdd32">2026</tspan></text>
+    <text x="122" y="379" fill="#c9dcff" font-size="28" font-weight="500">Live classes • PDF notes • Mock tests • Doubt support</text>
+    <g transform="translate(122 424)"><rect width="154" height="50" rx="25" fill="#fff" fill-opacity=".13" stroke="#a8c8ff" stroke-opacity=".46"/><text x="77" y="32" text-anchor="middle" fill="#fff" font-size="19" font-weight="700">SSC CGL</text><rect x="167" width="154" height="50" rx="25" fill="#fff" fill-opacity=".13" stroke="#a8c8ff" stroke-opacity=".46"/><text x="244" y="32" text-anchor="middle" fill="#fff" font-size="19" font-weight="700">RRB NTPC</text><rect x="334" width="154" height="50" rx="25" fill="#fff" fill-opacity=".13" stroke="#a8c8ff" stroke-opacity=".46"/><text x="411" y="32" text-anchor="middle" fill="#fff" font-size="19" font-weight="700">GROUP D</text></g>
+    <g filter="url(#shadow)" transform="translate(1258 94)"><rect width="482" height="412" rx="36" fill="#fff"/><rect x="28" y="28" width="426" height="75" rx="22" fill="#edf4ff"/><text x="241" y="75" text-anchor="middle" fill="#17438b" font-size="22" font-weight="800" letter-spacing="1">LIMITED PERIOD OFFER</text><text x="55" y="163" fill="#162b56" font-size="27" font-weight="700">Complete preparation at</text><text x="55" y="252" fill="#0d2d6d" font-size="83" font-weight="900">₹999</text><text x="310" y="240" fill="#617398" font-size="23" font-weight="600">only</text><path d="M55 286h372" stroke="#dce5f5" stroke-width="2"/><text x="55" y="328" fill="#526687" font-size="21" font-weight="600">New batch starts soon</text><rect x="55" y="352" width="372" height="74" rx="37" fill="url(#price)"/><text x="241" y="400" text-anchor="middle" fill="#092154" font-size="28" font-weight="900">ENROLL NOW →</text></g>
+  </g>
+</svg>

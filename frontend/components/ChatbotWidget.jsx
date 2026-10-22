@@ -1,23 +1,25 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { apiFetch } from "@/lib/api";
 import { batches } from "@/lib/fixtures";
 import { readAdminWorkspace } from "@/lib/adminWorkspace";
 import { filterDeletedCourses, filterDeletedCoursesFromStorage, readLocalCourses } from "@/lib/localCourseState";
 import { getUserScopedStorageEventName, readUserScopedString } from "@/lib/userScopedStorage";
 
 const quickSuggestions = [
-  "Show me popular courses",
+  "Make my study plan",
+  "Best batch for SSC",
   "Which batch is best for maths?",
-  "How do I buy a course?",
-  "Where are my purchased courses?",
   "Help with payment failure",
-  "I need support contact"
+  "Where are my purchased courses?",
+  "Ask a study doubt"
 ];
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const AVATAR_KEY = "bsc_avatar";
 const CHAT_LOG_KEY = "bsc_chat_log";
+const EXAM_PLANNER_KEY = "badamclasses_exam_planner_v1";
 const readChatLog = () => {
   if (typeof window === "undefined") return [];
   try {
@@ -31,6 +33,32 @@ const readChatLog = () => {
 const writeChatLog = (items) => {
   if (typeof window === "undefined") return;
   localStorage.setItem(CHAT_LOG_KEY, JSON.stringify(items));
+};
+
+const readExamPlannerSummary = () => {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = localStorage.getItem(EXAM_PLANNER_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    const exams = Array.isArray(parsed.exams) ? parsed.exams : [];
+    const tasks = Array.isArray(parsed.tasks) ? parsed.tasks : [];
+    const nextExam = exams
+      .slice()
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0] || null;
+
+    return {
+      dailyGoal: Number(parsed.dailyGoal || 0),
+      nextExam,
+      pendingTasks: tasks.filter((task) => !task.done).slice(0, 5),
+      completedTasks: tasks.filter((task) => task.done).length,
+      totalTasks: tasks.length
+    };
+  } catch {
+    return null;
+  }
 };
 
 const normalizeText = (value = "") => String(value || "").trim().toLowerCase();
@@ -50,16 +78,49 @@ const getAssistantCatalog = () => {
   return courses;
 };
 
+const buildStudentContext = () => {
+  const workspace = readAdminWorkspace();
+  const courses = getAssistantCatalog().slice(0, 12).map((course) => ({
+    title: course.title,
+    category: course.category,
+    instructor: course.instructor?.name || course.instructor,
+    price: course.price || course.priceValue || 0,
+    duration: course.duration,
+    startDate: course.startDate,
+    batchTime: course.batchTime
+  }));
+
+  return {
+    page: typeof window !== "undefined" ? window.location.pathname : "",
+    supportEmail: workspace.settings?.supportEmail || "support@badamclasses.com",
+    planner: readExamPlannerSummary(),
+    courses
+  };
+};
+
 const buildAssistantReply = (message) => {
   const query = normalizeText(message);
   const workspace = readAdminWorkspace();
   const courses = getAssistantCatalog();
+  const planner = readExamPlannerSummary();
   const supportEmail = workspace.settings?.supportEmail || "support@badamclasses.com";
   const activeCoupons = (workspace.coupons || []).filter((coupon) => coupon.status === "active");
   const paidOrders = (workspace.orders || []).filter((order) => order.status === "paid");
 
   if (!query) {
-    return "Ask me about courses, batches, timings, payments, PDFs, mock tests, or support.";
+    return "Ask me about courses, batches, study plans, exam planner, timings, payments, PDFs, mock tests, or support.";
+  }
+
+  if (query.includes("study plan") || query.includes("planner") || query.includes("timetable") || query.includes("revision")) {
+    if (planner?.nextExam) {
+      const pending = planner.pendingTasks.map((task) => `${task.subject || "General"}: ${task.title}`).join("; ");
+      return `Study plan for ${planner.nextExam.title}: 1) Finish ${planner.nextExam.subject || "core subjects"} weak topics, 2) Do one timed mock, 3) Revise mistakes, 4) Complete pending tasks${pending ? `: ${pending}` : "."} Open AI Planner for countdown and daily goal tracking.`;
+    }
+    return "Open AI Planner and add your exam date, syllabus percentage, and daily tasks. For today: 45 min weak topic, 45 min practice questions, 30 min mock analysis, and 20 min formula/current-affairs revision.";
+  }
+
+  if (query.includes("doubt") || query.includes("solve") || query.includes("question")) {
+    return "Send your doubt with subject, topic, and full question. I will explain the concept, give a short method, and suggest 2-3 practice steps. For paid class doubts, also use live class chat or dashboard support.";
   }
 
   if (query.includes("popular") || query.includes("best course") || query.includes("top course")) {
@@ -221,7 +282,26 @@ export default function ChatbotWidget() {
     writeChatLog([{ ...userMessage, time: new Date().toISOString() }, ...log]);
 
     try {
-      const reply = buildAssistantReply(content);
+      let reply = "";
+
+      try {
+        const data = await apiFetch("/chatbot/message", {
+          method: "POST",
+          body: JSON.stringify({
+            message: content,
+            history: nextMessages.slice(-8),
+            studentContext: buildStudentContext()
+          })
+        });
+        reply = String(data?.reply || "").trim();
+      } catch {
+        reply = "";
+      }
+
+      if (!reply) {
+        reply = buildAssistantReply(content);
+      }
+
       await wait(220);
       await animateAssistantReply(reply);
     } catch {
@@ -245,8 +325,8 @@ export default function ChatbotWidget() {
                 )}
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-100">BadamClasses AI</p>
-                <p className="text-xs text-slate-400">Courses, support, and recommendation assistant</p>
+                <p className="text-sm font-semibold text-slate-100">Student AI Assistant</p>
+                <p className="text-xs text-slate-400">Study planner, doubts, courses, payments</p>
               </div>
             </div>
             <button
@@ -312,7 +392,7 @@ export default function ChatbotWidget() {
                     sendMessage();
                   }
                 }}
-                placeholder="Ask about courses, payments, support, timing, or notes"
+                placeholder="Ask about study plan, doubts, courses, payment, or notes"
                 className="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none placeholder:text-slate-500 focus:border-indigo-400"
               />
               <button

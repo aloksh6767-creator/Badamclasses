@@ -110,14 +110,10 @@ export default function LoginPage() {
 
   return (
     <AuthShowcase mode="login">
-      <form onSubmit={handleSubmit} className="auth-form-stack mx-auto w-full max-w-[30rem]">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-orange-300/30 bg-white/10 shadow-[0_0_32px_rgba(251,146,60,0.22)] lg:hidden">
-            <img src="/new-logo.png" alt="Badam Singh Classes" className="h-full w-full object-cover" />
-          </div>
-          <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">Login to Your Account</h1>
-          <p className="mt-3 text-base text-slate-300">Enter your credentials to continue</p>
-          <div className="mx-auto mt-6 h-0.5 w-16 rounded-full bg-orange-400 shadow-[0_0_18px_rgba(251,146,60,0.75)]" />
+      <form onSubmit={handleSubmit} className="auth-form-stack mx-auto w-full max-w-[32rem]">
+        <div className="mb-9 text-left">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.32em] text-blue-400">Welcome Back</p>
+          <h1 className="font-display text-3xl font-bold leading-[1.12] text-white sm:text-[2.35rem]">Continue your learning journey</h1>
         </div>
 
         {error ? (
@@ -133,17 +129,17 @@ export default function LoginPage() {
 
         <label className="mb-5 block">
           <span className="mb-2 block text-sm font-semibold text-white">Email Address</span>
-          <span className="auth-input-wrap flex items-center gap-3 rounded-xl border border-white/20 bg-[#071a3c]/62 px-4 py-3 text-slate-300 transition focus-within:border-orange-300/70 focus-within:bg-[#082051]">
+          <span className="auth-input-wrap flex min-h-[4.1rem] items-center gap-3 rounded-xl border border-blue-400/65 bg-[#04132f]/82 px-5 py-3 text-blue-300 transition focus-within:border-blue-300 focus-within:bg-[#071a3c]">
             <UserIcon />
-            <input type="email" required placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400 sm:text-base" />
+            <input type="email" required autoComplete="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500 sm:text-base" />
           </span>
         </label>
 
         <label className="mb-4 block">
           <span className="mb-2 block text-sm font-semibold text-white">Password</span>
-          <span className="auth-input-wrap flex items-center gap-3 rounded-xl border border-white/20 bg-[#071a3c]/62 px-4 py-3 text-slate-300 transition focus-within:border-orange-300/70 focus-within:bg-[#082051]">
+          <span className="auth-input-wrap flex min-h-[4.1rem] items-center gap-3 rounded-xl border border-blue-400/65 bg-[#04132f]/82 px-5 py-3 text-blue-300 transition focus-within:border-blue-300 focus-within:bg-[#071a3c]">
             <LockIcon />
-            <input type={showPassword ? "text" : "password"} required placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400 sm:text-base" />
+            <input type={showPassword ? "text" : "password"} required autoComplete="current-password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500 sm:text-base" />
             <button type="button" onClick={() => setShowPassword((value) => !value)} className="text-slate-300 transition hover:text-white" aria-label={showPassword ? "Hide password" : "Show password"}>
               <EyeIcon hidden={!showPassword} />
             </button>
@@ -151,11 +147,11 @@ export default function LoginPage() {
         </label>
 
         <div className="mb-7 flex items-center justify-between gap-3 text-sm">
-          <label className="flex items-center gap-2 text-slate-100">
-            <input type="checkbox" className="h-5 w-5 rounded border-white/30 bg-transparent accent-orange-500" />
+          <label className="flex items-center gap-2.5 text-slate-200">
+            <input type="checkbox" className="h-5 w-5 rounded border-blue-300/50 bg-transparent accent-blue-500" />
             Remember me
           </label>
-          <Link href={`/forgot-password${email ? `?email=${encodeURIComponent(email.trim())}` : ""}`} className="text-orange-100 transition hover:text-white">
+          <Link href={`/forgot-password${email ? `?email=${encodeURIComponent(email.trim())}` : ""}`} className="font-medium text-blue-400 transition hover:text-blue-200">
             Forgot Password?
           </Link>
         </div>
@@ -167,12 +163,9 @@ export default function LoginPage() {
           </span>
         </button>
 
-        <p className="mt-7 text-center text-sm text-slate-300">
-          Don't have an account?{" "}
-          <Link href="/signup" className="font-semibold text-orange-300 transition hover:text-orange-100">
-            Sign Up
-          </Link>
-        </p>
+        <Link href="/signup" className="mt-4 flex w-full items-center justify-center rounded-xl border border-blue-400/70 bg-blue-500/[0.03] px-4 py-4 text-base font-semibold text-white transition hover:border-blue-300 hover:bg-blue-500/10">
+          Create an account
+        </Link>
       </form>
     </AuthShowcase>
   );

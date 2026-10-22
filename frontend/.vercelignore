@@ -1,0 +1,10 @@
+/.next/
+/.next*/
+/node_modules/
+/tmp-next/
+/public/mock-pdfs/*.pdf
+*.log
+*.err
+*.out
+*.tmp
+__pycache__/

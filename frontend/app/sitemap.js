@@ -10,6 +10,7 @@ export default function sitemap() {
     "/faq",
     "/current-affairs",
     "/mock-tests",
+    "/ssc-answer-keys",
     "/class-pdfs",
     "/exam-planner",
     "/mobile-app",

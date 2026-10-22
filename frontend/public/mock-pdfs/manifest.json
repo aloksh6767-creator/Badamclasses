@@ -1,0 +1,245 @@
+[
+    {
+        "id":  "pdf-1",
+        "title":  "CEN 01-2026 Eng-639143539720035538",
+        "category":  "Railway",
+        "language":  "English",
+        "sizeMb":  1.77,
+        "href":  "/mock-pdfs/01-cen-01-2026-eng-639143539720035538.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-2",
+        "title":  "Railway_Complete_General_Awareness_Hindi",
+        "category":  "Railway",
+        "language":  "Hindi",
+        "sizeMb":  145.93,
+        "href":  null,
+        "status":  "cloud-required"
+    },
+    {
+        "id":  "pdf-3",
+        "title":  "DSSSB_MTS_Exam_AnswerKey_English",
+        "category":  "DSSSB",
+        "language":  "English",
+        "sizeMb":  129.64,
+        "href":  null,
+        "status":  "cloud-required"
+    },
+    {
+        "id":  "pdf-4",
+        "title":  "DSSSB_MTS_Exam_AnswerKey_Hindi",
+        "category":  "DSSSB",
+        "language":  "Hindi",
+        "sizeMb":  134.66,
+        "href":  null,
+        "status":  "cloud-required"
+    },
+    {
+        "id":  "pdf-5",
+        "title":  "RRB_Technician_III_2025_AnswerKey_Compilation_English",
+        "category":  "RRB Technician",
+        "language":  "English",
+        "sizeMb":  9.49,
+        "href":  "/mock-pdfs/05-rrb-technician-iii-2025-answerkey-compilation-english.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-6",
+        "title":  "SSC_MTS_2025___Best_115_Questions_🔥___36_Shifts_का_निचोड़___Gagan",
+        "category":  "SSC MTS",
+        "language":  "Hindi + English",
+        "sizeMb":  1.02,
+        "href":  "/mock-pdfs/06-ssc-mts-2025-best-115-questions-36-shifts-gagan.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-7",
+        "title":  "RRB_Technician_III_2025_AnswerKey_Compilation_Hindi",
+        "category":  "RRB Technician",
+        "language":  "Hindi",
+        "sizeMb":  12.63,
+        "href":  "/mock-pdfs/07-rrb-technician-iii-2025-answerkey-compilation-hindi.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-8",
+        "title":  "Notice_12032026",
+        "category":  "General",
+        "language":  "Hindi + English",
+        "sizeMb":  0.15,
+        "href":  "/mock-pdfs/08-notice-12032026.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-9",
+        "title":  "RRB_ALP_CBT_1_2025_Complete_Answer_Key_Compilation_All_11_Shifts",
+        "category":  "RRB ALP",
+        "language":  "Hindi + English",
+        "sizeMb":  10.15,
+        "href":  "/mock-pdfs/09-rrb-alp-cbt-1-2025-complete-answer-key-compilation-all-11-shifts.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-10",
+        "title":  "RRB_Technician_Grade_3_Maths_2025___All_225_Questions_from_9_Shifts",
+        "category":  "RRB Technician",
+        "language":  "Hindi + English",
+        "sizeMb":  3.18,
+        "href":  "/mock-pdfs/10-rrb-technician-grade-3-maths-2025-all-225-questions-from-9-shifts.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-11",
+        "title":  "RRB_Technician_Grade_3_Reasoning_2025___All_225_Questions_from_9",
+        "category":  "RRB Technician",
+        "language":  "Hindi + English",
+        "sizeMb":  3.13,
+        "href":  "/mock-pdfs/11-rrb-technician-grade-3-reasoning-2025-all-225-questions-from-9.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-12",
+        "title":  "RRB_NTPC_2025_Graduate_Level_Maths_Complete_PYQ_Book_Chapterwise",
+        "category":  "RRB NTPC",
+        "language":  "Hindi + English",
+        "sizeMb":  4.89,
+        "href":  "/mock-pdfs/12-rrb-ntpc-2025-graduate-level-maths-complete-pyq-book-chapterwise.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-13",
+        "title":  "RRB_NTPC_2025_Graduate_Level_Reasoning_Complete_PYQ_Book_Chapterwise",
+        "category":  "RRB NTPC",
+        "language":  "Hindi + English",
+        "sizeMb":  4.34,
+        "href":  "/mock-pdfs/13-rrb-ntpc-2025-graduate-level-reasoning-complete-pyq-book-chapterwise.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-14",
+        "title":  "RRB_Technician_Grade_3_Science_\u0026_General_Awareness_2025___450_Questions",
+        "category":  "RRB Technician",
+        "language":  "Hindi + English",
+        "sizeMb":  3.53,
+        "href":  "/mock-pdfs/14-rrb-technician-grade-3-science-general-awareness-2025-450-questions.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-15",
+        "title":  "RRB_ALP_2025_Maths_Top_118_Questions___All_11_Shifts_निचोड़___Gagan",
+        "category":  "RRB ALP",
+        "language":  "Hindi + English",
+        "sizeMb":  0.85,
+        "href":  "/mock-pdfs/15-rrb-alp-2025-maths-top-118-questions-all-11-shifts-gagan.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-16",
+        "title":  "RRB_Paramedical_2025_Maths___Best_36_Questions_🔥_Railway_Latest",
+        "category":  "Railway",
+        "language":  "Hindi + English",
+        "sizeMb":  0.4,
+        "href":  "/mock-pdfs/16-rrb-paramedical-2025-maths-best-36-questions-railway-latest.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-17",
+        "title":  "RRB_Technician_2025_Grade_3_Maths_Top_100_Questions___Railway_का",
+        "category":  "RRB Technician",
+        "language":  "Hindi + English",
+        "sizeMb":  0.41,
+        "href":  "/mock-pdfs/17-rrb-technician-2025-grade-3-maths-top-100-questions-railway.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-18",
+        "title":  "RRB_NTPC_2025_Graduate_Level_General_Awareness_Complete_PYQ_Book",
+        "category":  "RRB NTPC",
+        "language":  "Hindi + English",
+        "sizeMb":  4.62,
+        "href":  "/mock-pdfs/18-rrb-ntpc-2025-graduate-level-general-awareness-complete-pyq-book.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-19",
+        "title":  "RRB_NTPC_2025_Graduation_Level_Answer_Key_Compilation_All_24_Shifts",
+        "category":  "RRB NTPC",
+        "language":  "Hindi + English",
+        "sizeMb":  13.8,
+        "href":  "/mock-pdfs/19-rrb-ntpc-2025-graduation-level-answer-key-compilation-all-24-shifts.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-20",
+        "title":  "NTPC_UG_CBT01_Exam_AnswerKey_English",
+        "category":  "RRB NTPC",
+        "language":  "English",
+        "sizeMb":  31.18,
+        "href":  null,
+        "status":  "cloud-required"
+    },
+    {
+        "id":  "pdf-21",
+        "title":  "NTPC_UG_CBT01_Exam_AnswerKey_Hindi",
+        "category":  "RRB NTPC",
+        "language":  "Hindi",
+        "sizeMb":  37.61,
+        "href":  null,
+        "status":  "cloud-required"
+    },
+    {
+        "id":  "pdf-22",
+        "title":  "RRB_NTPC_2026_Graduate_Level_🔥_Top_300_Questions_पूरे_24_Shifts",
+        "category":  "RRB NTPC",
+        "language":  "Hindi + English",
+        "sizeMb":  2,
+        "href":  "/mock-pdfs/22-rrb-ntpc-2026-graduate-level-top-300-questions-24-shifts.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-23",
+        "title":  "ECONOMICS COMPLETE",
+        "category":  "General",
+        "language":  "Hindi + English",
+        "sizeMb":  7.44,
+        "href":  "/mock-pdfs/23-economics-complete.pdf",
+        "status":  "available"
+    },
+    {
+        "id":  "pdf-24",
+        "title":  "Railway_Complete_General_Awareness_English",
+        "category":  "Railway",
+        "language":  "English",
+        "sizeMb":  105.7,
+        "href":  null,
+        "status":  "cloud-required"
+    },
+    {
+        "id":  "pdf-25",
+        "title":  "Railway_Complete_General_Science_Hindi",
+        "category":  "Railway",
+        "language":  "Hindi",
+        "sizeMb":  171.77,
+        "href":  null,
+        "status":  "cloud-required"
+    },
+    {
+        "id":  "pdf-26",
+        "title":  "Railway_Complete_General_Science_English",
+        "category":  "Railway",
+        "language":  "English",
+        "sizeMb":  112.24,
+        "href":  null,
+        "status":  "cloud-required"
+    },
+    {
+        "id":  "pdf-27",
+        "title":  "UP CONSTABLE 2025 08, 09, 10 JUNE 2026 All Shift questions",
+        "category":  "UP Police",
+        "language":  "Hindi + English",
+        "sizeMb":  2.63,
+        "href":  "/mock-pdfs/27-up-constable-2025-08-09-10-june-2026-all-shift-questions.pdf",
+        "status":  "available"
+    }
+]

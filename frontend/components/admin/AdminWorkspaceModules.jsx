@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createAdminId } from "@/lib/adminWorkspace";
 import { apiFetch } from "@/lib/api";
+import { aiMockPipelineSteps, enterpriseExamModes, examPatternDefaults } from "@/lib/mockTestCatalog";
+import { testimonials } from "@/lib/fixtures";
 
 function panelCardClass(extra = "") {
   return `rounded-3xl border border-white/10 bg-[#0b1634]/70 p-5 ${extra}`.trim();
@@ -914,7 +916,7 @@ export function OfflineTestManager() {
 
 const initialMockForm = {
   title: "",
-  examName: "",
+  examName: "SSC",
   questions: "",
   marks: "",
   duration: "",
@@ -929,14 +931,74 @@ const initialMockForm = {
   testUrl: "",
   fileName: "",
   fileDataUrl: "",
+  pipelineStage: "Admin Review",
+  reviewStatus: "pending",
+  sourceType: "manual",
+  topicsDetected: "",
+  duplicateCheck: "pending",
+  validationStatus: "needs review",
   status: "published"
 };
 
 export function OnlineMockTestManager({ workspace, setWorkspace }) {
   const [form, setForm] = useState(initialMockForm);
   const [notice, setNotice] = useState("");
+  const [selectedMockFile, setSelectedMockFile] = useState(null);
+  const [autoUploadBusy, setAutoUploadBusy] = useState(false);
+  const [courseMocks, setCourseMocks] = useState([]);
+  const [adminCourses, setAdminCourses] = useState([]);
+  const [assignmentForm, setAssignmentForm] = useState({ courseRouteId: "", mockId: "" });
+  const [assignmentBusy, setAssignmentBusy] = useState(false);
+  const [assignmentNotice, setAssignmentNotice] = useState("");
 
   const mockTests = Array.isArray(workspace.mockTests) ? workspace.mockTests : [];
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([apiFetch("/automation/public-pdf-mocks"), apiFetch("/courses")])
+      .then(([mockResponse, courseResponse]) => {
+        if (cancelled) return;
+        const mocks = Array.isArray(mockResponse?.mockTests) ? mockResponse.mockTests : [];
+        const courses = Array.isArray(courseResponse?.courses) ? courseResponse.courses : Array.isArray(courseResponse) ? courseResponse : [];
+        setCourseMocks(mocks);
+        setAdminCourses(courses);
+        setAssignmentForm((current) => ({
+          ...current,
+          mockId: current.mockId || String(mocks[0]?.id || ""),
+          courseRouteId: current.courseRouteId || String(courses[0]?.routeId || courses[0]?.slug || courses[0]?._id || courses[0]?.id || "")
+        }));
+      })
+      .catch((error) => !cancelled && setAssignmentNotice(error.message || "Course mock options load nahi ho paye."));
+    return () => { cancelled = true; };
+  }, []);
+
+  const assignMockToCourse = async () => {
+    if (!assignmentForm.courseRouteId || !assignmentForm.mockId) return;
+    setAssignmentBusy(true);
+    try {
+      await apiFetch("/course-mocks/admin/mocks/" + encodeURIComponent(assignmentForm.mockId) + "/assign-courses", {
+        method: "POST",
+        body: JSON.stringify({ courseRouteIds: [assignmentForm.courseRouteId], isPublished: true, isLocked: false })
+      });
+      setAssignmentNotice("Mock test selected course ke Tests tab me add ho gaya.");
+    } catch (error) {
+      setAssignmentNotice(error.message || "Mock assign nahi ho paya.");
+    } finally {
+      setAssignmentBusy(false);
+    }
+  };
+  const applyExamDefaults = (examName) => {
+    const defaults = examPatternDefaults[examName] || {};
+    setForm((current) => ({
+      ...current,
+      examName,
+      questions: current.questions || String(defaults.questions || ""),
+      marks: current.marks || String(defaults.marks || ""),
+      duration: current.duration || defaults.duration || "",
+      sectionTiming: current.sectionTiming || defaults.sectionTiming || "",
+      negativeMarking: current.negativeMarking || defaults.negativeMarking || ""
+    }));
+  };
 
   const saveMockTest = () => {
     if (!form.title.trim()) {
@@ -976,6 +1038,18 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
           resultVisibility: form.resultVisibility,
           testUrl: form.testUrl.trim() || form.fileDataUrl,
           fileName: form.fileName,
+          pipelineStage: form.pipelineStage,
+          reviewStatus: form.reviewStatus,
+          sourceType: form.sourceType,
+          topicsDetected: form.topicsDetected
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .slice(0, 12),
+          duplicateCheck: form.duplicateCheck,
+          validationStatus: form.validationStatus,
+          version: 1,
+          createdAt: new Date().toISOString(),
           status: form.status
         },
         ...(Array.isArray(current.mockTests) ? current.mockTests : [])
@@ -987,9 +1061,16 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
 
   const updateMockStatus = (id, status) => {
     setWorkspace((current) => ({
-      ...current,
-      mockTests: (Array.isArray(current.mockTests) ? current.mockTests : []).map((item) =>
-        item.id === id ? { ...item, status } : item
+        ...current,
+        mockTests: (Array.isArray(current.mockTests) ? current.mockTests : []).map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              status,
+              pipelineStage: status === "published" ? "Publish" : item.pipelineStage || "Admin Review",
+              reviewStatus: status === "published" ? "approved" : item.reviewStatus || "pending"
+            }
+          : item
       )
     }));
   };
@@ -1004,18 +1085,66 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
   const handleFileUpload = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    setSelectedMockFile(file);
 
     const reader = new FileReader();
     reader.onload = () => {
       setForm((current) => ({
         ...current,
         fileName: file.name,
-        fileDataUrl: String(reader.result || "")
+        fileDataUrl: String(reader.result || ""),
+        sourceType: file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf") ? "pdf" : "file",
+        pipelineStage: "Question Extraction",
+        reviewStatus: "pending",
+        validationStatus: "needs review"
       }));
       setNotice(`${file.name} upload ready hai. Save Mock Test dabane par publish hoga.`);
     };
     reader.onerror = () => setNotice("File read nahi ho payi. Link paste karke retry karein.");
     reader.readAsDataURL(file);
+  };
+
+  const uploadPdfToMockEngine = async () => {
+    if (!selectedMockFile) {
+      setNotice("Pehle PDF file select karein.");
+      return;
+    }
+    if (!selectedMockFile.name.toLowerCase().endsWith(".pdf") && selectedMockFile.type !== "application/pdf") {
+      setNotice("AI mock engine ke liye PDF file required hai.");
+      return;
+    }
+
+    setAutoUploadBusy(true);
+    setNotice("AI PDF filter PDF read kar raha hai. Large PDF me thoda time lag sakta hai.");
+    try {
+      const body = new FormData();
+      body.append("file", selectedMockFile);
+      body.append("examName", form.examName || "");
+      body.append("subjectName", "");
+      const response = await apiFetch("/automation/pdf-mocks/upload", {
+        method: "POST",
+        body,
+        timeoutMs: 120000
+      });
+      const summary = response?.summary || {};
+      setNotice(
+        `AI PDF filter complete: ${summary.questions || 0} questions, ${summary.topics || 0} topic mocks, full mock "${response?.groupTitle || "generated"}" ready.`
+      );
+      setForm((current) => ({
+        ...current,
+        title: response?.groupTitle || current.title,
+        sourceType: "pdf",
+        pipelineStage: "Publish",
+        reviewStatus: "approved",
+        duplicateCheck: "clear",
+        validationStatus: "auto extracted",
+        status: "published"
+      }));
+    } catch (error) {
+      setNotice(error.message || "AI PDF filter failed. PDF text format check karein.");
+    } finally {
+      setAutoUploadBusy(false);
+    }
   };
 
   return (
@@ -1032,7 +1161,12 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
               <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="SSC CGL Full Mock 2" />
             </Field>
             <Field label="Exam Name">
-              <Input value={form.examName} onChange={(e) => setForm({ ...form, examName: e.target.value })} placeholder="SSC / Railway / Banking" />
+              <Select value={form.examName} onChange={(e) => applyExamDefaults(e.target.value)}>
+                {Object.keys(examPatternDefaults).map((examName) => (
+                  <option key={examName} value={examName}>{examName}</option>
+                ))}
+                <option value="State PSC">State PSC</option>
+              </Select>
             </Field>
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Questions">
@@ -1065,10 +1199,9 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Exam Mode">
                 <Select value={form.examMode} onChange={(e) => setForm({ ...form, examMode: e.target.value })}>
-                  <option value="Full Test">Full Test</option>
-                  <option value="Sectional Test">Sectional Test</option>
-                  <option value="Practice Test">Practice Test</option>
-                  <option value="Live Test">Live Test</option>
+                  {enterpriseExamModes.map((mode) => (
+                    <option key={mode} value={mode}>{mode}</option>
+                  ))}
                 </Select>
               </Field>
               <Field label="Access">
@@ -1116,6 +1249,56 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
                 className="rounded-xl border border-white/10 bg-[#081127] px-3 py-2 text-sm text-white outline-none file:mr-3 file:rounded-lg file:border-0 file:bg-orange-500 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
               />
             </Field>
+            <button
+              type="button"
+              onClick={uploadPdfToMockEngine}
+              disabled={autoUploadBusy || !selectedMockFile}
+              className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/15 disabled:opacity-60"
+            >
+              {autoUploadBusy ? "AI Filter Processing..." : "AI Auto Generate Full + Topic Mocks"}
+            </button>
+            <p className="text-xs text-slate-400">
+              PDF upload karte hi engine exam, subject, topic, questions, options aur answer key detect karke full mock + section mocks publish karega.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Source Type">
+                <Select value={form.sourceType} onChange={(e) => setForm({ ...form, sourceType: e.target.value })}>
+                  <option value="manual">Manual</option>
+                  <option value="pdf">PDF</option>
+                  <option value="ocr">Scanned PDF / OCR</option>
+                  <option value="file">Uploaded File</option>
+                </Select>
+              </Field>
+              <Field label="AI Pipeline Stage">
+                <Select value={form.pipelineStage} onChange={(e) => setForm({ ...form, pipelineStage: e.target.value })}>
+                  {aiMockPipelineSteps.map((step) => (
+                    <option key={step} value={step}>{step}</option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Review Status">
+                <Select value={form.reviewStatus} onChange={(e) => setForm({ ...form, reviewStatus: e.target.value })}>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="needs edits">Needs Edits</option>
+                </Select>
+              </Field>
+              <Field label="Duplicate Check">
+                <Select value={form.duplicateCheck} onChange={(e) => setForm({ ...form, duplicateCheck: e.target.value })}>
+                  <option value="pending">Pending</option>
+                  <option value="clear">Clear</option>
+                  <option value="possible duplicates">Possible Duplicates</option>
+                </Select>
+              </Field>
+            </div>
+            <Field label="Detected Topics">
+              <Input value={form.topicsDetected} onChange={(e) => setForm({ ...form, topicsDetected: e.target.value })} placeholder="Percentage, Series, GK, English" />
+            </Field>
+            <Field label="Answer Validation">
+              <Input value={form.validationStatus} onChange={(e) => setForm({ ...form, validationStatus: e.target.value })} placeholder="needs review / answer-key verified" />
+            </Field>
             {form.fileName ? <p className="text-xs text-cyan-200">Selected file: {form.fileName}</p> : null}
             <button onClick={saveMockTest} className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-400">
               Save Mock Test
@@ -1128,6 +1311,31 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
           </div>
         </div>
 
+        <div className={panelCardClass("xl:col-span-2")}>
+          <h3 className="font-display text-2xl text-white">Assign Mock to Course</h3>
+          <p className="mt-2 text-sm text-slate-300">Published AI/PDF mock ko purchased course ke Tests tab me add karein.</p>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            <Field label="Course">
+              <Select value={assignmentForm.courseRouteId} onChange={(e) => setAssignmentForm({ ...assignmentForm, courseRouteId: e.target.value })}>
+                <option value="">Choose course</option>
+                {adminCourses.map((course) => {
+                  const routeId = String(course.routeId || course.slug || course._id || course.id || "");
+                  return <option key={routeId} value={routeId}>{course.title || routeId}</option>;
+                })}
+              </Select>
+            </Field>
+            <Field label="Published Mock">
+              <Select value={assignmentForm.mockId} onChange={(e) => setAssignmentForm({ ...assignmentForm, mockId: e.target.value })}>
+                <option value="">Choose mock</option>
+                {courseMocks.map((mock) => <option key={mock.id} value={mock.id}>{mock.title} ({mock.questions?.length || 0} questions)</option>)}
+              </Select>
+            </Field>
+          </div>
+          <button type="button" onClick={assignMockToCourse} disabled={assignmentBusy || !assignmentForm.courseRouteId || !assignmentForm.mockId} className="mt-4 w-full rounded-xl bg-cyan-500 px-4 py-3 text-sm font-bold text-slate-950 disabled:opacity-50">
+            {assignmentBusy ? "Assigning..." : "Add Mock to Course"}
+          </button>
+          {assignmentNotice ? <p className="mt-3 rounded-xl border border-white/10 bg-[#081127] px-3 py-2 text-sm text-slate-200">{assignmentNotice}</p> : null}
+        </div>
         <div className={panelCardClass()}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -1153,6 +1361,18 @@ export function OnlineMockTestManager({ workspace, setWorkspace }) {
                         {[item.sectionTiming, item.negativeMarking, item.language, item.resultVisibility].filter(Boolean).join(" | ")}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">{item.fileName || item.testUrl || "No link/file added yet"}</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {[item.pipelineStage, item.reviewStatus, item.sourceType, item.duplicateCheck, item.validationStatus]
+                          .filter(Boolean)
+                          .map((tag) => (
+                            <span key={tag} className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[11px] text-cyan-100">
+                              {tag}
+                            </span>
+                          ))}
+                      </div>
+                      {Array.isArray(item.topicsDetected) && item.topicsDetected.length ? (
+                        <p className="mt-2 text-xs text-slate-400">Topics: {item.topicsDetected.join(", ")}</p>
+                      ) : null}
                     </div>
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ${item.status === "published" ? "bg-emerald-500/15 text-emerald-200" : "bg-slate-500/15 text-slate-200"}`}>
                       {item.status === "published" ? "Published" : "Draft"}
@@ -1246,6 +1466,210 @@ export function NotificationCenter({ workspace, setWorkspace }) {
   );
 }
 
+const TICKER_STORAGE_KEY = "badamclasses_site_notice";
+const emptyEnquiryPopupForm = {
+  enabled: false,
+  title: "Start your preparation with expert guidance",
+  subtitle: "Share your details and our academic team will help you choose the right course.",
+  buttonLabel: "Send enquiry",
+  delaySeconds: 3
+};
+
+export function EnquiryPopupEditor() {
+  const [form, setForm] = useState(emptyEnquiryPopupForm);
+  const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    apiFetch("/automation/dashboard")
+      .then((data) => {
+        const saved = data?.dashboard?.siteContent?.enquiryPopup;
+        if (active && saved && typeof saved === "object") setForm({ ...emptyEnquiryPopupForm, ...saved, enabled: saved.enabled === true });
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
+
+  const submitForApproval = async () => {
+    setSaving(true);
+    setMessage("");
+    try {
+      const payload = {
+        ...form,
+        title: form.title.trim(),
+        subtitle: form.subtitle.trim(),
+        buttonLabel: form.buttonLabel.trim(),
+        delaySeconds: Math.max(3, Number(form.delaySeconds) || 3)
+      };
+      await apiFetch("/automation/content/propose", {
+        method: "POST",
+        body: JSON.stringify({
+          target: "enquiryPopup",
+          payload,
+          summary: `${payload.enabled ? "Show" : "Hide"} homepage enquiry popup`
+        })
+      });
+      setMessage(payload.enabled ? "Popup update submitted for approval." : "Hide request submitted for approval.");
+    } catch (error) {
+      setMessage(error.message || "Popup update submit nahi hua.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={panelCardClass()}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300">Homepage enquiry</p>
+          <h3 className="mt-2 font-display text-2xl text-white">Mobile Enquiry Popup</h3>
+          <p className="mt-2 text-sm text-slate-300">Popup form ko publish, hide, ya content update karein. Changes approval ke baad live honge.</p>
+        </div>
+        <label className="flex min-h-11 items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
+          <input type="checkbox" checked={form.enabled} onChange={(event) => setForm((current) => ({ ...current, enabled: event.target.checked }))} className="h-5 w-5 accent-orange-500" />
+          Show popup
+        </label>
+      </div>
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <Field label="Popup title"><Input value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} disabled={!form.enabled} /></Field>
+        <Field label="Button label"><Input value={form.buttonLabel} onChange={(event) => setForm((current) => ({ ...current, buttonLabel: event.target.value }))} disabled={!form.enabled} /></Field>
+        <Field label="Popup message"><Textarea rows={3} value={form.subtitle} onChange={(event) => setForm((current) => ({ ...current, subtitle: event.target.value }))} disabled={!form.enabled} /></Field>
+        <Field label="Show after (seconds)"><Input type="number" min="3" max="30" value={form.delaySeconds} onChange={(event) => setForm((current) => ({ ...current, delaySeconds: event.target.value }))} disabled={!form.enabled} /></Field>
+      </div>
+      <div className="mt-5 flex flex-wrap gap-3">
+        <button type="button" onClick={submitForApproval} disabled={saving} className="min-h-11 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
+          {saving ? "Submitting..." : form.enabled ? "Submit popup update" : "Submit hide request"}
+        </button>
+      </div>
+      {message ? <p className="mt-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200" role="status">{message}</p> : null}
+    </div>
+  );
+}
+
+const emptyTickerForm = {
+  enabled: true,
+  title: "",
+  message: "",
+  priority: "Update",
+  linkLabel: "Details",
+  link: ""
+};
+
+export function AnnouncementTickerEditor() {
+  const [form, setForm] = useState(emptyTickerForm);
+  const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(TICKER_STORAGE_KEY) || "null");
+      if (saved && typeof saved === "object") {
+        setForm({ ...emptyTickerForm, ...saved, enabled: saved.enabled !== false });
+      }
+    } catch {
+      setForm(emptyTickerForm);
+    }
+  }, []);
+
+  const previewTicker = () => {
+    if (form.enabled && !form.title.trim() && !form.message.trim()) {
+      setMessage("Title ya message enter karein.");
+      return;
+    }
+    window.localStorage.setItem(TICKER_STORAGE_KEY, JSON.stringify(form));
+    window.dispatchEvent(new Event("storage"));
+    setMessage(form.enabled ? "Ticker preview saved on this browser." : "Ticker hidden on this browser.");
+  };
+
+  const submitForApproval = async () => {
+    if (form.enabled && !form.title.trim() && !form.message.trim()) {
+      setMessage("Title ya message enter karein.");
+      return;
+    }
+    setSaving(true);
+    setMessage("");
+    try {
+      const response = await apiFetch("/automation/content/propose", {
+        method: "POST",
+        body: JSON.stringify({
+          target: "notice",
+          payload: form,
+          summary: `${form.enabled ? "Publish" : "Hide"} announcement ticker: ${form.title || "Untitled"}`
+        })
+      });
+      previewTicker();
+      setMessage(`Approval request created: ${response?.pendingChange?.id || "pending"}. Approvals section se publish karein.`);
+    } catch (error) {
+      setMessage(error.message || "Ticker approval request create nahi hua.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={panelCardClass()}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300">Website Header</p>
+          <h3 className="mt-2 font-display text-2xl text-white">Announcement Ticker Editor</h3>
+          <p className="mt-2 text-sm text-slate-300">Top scrolling announcement, badge aur action button edit karein.</p>
+        </div>
+        <label className="flex min-h-11 items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
+          <input
+            type="checkbox"
+            checked={form.enabled}
+            onChange={(event) => setForm((current) => ({ ...current, enabled: event.target.checked }))}
+            className="h-5 w-5 accent-orange-500"
+          />
+          Show ticker
+        </label>
+      </div>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <Field label="Badge / Priority">
+          <Input value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} placeholder="Fixed / New / Alert" />
+        </Field>
+        <Field label="Title">
+          <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Account Update" />
+        </Field>
+        <Field label="Message">
+          <Textarea rows={3} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Announcement message" />
+        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Button Label">
+            <Input value={form.linkLabel} onChange={(e) => setForm({ ...form, linkLabel: e.target.value })} placeholder="Register" />
+          </Field>
+          <Field label="Button Link">
+            <Input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder="/signup" />
+          </Field>
+        </div>
+      </div>
+
+      <div className="mt-5 overflow-hidden rounded-xl border border-white/10 bg-[#081127]">
+        <div className="flex min-h-11 items-center gap-3 px-4 text-sm">
+          <span className="rounded-full border border-cyan-300/30 bg-cyan-500/10 px-3 py-1 text-xs font-bold uppercase text-cyan-100">{form.priority || "Info"}</span>
+          <p className="min-w-0 flex-1 truncate text-slate-100">
+            <span className="font-bold text-orange-300">{form.title || "Announcement title"}</span>
+            {form.message ? ` - ${form.message}` : ""}
+          </p>
+          {form.link && form.linkLabel ? <span className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white">{form.linkLabel}</span> : null}
+        </div>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-3">
+        <button type="button" onClick={previewTicker} className="min-h-11 rounded-xl border border-orange-300/35 bg-orange-500/10 px-4 py-2 text-sm font-semibold text-orange-100">
+          Save Local Preview
+        </button>
+        <button type="button" onClick={submitForApproval} disabled={saving} className="min-h-11 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
+          {saving ? "Submitting..." : "Submit for Publishing"}
+        </button>
+      </div>
+      {message ? <p className="mt-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200" role="status">{message}</p> : null}
+    </div>
+  );
+}
+
 export function MediaLibrary({ workspace, setWorkspace }) {
   const [form, setForm] = useState({ name: "", type: "image", url: "", tag: "" });
 
@@ -1291,6 +1715,152 @@ export function MediaLibrary({ workspace, setWorkspace }) {
   );
 }
 
+export function SuccessStoriesManager() {
+  const [stories, setStories] = useState(() =>
+    testimonials.map((story, index) => ({ ...story, id: story.id || "story_default_" + (index + 1) }))
+  );
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [uploadingId, setUploadingId] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    apiFetch("/automation/dashboard")
+      .then((data) => {
+        const published = data?.siteContent?.successStories;
+        if (active && Array.isArray(published) && published.length) {
+          setStories(published.map((story, index) => ({ ...story, id: story.id || "story_published_" + (index + 1) })));
+        }
+      })
+      .catch((error) => {
+        if (active) setMessage(error.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const updateStory = (id, field, value) => {
+    setStories((current) => current.map((story) => (story.id === id ? { ...story, [field]: value } : story)));
+  };
+
+  const addStory = () => {
+    setStories((current) => [
+      ...current,
+      { id: createAdminId("story"), name: "", exam: "", review: "", image: "" }
+    ]);
+  };
+
+  const removeStory = (id) => {
+    setStories((current) => current.filter((story) => story.id !== id));
+  };
+
+  const uploadPoster = async (id, file) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setMessage("Please select a JPG, PNG, WEBP, or GIF image.");
+      return;
+    }
+    setUploadingId(id);
+    setMessage("");
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const result = await apiFetch("/upload", { method: "POST", body, timeoutMs: 30000 });
+      updateStory(id, "image", result.url || "");
+      setMessage("Poster uploaded. Submit for approval to publish it.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setUploadingId("");
+    }
+  };
+
+  const submitForApproval = async () => {
+    const cleaned = stories
+      .map((story) => ({
+        id: String(story.id || createAdminId("story")),
+        name: String(story.name || "").trim(),
+        exam: String(story.exam || "").trim(),
+        review: String(story.review || "").trim(),
+        image: String(story.image || "").trim()
+      }))
+      .filter((story) => story.name || story.exam || story.image);
+
+    if (!cleaned.length || cleaned.some((story) => !story.name || !story.exam || !story.image)) {
+      setMessage("Every story needs a student name, exam, and poster image.");
+      return;
+    }
+
+    setSubmitting(true);
+    setMessage("");
+    try {
+      await apiFetch("/automation/content/propose", {
+        method: "POST",
+        body: JSON.stringify({
+          target: "successStories",
+          payload: cleaned,
+          summary: `Update ${cleaned.length} homepage success stories`
+        })
+      });
+      setStories(cleaned);
+      setMessage("Success Stories update submitted. Approve it from Advanced AI Features > Pending approvals.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className={panelCardClass()}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-[0.24em] text-orange-300">Homepage content</p>
+          <h3 className="mt-2 font-display text-2xl text-white">Student Success Stories</h3>
+          <p className="mt-2 max-w-2xl text-sm text-slate-300">Add student selection posters here. Changes enter the existing approval queue before going live.</p>
+        </div>
+        <button type="button" onClick={addStory} className="rounded-xl border border-orange-300/40 px-4 py-2 text-sm font-semibold text-orange-200">+ Add Story</button>
+      </div>
+
+      {loading ? <p className="mt-5 text-sm text-slate-400">Loading published stories...</p> : null}
+      <div className="mt-5 grid gap-4 xl:grid-cols-2">
+        {stories.map((story, index) => (
+          <div key={story.id || index} className="grid gap-4 rounded-2xl border border-white/10 bg-[#081127]/70 p-4 sm:grid-cols-[9rem_1fr]">
+            <div>
+              <div className="aspect-[4/5] overflow-hidden rounded-xl border border-white/10 bg-white">
+                {story.image ? <img src={story.image} alt={story.name || "Success poster preview"} className="h-full w-full object-contain" /> : <div className="grid h-full place-items-center px-3 text-center text-xs text-slate-500">Poster preview</div>}
+              </div>
+              <label className="mt-3 block cursor-pointer rounded-xl border border-white/15 px-3 py-2 text-center text-xs font-semibold text-slate-200">
+                {uploadingId === story.id ? "Uploading..." : "Upload Poster"}
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" disabled={uploadingId === story.id} onChange={(event) => uploadPoster(story.id, event.target.files?.[0])} />
+              </label>
+            </div>
+            <div className="grid content-start gap-3">
+              <Field label="Student Name"><Input value={story.name || ""} onChange={(event) => updateStory(story.id, "name", event.target.value)} placeholder="Student name" /></Field>
+              <Field label="Exam / Selection"><Input value={story.exam || ""} onChange={(event) => updateStory(story.id, "exam", event.target.value)} placeholder="MP Police Sub Inspector (SI)" /></Field>
+              <Field label="Short note (optional)"><Textarea rows={2} value={story.review || ""} onChange={(event) => updateStory(story.id, "review", event.target.value)} placeholder="Selected as..." /></Field>
+              <Field label="Poster URL"><Input value={story.image || ""} onChange={(event) => updateStory(story.id, "image", event.target.value)} placeholder="Upload or paste image URL" /></Field>
+              <button type="button" onClick={() => removeStory(story.id)} className="justify-self-start text-xs font-semibold text-red-300 hover:text-red-200">Remove story</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <button type="button" onClick={submitForApproval} disabled={submitting || Boolean(uploadingId)} className="rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+          {submitting ? "Submitting..." : "Submit for approval"}
+        </button>
+        <span className="text-xs text-slate-400">Maximum 24 stories. Published order matches this list.</span>
+      </div>
+      {message ? <div className="mt-4 rounded-xl border border-orange-300/30 bg-orange-500/10 px-4 py-3 text-sm text-orange-100">{message}</div> : null}
+    </div>
+  );
+}
 export function WebsiteSettings({ workspace, setWorkspace }) {
   const settings = workspace.settings || {};
 
@@ -1319,7 +1889,7 @@ export function WebsiteSettings({ workspace, setWorkspace }) {
       <div className={panelCardClass()}>
         <h3 className="font-display text-2xl text-white">Live Preview</h3>
         <div className="mt-4 rounded-3xl border border-white/10 bg-[#081127] p-5">
-          <img src={settings.logoUrl || "/new-logo.png"} alt="Logo preview" className="h-16 w-16 rounded-2xl object-contain" />
+          <img src={settings.logoUrl || "/new-logo.webp"} alt="Logo preview" className="h-16 w-16 rounded-2xl object-contain" />
           <h4 className="mt-4 font-display text-3xl text-white">{settings.bannerTitle || "Banner title"}</h4>
           <p className="mt-3 text-sm text-slate-300">{settings.seoDescription || "SEO description will appear here."}</p>
           <p className="mt-4 text-xs uppercase tracking-[0.18em] text-orange-200">{settings.supportEmail || "support@example.com"}</p>
@@ -1766,6 +2336,245 @@ export function AutomationOpsPanel() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function SscAnswerKeyAutomationPanel() {
+  const [dashboard, setDashboard] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [previewPage, setPreviewPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState("");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  const loadDashboard = async ({ quiet = false } = {}) => {
+    if (!quiet) setLoading(true);
+    try {
+      const response = await apiFetch("/ssc-answer-keys/admin/dashboard");
+      setDashboard(response || null);
+      setError("");
+      return response;
+    } catch (loadError) {
+      setError(loadError.message || "SSC answer-key dashboard could not be loaded.");
+      return null;
+    } finally {
+      if (!quiet) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let active = true;
+    apiFetch("/ssc-answer-keys/admin/dashboard")
+      .then((response) => { if (active) { setDashboard(response || null); setError(""); } })
+      .catch((loadError) => { if (active) setError(loadError.message || "SSC answer-key dashboard could not be loaded."); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  const runDryRun = async () => {
+    setBusy("sync");
+    setMessage("");
+    setError("");
+    try {
+      const response = await apiFetch("/ssc-answer-keys/admin/sync", {
+        method: "POST",
+        timeoutMs: 120000,
+        body: JSON.stringify({ dryRun: true })
+      });
+      const run = response?.run;
+      setMessage(run?.status === "succeeded"
+        ? `Dry-run completed: ${run.noticesFound || 0} notices, ${run.recordsParsed || 0} answer rows reviewed. Nothing was published.`
+        : `Dry-run ended with status: ${run?.status || "unknown"}. Review the errors below.`);
+      await loadDashboard({ quiet: true });
+    } catch (runError) {
+      setError(runError.message || "Manual SSC dry-run failed.");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const togglePublishing = async () => {
+    const nextEnabled = !dashboard?.publishingEnabled;
+    if (nextEnabled) {
+      if (!dashboard?.lastDryRunSucceededAt) {
+        setError("Run a successful dry-run before enabling publishing.");
+        return;
+      }
+      const confirmed = window.confirm("Enable automatic publication of validated answer labels from publicly linked SSC PDFs? Candidate response sheets will remain excluded.");
+      if (!confirmed) return;
+    }
+    setBusy("publishing");
+    setMessage("");
+    setError("");
+    try {
+      await apiFetch("/ssc-answer-keys/admin/publishing", {
+        method: "PATCH",
+        body: JSON.stringify({ enabled: nextEnabled })
+      });
+      setMessage(nextEnabled ? "Automatic answer-key publishing is enabled." : "Automatic publishing is disabled; scheduled runs will use dry-run mode.");
+      await loadDashboard({ quiet: true });
+    } catch (updateError) {
+      setError(updateError.message || "Publishing setting could not be updated.");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const loadPreview = async (noticeKey, page = 1) => {
+    setBusy("preview");
+    setError("");
+    try {
+      const response = await apiFetch(`/ssc-answer-keys/admin/previews/${encodeURIComponent(noticeKey)}?page=${page}&limit=100`);
+      setPreview(response?.preview || null);
+      setPreviewPage(page);
+    } catch (previewError) {
+      setError(previewError.message || "Dry-run preview could not be loaded.");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const metricCards = [
+    { label: "Published answers", value: dashboard?.summary?.answerCount ?? "—" },
+    { label: "Notices tracked", value: dashboard?.summary?.noticeCount ?? "—" },
+    { label: "Unavailable / restricted", value: dashboard?.summary?.unavailableCount ?? "—" },
+    { label: "Failed imports", value: dashboard?.summary?.failedCount ?? "—" }
+  ];
+
+  if (loading && !dashboard) {
+    return <div className={panelCardClass()}>Loading SSC answer-key monitor…</div>;
+  }
+
+  return (
+    <div className="space-y-5">
+      {error ? <div role="alert" className="rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{error}</div> : null}
+      {message ? <div role="status" className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">{message}</div> : null}
+
+      <section className={panelCardClass("space-y-4")} aria-labelledby="ssc-answer-key-source-title">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">Official source monitor</p>
+            <h2 id="ssc-answer-key-source-title" className="mt-2 text-xl font-semibold text-white">SSC answer-key automation</h2>
+            <a href={dashboard?.sourceUrl || "https://ssc.gov.in/home/answer-key"} target="_blank" rel="noreferrer" className="mt-1 inline-flex break-all text-sm text-sky-300 underline decoration-sky-300/40 underline-offset-4">
+              {dashboard?.sourceUrl || "https://ssc.gov.in/home/answer-key"}
+            </a>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`rounded-full border px-3 py-1.5 text-xs font-medium ${dashboard?.pollingEnabled ? "border-emerald-300/25 bg-emerald-400/10 text-emerald-200" : "border-amber-300/25 bg-amber-400/10 text-amber-100"}`}>
+              {dashboard?.pollingEnabled ? "Polling enabled" : "Polling paused"} · every 6 hours · {dashboard?.timezone || "Asia/Kolkata"}
+            </span>
+            <span className={`rounded-full border px-3 py-1.5 text-xs font-medium ${dashboard?.ocrConfigured ? "border-sky-300/25 bg-sky-400/10 text-sky-100" : "border-amber-300/25 bg-amber-400/10 text-amber-100"}`}>
+              OCR {dashboard?.ocrConfigured ? "available" : "not installed"}
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center">
+          <button type="button" onClick={runDryRun} disabled={Boolean(busy)} className="rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-950/30 transition hover:bg-indigo-400 disabled:cursor-wait disabled:opacity-60">
+            {busy === "sync" ? "Checking official source…" : "Run dry-run now"}
+          </button>
+          <button type="button" onClick={togglePublishing} disabled={Boolean(busy) || (!dashboard?.publishingEnabled && !dashboard?.lastDryRunSucceededAt)} className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${dashboard?.publishingEnabled ? "border-rose-300/30 bg-rose-500/10 text-rose-100 hover:bg-rose-500/20" : "border-emerald-300/30 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/20"}`}>
+            {busy === "publishing" ? "Saving…" : dashboard?.publishingEnabled ? "Disable publishing" : "Enable publishing"}
+          </button>
+          <p className="text-xs leading-5 text-slate-400">
+            Mode: <strong className="text-slate-200">{dashboard?.publishingEnabled ? "automatic publishing" : "dry-run only"}</strong>
+            {dashboard?.lastDryRunSucceededAt ? ` · Last successful dry-run ${formatStableDateTime(dashboard.lastDryRunSucceededAt)}` : " · A successful dry-run is required before publishing"}
+          </p>
+        </div>
+      </section>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {metricCards.map((card) => (
+          <div key={card.label} className={panelCardClass("!rounded-2xl !p-4")}>
+            <p className="text-xs uppercase tracking-[0.14em] text-slate-400">{card.label}</p>
+            <p className="mt-2 text-2xl font-semibold text-white">{card.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <section className={panelCardClass("overflow-hidden !p-0")} aria-labelledby="ssc-answer-key-runs-title">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
+          <div>
+            <h3 id="ssc-answer-key-runs-title" className="font-semibold text-white">Recent sync runs</h3>
+            <p className="mt-1 text-xs text-slate-400">Scheduled checks use the six-hour cron; manual checks always start as dry-runs.</p>
+          </div>
+          <span className="text-xs text-slate-400">Latest: {formatStableDateTime(dashboard?.latestRun?.finishedAt) || "No completed run"}</span>
+        </div>
+        {(dashboard?.runs || []).length ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-[760px] w-full text-left text-sm">
+              <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-slate-400"><tr><th className="px-5 py-3">Started</th><th className="px-5 py-3">Trigger / mode</th><th className="px-5 py-3">Status</th><th className="px-5 py-3">Notices</th><th className="px-5 py-3">Parsed / published</th><th className="px-5 py-3">Issues</th></tr></thead>
+              <tbody className="divide-y divide-white/5">
+                {dashboard.runs.map((run) => <tr key={run._id}>
+                  <td className="px-5 py-3 text-slate-300">{formatStableDateTime(run.startedAt) || "—"}</td>
+                  <td className="px-5 py-3 text-slate-300">{run.trigger} · {run.dryRun ? "dry-run" : "publish"}</td>
+                  <td className="px-5 py-3"><span className="rounded-full border border-white/10 px-2.5 py-1 text-xs text-slate-200">{run.status}</span></td>
+                  <td className="px-5 py-3 text-slate-300">{run.noticesFound ?? 0}</td>
+                  <td className="px-5 py-3 text-slate-300">{run.recordsParsed ?? 0} / {run.recordsPublished ?? 0}</td>
+          <td className="px-5 py-3 text-slate-300">{run.issues?.length || 0} · {run.unavailableCount ?? 0} unavailable</td>
+                </tr>)}
+              </tbody>
+            </table>
+          </div>
+        ) : <p className="px-5 py-8 text-sm text-slate-400">No sync runs recorded yet.</p>}
+        {(dashboard?.latestRun?.issues || []).length ? <div className="border-t border-white/10 p-4">
+          <h4 className="text-sm font-semibold text-amber-100">Latest run issues</h4>
+          <ul className="mt-2 space-y-2 text-sm text-amber-50/80">{dashboard.latestRun.issues.slice(0, 8).map((item, index) => <li key={`${item.code}-${index}`} className="break-words">{item.code}: {item.message} {item.url ? <a className="text-sky-300 underline" href={item.url} target="_blank" rel="noreferrer">Source</a> : null}</li>)}</ul>
+        </div> : null}
+      </section>
+
+      <section className={panelCardClass("overflow-hidden !p-0")} aria-labelledby="ssc-answer-key-notices-title">
+        <div className="border-b border-white/10 px-5 py-4">
+          <h3 id="ssc-answer-key-notices-title" className="font-semibold text-white">Official notices and answer data</h3>
+          <p className="mt-1 text-xs text-slate-400">Notices without a public bulk PDF are recorded as unavailable. Candidate response sheets are not imported.</p>
+        </div>
+        {(dashboard?.notices || []).length ? <div className="divide-y divide-white/5">
+          {dashboard.notices.map((notice) => {
+            const noticePreview = (dashboard.previews || []).find((item) => item.noticeKey === notice.noticeKey);
+            return <article key={notice.noticeKey} className="flex flex-col gap-3 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0">
+                <p className="break-words font-medium text-white">{notice.title}</p>
+                <p className="mt-1 text-xs text-slate-400">{[notice.exam, notice.year, notice.tier, notice.examDate, notice.shift].filter(Boolean).join(" · ") || "Exam details not identified"}</p>
+                <p className="mt-1 text-xs text-slate-500">{notice.recordCount || 0} rows · verified {formatStableDateTime(notice.lastVerifiedAt) || "not yet"}{notice.fileHash ? ` · SHA-256 ${notice.fileHash.slice(0, 12)}…` : ""}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-white/10 px-2.5 py-1 text-xs text-slate-200">{notice.answerDataStatus}</span>
+                {noticePreview ? <button type="button" onClick={() => loadPreview(notice.noticeKey)} disabled={Boolean(busy)} className="rounded-lg border border-sky-300/20 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-400/10 disabled:opacity-50">Review {noticePreview.recordCount || 0} rows</button> : null}
+                {notice.pdfUrl ? <a href={notice.pdfUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-200 hover:bg-white/5">Official PDF</a> : null}
+                <a href={notice.sourceUrl || dashboard?.sourceUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-200 hover:bg-white/5">Notice source</a>
+              </div>
+              {notice.lastError ? <p className="text-xs text-amber-200 lg:basis-full">{notice.lastError}</p> : null}
+            </article>;
+          })}
+        </div> : <p className="px-5 py-8 text-sm text-slate-400">No official SSC notices have been imported yet. Run a dry-run after backend and MongoDB setup.</p>}
+      </section>
+
+      {preview ? <section className={panelCardClass("space-y-4")} aria-labelledby="ssc-answer-key-preview-title">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300">Admin-only dry-run data</p>
+            <h3 id="ssc-answer-key-preview-title" className="mt-1 font-semibold text-white">{preview.exam} {preview.year} · {preview.keyStatus}</h3>
+            <p className="mt-1 text-xs text-slate-400">{preview.pagination?.total || 0} extracted rows · no question text or options · source hash {preview.fileHash?.slice(0, 16)}…</p>
+          </div>
+          <button type="button" onClick={() => setPreview(null)} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-300 hover:bg-white/5">Close preview</button>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {(preview.records || []).map((record) => <div key={`${record.questionId}-${record.answerLabel}`} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#081127]/70 px-3 py-2 text-sm"><span className="truncate text-slate-300">{record.questionId}</span><strong className="shrink-0 text-white">{record.answerLabel}</strong></div>)}
+        </div>
+        <div className="flex items-center justify-between text-xs text-slate-400">
+          <span>Page {preview.pagination?.page || previewPage} of {preview.pagination?.pages || 1}</span>
+          <div className="flex gap-2">
+            <button type="button" disabled={previewPage <= 1 || busy === "preview"} onClick={() => loadPreview(preview.noticeKey, previewPage - 1)} className="rounded-lg border border-white/10 px-3 py-1.5 disabled:opacity-40">Previous</button>
+            <button type="button" disabled={previewPage >= (preview.pagination?.pages || 1) || busy === "preview"} onClick={() => loadPreview(preview.noticeKey, previewPage + 1)} className="rounded-lg border border-white/10 px-3 py-1.5 disabled:opacity-40">Next</button>
+          </div>
+        </div>
+      </section> : null}
+
+      <section className={panelCardClass("overflow-hidden !p-0")} aria-labelledby="ssc-answer-key-audit-title">
+        <div className="border-b border-white/10 px-5 py-4"><h3 id="ssc-answer-key-audit-title" className="font-semibold text-white">Audit history</h3><p className="mt-1 text-xs text-slate-400">Notice changes, file changes, corrected answers, and publishing setting changes.</p></div>
+        {(dashboard?.audits || []).length ? <div className="max-h-80 divide-y divide-white/5 overflow-auto">{dashboard.audits.map((item) => <div key={item._id} className="px-5 py-3"><div className="flex flex-wrap justify-between gap-2 text-sm"><strong className="text-slate-100">{item.action}</strong><span className="text-xs text-slate-500">{formatStableDateTime(item.createdAt)}</span></div><p className="mt-1 break-words text-xs text-slate-400">{item.summary} · by {item.actor || "system"}</p></div>)}</div> : <p className="px-5 py-8 text-sm text-slate-400">No audit events yet.</p>}
+      </section>
     </div>
   );
 }

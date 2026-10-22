@@ -124,8 +124,8 @@ export default function ProfilePage() {
     setMessage("");
     setError("");
 
-    if (newPassword.length < 6) {
-      setError("New password must be at least 6 characters");
+    if (newPassword.length < 8) {
+      setError("New password must be at least 8 characters");
       setSavingPassword(false);
       return;
     }
@@ -292,10 +292,10 @@ export default function ProfilePage() {
           <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="mb-4 w-full rounded-xl border border-white/10 bg-bg px-3 py-2" />
 
           <label className="mb-3 block text-sm text-slate-300">New Password</label>
-          <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="mb-4 w-full rounded-xl border border-white/10 bg-bg px-3 py-2" />
+          <input type="password" minLength={8} maxLength={72} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="mb-4 w-full rounded-xl border border-white/10 bg-bg px-3 py-2" />
 
           <label className="mb-3 block text-sm text-slate-300">Confirm New Password</label>
-          <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="mb-4 w-full rounded-xl border border-white/10 bg-bg px-3 py-2" />
+          <input type="password" minLength={8} maxLength={72} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="mb-4 w-full rounded-xl border border-white/10 bg-bg px-3 py-2" />
 
           <button disabled={savingPassword} className="rounded-xl bg-orange-500 px-4 py-2 font-semibold text-white disabled:opacity-70">
             {savingPassword ? "Updating..." : "Update Password"}

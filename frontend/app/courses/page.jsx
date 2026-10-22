@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import CourseCard from "@/components/CourseCard";
 import { apiFetch } from "@/lib/api";
@@ -86,6 +87,7 @@ const dedupeCourses = (items = []) => {
 };
 
 export default function CoursesPage() {
+  const searchParams = useSearchParams();
   const [deletedCourseKeys, setDeletedCourseKeys] = useState([]);
   const fallbackCourses = useMemo(() => {
     const filtered = filterDeletedCourses(batches, deletedCourseKeys);
@@ -99,20 +101,21 @@ export default function CoursesPage() {
         price: batch.priceValue,
         subject: batch.subject || batch.category || "General",
         category: batch.category || batch.subject || "General",
-        ratingAverage: 4.8,
-        ratingCount: 240,
         image: batch.image,
         liveClassEnabled: batch.liveClassEnabled,
         liveClassUrl: batch.liveClassUrl
       }, index));
   }, [deletedCourseKeys]);
-  const [courses, setCourses] = useState(fallbackCourses);
+  const allowDevelopmentFallback = process.env.NODE_ENV !== "production";
+  const [courses, setCourses] = useState(() => allowDevelopmentFallback ? fallbackCourses : []);
   const [purchasedKeys, setPurchasedKeys] = useState(new Set());
   const [search, setSearch] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [accessFilter, setAccessFilter] = useState("all");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const priceFilter = String(searchParams.get("price") || "").trim().toLowerCase();
+  const modeFilter = String(searchParams.get("mode") || "").trim().toLowerCase();
 
   const getPurchaseKeys = (items = []) =>
     new Set(
@@ -171,15 +174,13 @@ export default function CoursesPage() {
       videoSources: course.videoSources || [],
       liveClassUrl: course.liveClassUrl || "",
       liveClassEnabled: Boolean(course.liveClassEnabled),
-      ratingAverage: 4.8,
-      ratingCount: 240,
       image: resolveCourseImage(course)
     }, index));
     const filteredFallback = value
       ? fallbackCourses.filter((course) => course.title.toLowerCase().includes(value.toLowerCase()))
       : fallbackCourses;
-    const safeFallback = filteredFallback.length ? filteredFallback : fallbackCourses;
-    setCourses(dedupeCourses([...mappedLocal, ...safeFallback]));
+    const safeFallback = allowDevelopmentFallback ? (filteredFallback.length ? filteredFallback : fallbackCourses) : [];
+    if (allowDevelopmentFallback) setCourses(dedupeCourses([...mappedLocal, ...safeFallback]));
 
     try {
       const query = value ? `?search=${encodeURIComponent(value)}` : "";
@@ -194,8 +195,8 @@ export default function CoursesPage() {
       })));
       setCourses(merged);
     } catch (err) {
-      setError("Live courses are unavailable. Showing featured batches instead.");
-      setCourses(dedupeCourses([...mappedLocal, ...safeFallback]));
+      setError(err.message || "Courses could not be loaded. Please retry.");
+      setCourses(allowDevelopmentFallback ? dedupeCourses([...mappedLocal, ...safeFallback]) : []);
     } finally {
       setLoading(false);
     }
@@ -230,6 +231,17 @@ export default function CoursesPage() {
     const query = search.trim().toLowerCase();
     return courses.filter((course) => {
       const subject = course.subject || course.category || "General";
+      const price = Number(course.offerPrice || course.price || course.priceValue || 0);
+      const modeText = [
+        course.courseType,
+        course.type,
+        course.mode,
+        course.title,
+        course.subtitle,
+        course.description,
+        ...(Array.isArray(course.highlights) ? course.highlights : [])
+      ].filter(Boolean).join(" ").toLowerCase();
+      const hasRecording = Boolean(course.recordedVideoUrl || course.videoSources?.length || course.videos?.length);
       const matchesSearch = !query || [course.title, course.subtitle, course.description, subject]
         .some((value) => String(value || "").toLowerCase().includes(query));
       const matchesSubject = subjectFilter === "all" || subject === subjectFilter;
@@ -238,16 +250,32 @@ export default function CoursesPage() {
         accessFilter === "all" ||
         (accessFilter === "purchased" && purchased) ||
         (accessFilter === "available" && !purchased);
-      return matchesSearch && matchesSubject && matchesAccess;
+      const matchesPrice = priceFilter !== "free" || price <= 0;
+      const matchesMode =
+        !modeFilter ||
+        (modeFilter === "live" && (course.liveClassEnabled || modeText.includes("live"))) ||
+        (modeFilter === "recorded" && (hasRecording || modeText.includes("recorded") || modeText.includes("replay")));
+      return matchesSearch && matchesSubject && matchesAccess && matchesPrice && matchesMode;
     });
-  }, [accessFilter, courses, purchasedKeys, search, subjectFilter]);
+  }, [accessFilter, courses, modeFilter, priceFilter, purchasedKeys, search, subjectFilter]);
+
+  const pageTitle = priceFilter === "free"
+    ? "Free Courses"
+    : modeFilter === "live"
+    ? "Live Courses"
+    : modeFilter === "recorded"
+    ? "Recorded Courses"
+    : "All Courses";
+  const pageSubtitle = priceFilter === "free"
+    ? "Browse free uploaded courses and batches when available."
+    : "Browse premium programs with videos, notes, and guided learning paths.";
 
   return (
     <main className="mx-auto w-[92%] max-w-6xl py-10">
       <section className="mb-6 grid gap-4 rounded-2xl border border-white/10 bg-card/60 p-4 backdrop-blur md:grid-cols-[1fr_auto] md:items-center">
         <div>
-          <h1 className="font-display text-4xl">All Courses</h1>
-          <p className="mt-2 text-sm text-slate-300">Browse premium programs with videos, notes, and guided learning paths.</p>
+          <h1 className="font-display text-4xl">{pageTitle}</h1>
+          <p className="mt-2 text-sm text-slate-300">{pageSubtitle}</p>
         </div>
         <Link href="/" className="inline-flex rounded-xl border border-indigo-400/50 px-4 py-2 text-sm font-semibold text-indigo-200">
           Back To Front Page
@@ -260,15 +288,15 @@ export default function CoursesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search courses"
-            className="min-w-0 rounded-xl border border-white/10 bg-card px-4 py-2 text-sm outline-none"
+            className="min-w-0 w-full rounded-xl border border-white/10 bg-card px-4 py-3 text-base outline-none md:w-auto md:text-sm"
           />
-          <button onClick={() => loadCourses(search)} className="rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white">
+          <button onClick={() => loadCourses(search)} className="min-h-11 w-full rounded-xl bg-accent px-4 py-3 text-base font-medium text-white md:w-auto md:text-sm">
             Search
           </button>
           <select
             value={subjectFilter}
             onChange={(e) => setSubjectFilter(e.target.value)}
-            className="rounded-xl border border-white/10 bg-card px-4 py-2 text-sm outline-none"
+            className="min-h-11 w-full rounded-xl border border-white/10 bg-card px-4 py-3 text-base outline-none md:w-auto md:text-sm"
           >
             {subjects.map((subject) => (
               <option key={subject} value={subject}>{subject === "all" ? "All Subjects" : subject}</option>
@@ -277,7 +305,7 @@ export default function CoursesPage() {
           <select
             value={accessFilter}
             onChange={(e) => setAccessFilter(e.target.value)}
-            className="rounded-xl border border-white/10 bg-card px-4 py-2 text-sm outline-none"
+            className="min-h-11 w-full rounded-xl border border-white/10 bg-card px-4 py-3 text-base outline-none md:w-auto md:text-sm"
           >
             <option value="all">All Courses</option>
             <option value="available">Available to Buy</option>
@@ -287,13 +315,24 @@ export default function CoursesPage() {
       </div>
 
       {error ? (
-        <div className="mb-4 rounded-xl border border-orange-300/40 bg-orange-500/10 p-3 text-sm text-orange-100">
-          {error}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-300/40 bg-orange-500/10 p-4 text-sm text-orange-100 shadow-[0_12px_34px_rgba(124,45,18,0.18)]">
+          <span>{error}</span>
+          <button type="button" onClick={() => loadCourses(search)} className="rounded-lg border border-orange-200/40 bg-orange-300/10 px-3 py-1.5 font-semibold transition hover:bg-orange-300/20">Retry loading courses</button>
         </div>
       ) : null}
 
       {loading ? (
-        <p className="text-slate-300">Loading courses...</p>
+        <div className="grid gap-4 md:grid-cols-3" aria-label="Loading courses" aria-busy="true">
+          {[0, 1, 2, 3, 4, 5].map((item) => (
+            <div key={item} className="overflow-hidden rounded-2xl border border-white/10 bg-card/70 p-4">
+              <div className="skeleton-shimmer h-40 rounded-xl" />
+              <div className="skeleton-shimmer mt-4 h-5 w-4/5 rounded" />
+              <div className="skeleton-shimmer mt-3 h-4 w-full rounded" />
+              <div className="skeleton-shimmer mt-2 h-4 w-3/5 rounded" />
+              <div className="skeleton-shimmer mt-5 h-9 w-28 rounded-lg" />
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-3">
           {filteredCourses.map((course, index) => (

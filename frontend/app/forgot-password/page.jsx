@@ -115,7 +115,8 @@ export default function ForgotPasswordPage() {
             <input
               type="password"
               required
-              minLength={6}
+              minLength={8}
+              maxLength={72}
               placeholder="New password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
@@ -124,7 +125,8 @@ export default function ForgotPasswordPage() {
             <input
               type="password"
               required
-              minLength={6}
+              minLength={8}
+              maxLength={72}
               placeholder="Confirm new password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

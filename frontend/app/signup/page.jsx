@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -30,7 +30,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
-  const [role, setRole] = useState("student");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
@@ -79,6 +78,10 @@ export default function SignupPage() {
         setDevCode(data.devCode);
       }
     } catch (err) {
+      if (process.env.NODE_ENV === "production") {
+        setError(err.message || "Unable to send OTP right now.");
+        return;
+      }
       const fallbackCode = String(Math.floor(100000 + Math.random() * 900000));
       const payload = { code: fallbackCode, expiresAt: Date.now() + 10 * 60 * 1000 };
       localStorage.setItem(`${DEMO_OTP_KEY}${normalizedPhone}`, JSON.stringify(payload));
@@ -148,7 +151,7 @@ export default function SignupPage() {
         name: name.trim(),
         email: normalizedEmail,
         phone: normalizedPhone,
-        role: role === "admin" ? "admin" : "student",
+        role: "student",
         phoneVerified: true,
         localOnly: true,
         createdAt: new Date().toISOString()
@@ -170,7 +173,7 @@ export default function SignupPage() {
     try {
       const data = await apiFetch("/auth/signup", {
         method: "POST",
-        body: JSON.stringify({ name: name.trim(), email: normalizedEmail, password, role, phone: normalizedPhone, otpCode: otp })
+        body: JSON.stringify({ name: name.trim(), email: normalizedEmail, password, phone: normalizedPhone, otpCode: otp })
       });
       if (data?.user?.email) {
         setNotice("Account created successfully. Please login to continue.");
@@ -192,15 +195,15 @@ export default function SignupPage() {
 
   return (
     <AuthShowcase mode="signup">
-      <form onSubmit={handleSubmit} className="auth-form-stack mx-auto w-full max-w-[30rem]">
+      <form onSubmit={handleSubmit} className="auth-form-stack mx-auto w-full max-w-[42rem]">
         <div className="mb-7 text-center">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-orange-300/30 bg-white/10 shadow-[0_0_32px_rgba(251,146,60,0.22)] lg:hidden">
-            <img src="/new-logo.png" alt="Badam Singh Classes" className="h-full w-full object-cover" />
+            <img src="/new-logo.webp" alt="Badam Singh Classes" className="h-full w-full object-cover" />
           </div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.35em] text-orange-300">Badam Singh Classes</p>
           <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">Create Account</h1>
           <p className="mt-3 text-sm text-slate-300">Register for batches, tests, and dashboard access</p>
-          <div className="mx-auto mt-6 h-0.5 w-16 rounded-full bg-orange-400 shadow-[0_0_18px_rgba(251,146,60,0.75)]" />
+          <div className="mx-auto mt-5 flex max-w-sm items-center gap-3 text-xs font-semibold"><span className="grid h-7 w-7 place-items-center rounded-full bg-orange-500 text-white">1</span><span className="text-orange-300">Details</span><span className="h-px flex-1 bg-gradient-to-r from-orange-400 to-white/20" /><span className={`grid h-7 w-7 place-items-center rounded-full ${otpVerified ? "bg-emerald-500 text-white" : "bg-white/10 text-slate-300"}`}>2</span><span className={otpVerified ? "text-emerald-300" : "text-slate-400"}>Verify OTP</span></div>
         </div>
 
         {error ? (
@@ -219,6 +222,7 @@ export default function SignupPage() {
           </div>
         ) : null}
 
+        <div className="grid gap-x-4 sm:grid-cols-2">
         <label className="mb-4 block">
           <span className="mb-2 block text-sm font-semibold text-white">Full Name</span>
           <span className="flex items-center gap-3 rounded-xl border border-white/20 bg-[#071a3c]/70 px-4 py-3 text-slate-300 transition focus-within:border-orange-300/70 focus-within:bg-[#082051]">
@@ -239,7 +243,7 @@ export default function SignupPage() {
           <span className="mb-2 block text-sm font-semibold text-white">Password</span>
           <span className="flex items-center gap-3 rounded-xl border border-white/20 bg-[#071a3c]/70 px-4 py-3 text-slate-300 transition focus-within:border-orange-300/70 focus-within:bg-[#082051]">
             <FieldIcon type="lock" />
-            <input type="password" required placeholder="Create a password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400 sm:text-base" />
+            <input type="password" required minLength={8} maxLength={72} placeholder="Create a password (minimum 8 characters)" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400 sm:text-base" />
           </span>
         </label>
 
@@ -251,7 +255,7 @@ export default function SignupPage() {
               <input
                 type="tel"
                 required
-                placeholder="Phone (e.g. 919999999999)"
+                placeholder="Enter mobile number"
                 value={phone}
                 onChange={(e) => {
                   setPhone(e.target.value);
@@ -271,19 +275,22 @@ export default function SignupPage() {
           </button>
           </div>
         </div>
+        </div>
 
         <div className="mb-4">
-          <span className="mb-2 block text-sm font-semibold text-white">OTP Verification</span>
+          <div className="mb-2 flex items-center justify-between gap-3"><span className="text-sm font-semibold text-white">OTP Verification</span>{otpSent ? <span className="text-xs text-emerald-300">OTP sent</span> : null}</div>
           <div className="flex gap-2">
             <span className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/20 bg-[#071a3c]/70 px-4 py-3 text-slate-300 transition focus-within:border-orange-300/70 focus-within:bg-[#082051]">
               <FieldIcon type="otp" />
               <input
                 type="text"
                 required
-                placeholder="Enter OTP"
+                placeholder="Enter 6-digit OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-400 sm:text-base"
+                maxLength={6}
+                inputMode="numeric"
+                className="w-full bg-transparent text-center text-base font-semibold tracking-[0.45em] text-white outline-none placeholder:tracking-normal placeholder:text-slate-400"
               />
             </span>
           <button
@@ -297,13 +304,6 @@ export default function SignupPage() {
           </div>
         </div>
 
-        <label className="mb-6 block">
-          <span className="mb-2 block text-sm font-semibold text-white">Account Type</span>
-          <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full rounded-xl border border-white/20 bg-[#071a3c]/70 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-300/70 sm:text-base">
-          <option value="student">Student</option>
-          <option value="admin">Admin / Instructor</option>
-        </select>
-        </label>
 
         <button disabled={!canSubmit} className="auth-submit-btn btn-light-wrap relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-orange-500 to-amber-400 px-4 py-4 text-base font-bold text-white shadow-[0_18px_36px_rgba(249,115,22,0.28)] transition hover:-translate-y-0.5 hover:brightness-110 disabled:translate-y-0 disabled:opacity-70">
           <span className="btn-light-sweep" />

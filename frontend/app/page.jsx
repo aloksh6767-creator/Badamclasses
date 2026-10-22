@@ -266,11 +266,11 @@ const homepageIconTabs = [
     )
   },
   {
-    label: "AI Test",
-    href: "/mock-tests",
-    cardClass: "border-amber-300/22 bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.30),transparent_42%),linear-gradient(180deg,rgba(13,26,58,0.96),rgba(8,17,39,0.98))]",
-    iconClass: "bg-amber-400 text-white shadow-[0_0_34px_rgba(245,158,11,0.34)]",
-    glowClass: "bg-amber-300/12",
+    label: "BadamTestRanker",
+    href: "/test-rank",
+    cardClass: "border-violet-300/24 bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.34),transparent_42%),linear-gradient(180deg,rgba(13,26,58,0.96),rgba(8,17,39,0.98))]",
+    iconClass: "bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-[0_0_34px_rgba(124,58,237,0.38)]",
+    glowClass: "bg-violet-300/16",
     icon: (
       <svg viewBox="0 0 64 64" className="h-12 w-12" fill="none" aria-hidden="true">
         <path d="M14 46V31M28 46V24M42 46V35" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
@@ -581,10 +581,6 @@ export default function HomePage() {
 
   const safeBatches = useMemo(() => allBatches.filter(shouldShowOnHomePage), [allBatches]);
 
-  const comparisonBatches = useMemo(() => {
-    return allBatches;
-  }, [allBatches]);
-
   const displayBatches = useMemo(() => {
     return applySliderConfig(safeBatches, sliderConfig);
   }, [safeBatches, sliderConfig]);
@@ -691,6 +687,23 @@ export default function HomePage() {
         </div>
       ) : null}
 
+      <div className="mb-5 flex justify-center sm:mb-6">
+        <div className="grid h-[82px] w-full max-w-[520px] grid-cols-2 rounded-full border border-violet-200/30 bg-[#070810] p-1.5 shadow-[0_8px_28px_rgba(5,8,25,.45),0_0_22px_rgba(91,33,182,.2)] ring-1 ring-white/[.04] sm:h-[76px]">
+          <Link href="/" aria-label="Open Badam Classes homepage" className="flex min-w-0 items-center justify-center gap-1.5 rounded-full border border-white/[.08] bg-gradient-to-b from-white/[.09] to-white/[.035] px-1.5 text-[clamp(12px,3.7vw,15px)] font-semibold tracking-tight text-slate-100 transition duration-200 hover:border-white/15 hover:from-white/[.13] hover:to-white/[.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 min-[360px]:gap-2.5 min-[360px]:px-2.5 sm:gap-3 sm:px-4 sm:text-base">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-100/[.09] text-slate-100 ring-1 ring-white/10 min-[360px]:h-9 min-[360px]:w-9 sm:h-10 sm:w-10">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 min-[360px]:h-[18px] min-[360px]:w-[18px] sm:h-5 sm:w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9M9 20v-7h6v7"/></svg>
+            </span>
+            <span className="whitespace-nowrap">Badam Classes</span>
+          </Link>
+          <Link href="/test-rank" aria-label="Open BadamTestRanker" className="flex min-w-0 items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-violet-700 via-violet-600 to-indigo-600 px-1.5 text-[clamp(12px,3.7vw,15px)] font-bold tracking-tight text-white shadow-[0_4px_14px_rgba(91,33,182,.38)] transition duration-200 hover:brightness-110 hover:shadow-[0_5px_18px_rgba(91,33,182,.48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 min-[360px]:gap-2.5 min-[360px]:px-2.5 sm:gap-3 sm:px-3 sm:text-base">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/[.14] text-white ring-1 ring-white/20 min-[360px]:h-9 min-[360px]:w-9 sm:h-10 sm:w-10">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 min-[360px]:h-[18px] min-[360px]:w-[18px] sm:h-5 sm:w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h17"/><path d="m7 15 4-4 3 2 6-7"/><path d="M16 6h4v4"/></svg>
+            </span>
+            <span className="whitespace-nowrap">BadamTestRanker</span>
+          </Link>
+        </div>
+      </div>
+
       <section className="mb-10 overflow-hidden rounded-2xl" aria-label="Badam Singh Classes featured banners">
         <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${activePromoBanner * 100}%)` }}>
             {homepagePrimaryBanners.map((banner, index) => (
@@ -720,7 +733,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="animate-reveal mb-12 grid items-center gap-8 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0c1f48] via-[#0b1634] to-[#08122b] p-6 shadow-glow md:grid-cols-2 md:p-10">
+      <section className="homepage-hero animate-reveal mb-12 grid items-center gap-8 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0c1f48] via-[#0b1634] to-[#08122b] p-6 shadow-glow md:grid-cols-2 md:p-10">
         <div>
           <p className="mb-3 inline-block rounded-full border border-orange-300/30 bg-orange-500/10 px-3 py-1 text-xs text-orange-200">India's Trusted Online Exam Prep Platform</p>
           <h1 className="font-display text-4xl font-bold leading-tight md:text-5xl">{publishedBanner?.title || "Prepare Smarter with BadamClasses"}</h1>
@@ -752,7 +765,46 @@ export default function HomePage() {
         </div>
       </section>
 
-      <nav className="animate-reveal mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Homepage quick tabs">
+      <section aria-label="BadamTestRanker mock test promotion" className="animate-reveal mb-10">
+        <div
+          className="group relative block overflow-hidden rounded-[26px] border border-blue-300/25 bg-[linear-gradient(112deg,#07152f_0%,#0a2450_55%,#0b1c43_100%)] p-4 shadow-[0_22px_60px_rgba(2,8,30,.36)] transition-[transform,box-shadow,border-color] duration-300 hover:border-cyan-200/45 hover:shadow-[0_26px_70px_rgba(18,77,170,.28)] motion-safe:hover:-translate-y-1 motion-safe:active:scale-[.995] motion-reduce:transition-none sm:p-7 lg:p-8"
+        >
+          <Link
+          href="/#mock-tests"
+          aria-label="BadamTestRanker Test Ranking. Start Mock Test and open Mock Tests on the homepage."
+          className="absolute inset-0 z-0 cursor-pointer rounded-[26px] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-cyan-300/70"
+        ><span className="sr-only">Open homepage Mock Tests section</span></Link>
+          <span className="pointer-events-none absolute -right-16 -top-28 h-72 w-72 rounded-full bg-blue-500/15 blur-3xl transition-opacity duration-300 group-hover:opacity-150" aria-hidden="true" />
+          <span className="pointer-events-none absolute -bottom-36 left-[34%] h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" aria-hidden="true" />
+          <span className="pointer-events-none relative z-10 grid grid-cols-[minmax(0,1fr)_minmax(96px,.48fr)] items-center gap-2 sm:grid-cols-[minmax(0,1.1fr)_minmax(260px,.8fr)] sm:gap-8 lg:gap-12">
+            <span className="block min-w-0 py-2 sm:py-3">
+              <span className="mt-3 block font-display text-[25px] font-extrabold leading-tight tracking-tight text-white sm:mt-4 sm:text-4xl lg:text-[42px]">Test Ranking</span>
+              <span className="mt-1 block text-sm font-bold text-amber-300 sm:mt-2 sm:text-lg">Practice Smart. Rank Higher.</span>
+              <span className="mt-2 block max-w-xl text-[11px] leading-[1.55] text-blue-100/75 sm:mt-3 sm:text-sm sm:leading-6">Attempt Free Mock Tests, PYQ Tests and Premium Exam Series.</span>
+              <span className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-300 to-orange-400 px-4 py-2 text-xs font-extrabold text-[#101a36] shadow-lg shadow-orange-950/25 transition-[gap,filter] group-hover:brightness-105 motion-safe:group-hover:gap-3 sm:mt-5 sm:min-h-12 sm:px-5 sm:text-sm">
+                Start Mock Test <span aria-hidden="true">→</span>
+              </span>
+              <span className="mt-3 flex items-center gap-2 text-[10px] font-medium text-blue-100/60 sm:text-xs"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(110,231,183,.85)]" aria-hidden="true" />Free practice · PYQs · Exam series</span>
+            </span>
+            <span aria-hidden="true" className="relative mx-auto block h-[142px] w-full max-w-[340px] sm:h-[210px]">
+              <span className="absolute inset-x-1 bottom-1 top-4 rounded-[28px] bg-blue-500/10 blur-xl" />
+              <span className="absolute left-0 top-7 w-[70%] -rotate-[5deg] rounded-2xl border border-blue-100/20 bg-[#eff5ff] p-2.5 text-slate-800 shadow-[0_14px_35px_rgba(0,0,0,.3)] motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:-rotate-[2deg] sm:left-2 sm:top-8 sm:p-4">
+                <span className="flex items-center justify-between border-b border-blue-900/10 pb-1.5 sm:pb-2"><span className="text-[8px] font-black tracking-[.12em] text-blue-900 sm:text-[10px]">MOCK TEST</span><span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[7px] font-bold text-blue-800 sm:text-[9px]">01 / 100</span></span>
+                <span className="mt-2 block text-[8px] font-bold leading-3 text-slate-700 sm:mt-3 sm:text-[10px] sm:leading-4">Choose the correct answer</span>
+                <span className="mt-2 grid gap-1 sm:mt-2.5 sm:gap-1.5">{["Option A", "Option B", "Option C"].map((option, index) => <span key={option} className={`flex items-center gap-1.5 rounded-md border px-1.5 py-1 text-[7px] font-medium sm:gap-2 sm:px-2 sm:py-1.5 sm:text-[9px] ${index === 1 ? "border-blue-300 bg-blue-100 text-blue-900" : "border-slate-200 bg-white text-slate-500"}`}><span className={`grid h-3 w-3 place-items-center rounded-full border text-[6px] sm:h-3.5 sm:w-3.5 sm:text-[7px] ${index === 1 ? "border-blue-500 bg-blue-600 text-white" : "border-slate-300"}`}>{index === 1 ? "✓" : String.fromCharCode(65 + index)}</span>{option}</span>)}</span>
+              </span>
+              <span className="absolute right-0 top-1 w-[45%] rounded-2xl border border-cyan-100/20 bg-[linear-gradient(155deg,#133c7b,#091a3e)] p-2.5 text-white shadow-[0_18px_38px_rgba(0,0,0,.35)] motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:translate-y-[-3px] sm:right-1 sm:top-3 sm:p-3.5">
+                <span className="flex items-center gap-1.5 text-[7px] font-extrabold uppercase tracking-[.1em] text-cyan-200 sm:text-[9px]"><svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-amber-300 sm:h-4 sm:w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M8 21h8m-4-4v4M7 4H4v2a5 5 0 0 0 4.3 5M17 4h3v2a5 5 0 0 1-4.3 5M7 3h10v7a5 5 0 0 1-10 0z" /></svg>TOP RANKS</span>
+                <span className="mt-2 flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[.06] p-1.5 sm:mt-3 sm:gap-2 sm:p-2"><span className="grid h-5 w-5 place-items-center rounded-full bg-amber-300/15 text-[8px] font-black text-amber-200 sm:h-7 sm:w-7 sm:text-[10px]">1</span><span className="min-w-0 flex-1"><span className="block h-1 w-10 rounded bg-white/80 sm:w-14"/><span className="mt-1 block h-1 w-7 rounded bg-cyan-300/70 sm:w-10"/></span><span className="text-[7px] font-bold text-cyan-100 sm:text-[9px]">98%</span></span>
+                <span className="mt-1.5 flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[.04] p-1.5 sm:mt-2 sm:gap-2 sm:p-2"><span className="grid h-5 w-5 place-items-center rounded-full bg-blue-400/20 text-[8px] font-black text-blue-100 sm:h-7 sm:w-7 sm:text-[10px]">2</span><span className="min-w-0 flex-1"><span className="block h-1 w-8 rounded bg-white/50 sm:w-12"/><span className="mt-1 block h-1 w-6 rounded bg-blue-300/50 sm:w-8"/></span><span className="text-[7px] font-bold text-blue-100 sm:text-[9px]">94%</span></span>
+              </span>
+              <span className="absolute bottom-0 right-[18%] flex items-center gap-1.5 rounded-full border border-blue-100/15 bg-[#0c2551] px-2.5 py-1.5 text-[7px] font-bold text-blue-100 shadow-lg sm:bottom-1 sm:right-[16%] sm:px-3 sm:py-2 sm:text-[9px]"><svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-amber-300 sm:h-4 sm:w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 14.7 8.5 21 9.4l-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.4l6.3-.9L12 3Z" /></svg>YOUR NEXT RANK</span>
+            </span>
+          </span>
+        </div>
+      </section>
+
+      <nav className="homepage-quick-tabs animate-reveal mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Homepage quick tabs">
         {homepageIconTabs.map((tab) => (
           <Link
             key={tab.label}
@@ -919,7 +971,7 @@ export default function HomePage() {
       <StatsCounter items={stats} />
       <div className="section-divider" />
 
-      <section className="animate-reveal mb-10 rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-4 md:p-5">
+      <section className="homepage-course-filters animate-reveal mb-10 rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-4 md:p-5">
         <h2 className="mb-4 font-display text-2xl font-semibold">Find Your Course Fast</h2>
         <div className="grid gap-3 md:grid-cols-4">
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search batch or instructor" className="rounded-xl border border-white/10 bg-[#0b1634] px-3 py-2 text-sm outline-none" />
@@ -936,7 +988,7 @@ export default function HomePage() {
           <h2 className="font-display text-3xl font-semibold">Featured Batches</h2>
           <Link href="/batches" className="rounded-lg border border-white/20 px-4 py-2 text-sm text-slate-200 transition hover:border-orange-300">View All Batches</Link>
         </div>
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-5 xl:grid-cols-4">
           {finalBatches.map((batch, idx) => (
             <article key={batch.id} className="card-anim card-tilt group overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,26,58,0.94),rgba(8,17,39,0.98))] shadow-[0_22px_50px_rgba(2,6,23,0.25)] transition hover:-translate-y-1.5 hover:border-orange-300/40 hover:shadow-[0_30px_70px_rgba(249,115,22,0.12)]">
               <div className="relative">
@@ -1024,27 +1076,6 @@ export default function HomePage() {
               </div>
             </article>
           ))}
-        </div>
-      </section>
-
-      <div className="section-divider" />
-      <section className="animate-reveal mb-14 rounded-2xl border border-white/10 bg-[#0d1a3a]/70 p-5">
-        <h2 className="mb-5 font-display text-3xl font-semibold">Batch Comparison</h2>
-        <div className="comparison-scroll overflow-x-auto pb-3" tabIndex={0} aria-label="Scroll horizontally to compare batches">
-          <table className="w-full min-w-[680px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-orange-300">
-                <th className="py-2">Batch</th><th>Category</th><th>Duration</th><th>Price</th><th>Best For</th>
-              </tr>
-            </thead>
-            <tbody>
-              {comparisonBatches.map((b, i) => (
-                <tr key={b.id} className={`border-b border-white/10 ${i === 2 ? "bg-orange-500/10" : ""}`}>
-                  <td className="py-2">{b.title}</td><td>{b.category}</td><td>{b.duration}</td><td><span className="inr-sign">{String.fromCharCode(0x20B9)}</span>{b.priceValue.toLocaleString("en-IN")}</td><td>{i === 2 ? "Best Value" : "Focused Prep"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </section>
 

@@ -11,6 +11,7 @@ const menuItems = [
   { label: "Home", href: "/" },
   { label: "Courses", href: "/courses" },
   { label: "Mock Tests", href: "/mock-tests" },
+  { label: "Badam TestRank", href: "/test-rank" },
   { label: "AI Planner", href: "/exam-planner" },
   { label: "Current Affairs", href: "/current-affairs" },
   { label: "Results", href: "/results" },

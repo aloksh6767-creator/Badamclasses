@@ -32,6 +32,11 @@ const emptyForm = {
   offerPrice: "",
   thumbnail: "",
   description: "",
+  batchTime: "",
+  startDate: "",
+  duration: "",
+  notificationTitle: "",
+  notificationMessage: "",
   liveClassEnabled: false,
   liveClassUrl: "",
   liveClassTitle: "",
@@ -79,6 +84,11 @@ function courseToForm(course) {
     offerPrice: normalized.offerPrice ? String(normalized.offerPrice) : "",
     thumbnail: normalized.thumbnail || normalized.image || "",
     description: normalized.description || "",
+    batchTime: normalized.batchTime || "",
+    startDate: normalized.startDate || "",
+    duration: normalized.duration || "",
+    notificationTitle: normalized.notificationTitle || "",
+    notificationMessage: normalized.notificationMessage || "",
     liveClassEnabled: Boolean(normalized.liveClassEnabled),
     liveClassUrl: normalized.liveClassUrl || DEFAULT_LIVE_CLASS_URL,
     liveClassTitle: normalized.liveClassTitle || "",
@@ -123,6 +133,11 @@ function buildCourseFromForm(form) {
     offerPrice: Number(form.offerPrice || 0),
     thumbnail: form.thumbnail,
     description: form.description,
+    batchTime: form.batchTime,
+    startDate: form.startDate,
+    duration: form.duration,
+    notificationTitle: form.notificationTitle,
+    notificationMessage: form.notificationMessage,
     liveClassEnabled: Boolean(form.liveClassEnabled),
     liveClassUrl: form.liveClassUrl,
     liveClassTitle: form.liveClassTitle,
@@ -160,6 +175,8 @@ function buildServerCoursePayload(course) {
     batchTime: course.batchTime || "",
     startDate: course.startDate || "",
     duration: course.duration || "Flexible",
+    notificationTitle: course.notificationTitle || "",
+    notificationMessage: course.notificationMessage || "",
     recordedVideoUrl: course.recordedVideoUrl || "",
     recordedClassTitle: course.recordedClassTitle || course.liveClassTitle || "",
     classSections: course.classSections || [],
@@ -267,8 +284,8 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
 
     try {
       const payload = buildServerCoursePayload(course);
-      savedCourse = form._id && isMongoObjectId(form._id)
-        ? await apiFetch(`/instructor/courses/${encodeURIComponent(form._id)}`, {
+      savedCourse = form._id
+        ? await apiFetch(form._id && isMongoObjectId(form._id) ? `/instructor/courses/${encodeURIComponent(form._id)}` : `/instructor/courses/public/${encodeURIComponent(form._id)}`, {
             method: "PATCH",
             body: JSON.stringify(payload)
           })
@@ -287,7 +304,7 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
     }
     refreshCourses();
     setForm(emptyForm);
-    setMessage(serverSynced ? `${course.title} saved locally and on server.` : `${course.title} saved locally. Server sync skipped: ${syncError}`);
+    setMessage(serverSynced ? `${course.title} saved globally on the live website.` : `${course.title} saved locally. Server sync skipped: ${syncError}`);
   };
 
   const editCourse = (course) => {
@@ -469,8 +486,9 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
     });
     upsertLocalCourse(nextCourse);
     try {
-      if (isMongoObjectId(course._id)) {
-        await apiFetch(`/instructor/courses/${encodeURIComponent(course._id)}`, {
+      if (course._id || course.id) {
+        const courseKey = course._id || course.id;
+        await apiFetch(isMongoObjectId(courseKey) ? `/instructor/courses/${encodeURIComponent(courseKey)}` : `/instructor/courses/public/${encodeURIComponent(courseKey)}`, {
           method: "PATCH",
           body: JSON.stringify({ featured: nextFeatured })
         });
@@ -575,8 +593,46 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
             <Field label="Price"><Input type="number" min="0" value={form.price} onChange={(e) => updateForm("price", e.target.value)} placeholder="999" /></Field>
             <Field label="Offer Price"><Input type="number" min="0" value={form.offerPrice} onChange={(e) => updateForm("offerPrice", e.target.value)} placeholder="799" /></Field>
           </div>
-          <Field label="Image URL"><Input value={form.thumbnail} onChange={(e) => updateForm("thumbnail", e.target.value)} placeholder="/course.jpg or https://..." /></Field>
+          <div className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-4">
+            <Field label="Batch Banner URL">
+              <Input value={form.thumbnail} onChange={(e) => updateForm("thumbnail", e.target.value)} placeholder="/course.jpg or https://..." />
+            </Field>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => updateForm("thumbnail", "/railway-batch-banner-new.webp")}
+                className="rounded-lg border border-cyan-300/40 px-3 py-2 text-xs font-semibold text-cyan-100 hover:bg-cyan-400/15"
+              >
+                Use Railway Banner
+              </button>
+              <button
+                type="button"
+                onClick={() => updateForm("thumbnail", "/new-batch-starts-2026.webp")}
+                className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
+              >
+                Use Default Banner
+              </button>
+            </div>
+            {form.thumbnail ? (
+              <img src={form.thumbnail} alt="Batch banner preview" className="mt-3 aspect-video w-full rounded-xl border border-white/10 object-cover" />
+            ) : null}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Field label="Batch Timing"><Input value={form.batchTime} onChange={(e) => updateForm("batchTime", e.target.value)} placeholder="07:00 AM - 08:30 AM" /></Field>
+            <Field label="Start Date"><Input value={form.startDate} onChange={(e) => updateForm("startDate", e.target.value)} placeholder="15 July 2026" /></Field>
+            <Field label="Duration"><Input value={form.duration} onChange={(e) => updateForm("duration", e.target.value)} placeholder="12 Months" /></Field>
+          </div>
           <Field label="Description"><Textarea value={form.description} onChange={(e) => updateForm("description", e.target.value)} placeholder="Course summary" /></Field>
+          <div className="rounded-2xl border border-orange-300/20 bg-orange-500/10 p-4">
+            <div className="grid gap-3">
+              <Field label="Batch Notification Title">
+                <Input value={form.notificationTitle} onChange={(e) => updateForm("notificationTitle", e.target.value)} placeholder="Railway batch live from Monday" />
+              </Field>
+              <Field label="Batch Notification Message">
+                <Textarea value={form.notificationMessage} onChange={(e) => updateForm("notificationMessage", e.target.value)} placeholder="Timing, PDF update, live class notice, or seat alert for this batch" />
+              </Field>
+            </div>
+          </div>
           <label className="flex items-center justify-between gap-3 rounded-2xl border border-red-300/20 bg-red-500/10 p-4 text-sm text-red-100">
             <span>
               <span className="block font-semibold text-white">Show Live Class</span>
@@ -613,9 +669,21 @@ export default function LocalCourseManager({ onCoursesChange, publicCourses = []
           <Field label="Video Sources">
             <Textarea value={form.videoSourcesText} onChange={(e) => updateForm("videoSourcesText", e.target.value)} placeholder={"720p | https://video-url\n360p | https://video-url"} />
           </Field>
-          <Field label="PDF Resources">
-            <Textarea value={form.pdfResourcesText} onChange={(e) => updateForm("pdfResourcesText", e.target.value)} placeholder={"Class Notes | https://pdf-url\nPractice Sheet | https://pdf-url"} />
+          <Field label="Class PDFs (Batch-wise)">
+            <Textarea value={form.pdfResourcesText} onChange={(e) => updateForm("pdfResourcesText", e.target.value)} placeholder={"Maths Class 01 Notes | https://pdf-url\nReasoning Practice Sheet | https://pdf-url"} />
           </Field>
+          <button
+            type="button"
+            onClick={() =>
+              updateForm(
+                "pdfResourcesText",
+                `${form.pdfResourcesText ? `${form.pdfResourcesText}\n` : ""}New Class PDF | https://`
+              )
+            }
+            className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-400/15"
+          >
+            Add Class PDF
+          </button>
           <Field label="Class Sections">
             <Textarea value={form.classSectionsText} onChange={(e) => updateForm("classSectionsText", e.target.value)} placeholder={"Advance | Algebra Class 1 | 7 PM | https://class-url | Open Class\nArithmetic | Percentage PDF | Sheet | https://pdf-url | Open PDF"} />
           </Field>

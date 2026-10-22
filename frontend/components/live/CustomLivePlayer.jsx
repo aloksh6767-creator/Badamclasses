@@ -121,16 +121,16 @@ export default function CustomLivePlayer({ sourceUrl = "", streamType = "hls", t
       />
 
       {!ready || error ? (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/55 p-6 text-center">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/55 p-3 text-center sm:p-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">{usesHls ? "HLS Live Stream" : "MP4 Video"}</p>
-            <h3 className="mt-3 font-display text-2xl text-white">{error || "Player ready ho raha hai"}</h3>
-            <p className="mt-2 text-sm text-slate-300">{title}</p>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-cyan-200 sm:text-xs sm:tracking-[0.24em]">{usesHls ? "HLS Live Stream" : "MP4 Video"}</p>
+            <h3 className="mt-2 font-display text-lg leading-tight text-white sm:mt-3 sm:text-2xl">{error || "Player ready ho raha hai"}</h3>
+            <p className="mt-1 line-clamp-2 text-xs text-slate-300 sm:mt-2 sm:text-sm">{title}</p>
           </div>
         </div>
       ) : null}
 
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent px-4 pb-4 pt-12">
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent px-2 pb-2 pt-8 sm:px-4 sm:pb-4 sm:pt-12">
         <input
           type="range"
           min="0"
@@ -141,11 +141,11 @@ export default function CustomLivePlayer({ sourceUrl = "", streamType = "hls", t
           className="h-1 w-full accent-cyan-300 disabled:opacity-70"
           aria-label="Video progress"
         />
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-white">
-          <button type="button" onClick={togglePlay} className="rounded-lg border border-white/25 px-3 py-2 text-sm font-semibold hover:bg-white/10">
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-white sm:mt-3 sm:gap-3">
+          <button type="button" onClick={togglePlay} className="min-h-11 rounded-lg border border-white/25 px-3 py-2 text-xs font-semibold hover:bg-white/10 sm:text-sm">
             {playing ? "Pause" : "Play"}
           </button>
-          <button type="button" onClick={() => setMuted((value) => !value)} className="rounded-lg border border-white/25 px-3 py-2 text-sm font-semibold hover:bg-white/10">
+          <button type="button" onClick={() => setMuted((value) => !value)} className="min-h-11 rounded-lg border border-white/25 px-3 py-2 text-xs font-semibold hover:bg-white/10 sm:text-sm">
             {muted ? "Unmute" : "Mute"}
           </button>
           <input
@@ -158,13 +158,13 @@ export default function CustomLivePlayer({ sourceUrl = "", streamType = "hls", t
               setMuted(false);
               setVolume(Number(event.target.value || 0));
             }}
-            className="w-24 accent-cyan-300"
+            className="hidden w-24 accent-cyan-300 sm:block"
             aria-label="Volume"
           />
           <span className="text-xs text-slate-300">
             {isLiveDuration ? "LIVE" : `${formatTime(currentTime)} / ${formatTime(duration)}`}
           </span>
-          <button type="button" onClick={toggleFullscreen} className="ml-auto rounded-lg border border-white/25 px-3 py-2 text-sm font-semibold hover:bg-white/10">
+          <button type="button" onClick={toggleFullscreen} className="ml-auto min-h-11 rounded-lg border border-white/25 px-3 py-2 text-xs font-semibold hover:bg-white/10 sm:text-sm">
             Fullscreen
           </button>
         </div>

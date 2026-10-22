@@ -1,3 +1,9 @@
+export const metadata = {
+  title: "Terms and Conditions",
+  description: "Terms governing Badam Classes accounts, course access, and learning content.",
+  alternates: { canonical: "/terms" }
+};
+
 export default function TermsPage() {
   return (
     <main className="mx-auto w-[92%] max-w-5xl py-10 text-slate-100">

@@ -63,6 +63,7 @@ const readLocalNotice = () => {
 
 const normalizeAnnouncement = (notice, fallback = DEFAULT_ANNOUNCEMENT) => {
   if (!notice || typeof notice !== "object") return null;
+  if (notice.enabled === false) return null;
   const title = String(notice.title || fallback.title || "").trim();
   const message = String(notice.message || notice.text || fallback.message || "").trim();
   if (!title && !message) return null;
@@ -80,6 +81,9 @@ const normalizeAnnouncement = (notice, fallback = DEFAULT_ANNOUNCEMENT) => {
 
 const getRemoteAnnouncements = (content = {}) => {
   const items = [];
+  if (content.notice?.enabled === false) {
+    items.push({ disabled: true });
+  }
   const notice = normalizeAnnouncement(content.notice);
   if (notice) items.push(notice);
 
@@ -152,8 +156,10 @@ export default function AnnouncementTicker() {
   }, []);
 
   const announcements = useMemo(() => {
+    if (localNotice?.enabled === false || remoteAnnouncements.some((item) => item?.disabled)) return [];
     const local = normalizeAnnouncement(localNotice);
-    const merged = [...remoteAnnouncements, ...(local ? [local] : []), ...BUILT_IN_ANNOUNCEMENTS]
+    const managed = [...remoteAnnouncements, ...(local ? [local] : [])];
+    const merged = [...managed, ...(managed.length ? [] : BUILT_IN_ANNOUNCEMENTS)]
       .filter(Boolean)
       .filter((item, index, items) => {
         const key = `${item.title}::${item.message}`.toLowerCase();
@@ -174,7 +180,8 @@ export default function AnnouncementTicker() {
     return () => window.clearInterval(timer);
   }, [announcements.length]);
 
-  const announcement = announcements[activeIndex] || announcements[0] || DEFAULT_ANNOUNCEMENT;
+  const announcement = announcements[activeIndex] || announcements[0];
+  if (!announcement) return null;
   const text = [announcement.title, announcement.message].filter(Boolean).join(" - ");
 
   if (!text.trim()) {
@@ -188,7 +195,6 @@ export default function AnnouncementTicker() {
       <div className="announcement-ticker-track" tabIndex={0}>
         <div className="announcement-ticker-copy">
           <span>{text}</span>
-          <span aria-hidden="true">{text}</span>
         </div>
       </div>
       {announcement.link ? (
