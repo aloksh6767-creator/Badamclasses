@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import PdfViewer from "@/components/PdfViewer";
+import { resolvePdfAssetUrl } from "@/lib/pdfAssetUrl";
 import SecureYouTubePlayer from "@/components/live/SecureYouTubePlayer";
 import { apiFetch } from "@/lib/api";
 import { getCourseFallbackImage, resolveCourseImage } from "@/lib/courseImages";
@@ -1196,7 +1197,7 @@ export default function CourseDetailsPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <a
-                  href={selectedPdf.url}
+                  href={resolvePdfAssetUrl(selectedPdf.url)}
                   target="_blank"
                   rel="noreferrer"
                   className="rounded-xl border border-orange-300/40 bg-orange-500/10 px-4 py-2 text-sm font-semibold text-orange-100 transition hover:bg-orange-500/20"

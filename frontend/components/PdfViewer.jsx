@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getApiUrl } from "@/lib/api";
+import { resolvePdfAssetUrl } from "@/lib/pdfAssetUrl";
 
 const PDFJS_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
 const PDFJS_WORKER_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
@@ -47,8 +48,11 @@ export default function PdfViewer({ sourceUrl, title = "PDF Document" }) {
   const [error, setError] = useState("");
 
   const viewerUrl = useMemo(() => {
-    const raw = String(sourceUrl || "").trim();
+    const raw = resolvePdfAssetUrl(sourceUrl);
     if (!raw) return "";
+    if (raw.startsWith("https://media.githubusercontent.com/media/aloksh6767-creator/Badamclasses/")) {
+      return raw;
+    }
     return getApiUrl(`/pdfs/proxy?url=${encodeURIComponent(raw)}`);
   }, [sourceUrl]);
 

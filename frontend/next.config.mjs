@@ -3,6 +3,16 @@ import { getNextDistDirForConfig } from "./scripts/next-dist-dir.mjs";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   distDir: getNextDistDirForConfig(),
+  async redirects() {
+    return [
+      {
+        source: "/mock-pdfs/ssc-maths-chapterwise-6500-pyqs-3rd-edition-english.pdf",
+        destination:
+          "https://media.githubusercontent.com/media/aloksh6767-creator/Badamclasses/01b60f1370f4d1ce8dbf7fd13abcbe78ad5c977b/frontend/public/mock-pdfs/ssc-maths-chapterwise-6500-pyqs-3rd-edition-english.pdf",
+        permanent: false
+      }
+    ];
+  },
   async headers() {
     return [
       {
