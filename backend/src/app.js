@@ -16,6 +16,7 @@ import automationRoutes from "./routes/automationRoutes.js";
 import pdfRoutes from "./routes/pdfRoutes.js";
 import liveStatusRoutes from "./routes/liveStatusRoutes.js";
 import liveChatRoutes from "./routes/liveChatRoutes.js";
+import testRankRoutes from "./routes/testRankRoutes.js";
 import securityHeaders from "./middleware/securityHeaders.js";
 import { notifyErrorAlert } from "./utils/alertNotifier.js";
 import { getDatabaseStatus, isMongoEnvConfigured } from "./config/db.js";
@@ -44,7 +45,8 @@ const localAllowedOrigins = [
 // this explicit rather than allowing arbitrary Vercel preview origins.
 const productionAllowedOrigins = [
   "https://badamclasses-frontend.vercel.app",
-  "https://frontend-sigma-ashen-91.vercel.app"
+  "https://frontend-sigma-ashen-91.vercel.app",
+  "https://badamtestranker.vercel.app"
 ];
 
 const envOrigins = String(process.env.FRONTEND_URL || "")
@@ -107,6 +109,7 @@ app.use("/api/automation", automationRoutes);
 app.use("/api/pdfs", pdfRoutes);
 app.use("/api/live-status", liveStatusRoutes);
 app.use("/api/live-chat", liveChatRoutes);
+app.use("/api/test-rank", testRankRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);

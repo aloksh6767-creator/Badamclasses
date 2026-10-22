@@ -13,7 +13,8 @@ const defaultState = {
   offlineTests: [],
   inquiries: [],
   liveChatMessages: [],
-  onlineMcqSets: []
+  onlineMcqSets: [],
+  testAttempts: []
 };
 
 const ensureStorage = () => {
@@ -38,7 +39,8 @@ const readState = () => {
       offlineTests: Array.isArray(parsed.offlineTests) ? parsed.offlineTests : [],
       inquiries: Array.isArray(parsed.inquiries) ? parsed.inquiries : [],
       liveChatMessages: Array.isArray(parsed.liveChatMessages) ? parsed.liveChatMessages : [],
-      onlineMcqSets: Array.isArray(parsed.onlineMcqSets) ? parsed.onlineMcqSets : []
+      onlineMcqSets: Array.isArray(parsed.onlineMcqSets) ? parsed.onlineMcqSets : [],
+      testAttempts: Array.isArray(parsed.testAttempts) ? parsed.testAttempts : []
     };
   } catch {
     return { ...defaultState };
@@ -422,6 +424,10 @@ export const createLocalOnlineMcqSet = (payload) => {
     source: payload.source || "telegram",
     status: payload.status || "published",
     questions: Array.isArray(payload.questions) ? payload.questions : [],
+    durationMinutes: Number(payload.durationMinutes || 30),
+    marksPerQuestion: Number(payload.marksPerQuestion ?? 1),
+    negativeMarks: Number(payload.negativeMarks ?? 0),
+    allowReview: payload.allowReview !== false,
     createdBy: payload.createdBy || "telegram-admin",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -430,4 +436,32 @@ export const createLocalOnlineMcqSet = (payload) => {
   state.onlineMcqSets.unshift(record);
   writeState(state);
   return clone(record);
+};
+
+export const createLocalTestAttempt = (payload) => {
+  const state = readState();
+  const record = { _id: payload._id || createLocalId("attempt"), ...payload, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  state.testAttempts = Array.isArray(state.testAttempts) ? state.testAttempts : [];
+  state.testAttempts.unshift(record);
+  writeState(state);
+  return clone(record);
+};
+
+export const findLocalTestAttempt = (id) => {
+  const item = readState().testAttempts.find((attempt) => String(attempt._id) === String(id));
+  return item ? clone(item) : null;
+};
+
+export const listLocalTestAttempts = (filters = {}) => {
+  const items = readState().testAttempts.filter((attempt) => Object.entries(filters).every(([key, value]) => String(attempt[key]) === String(value)));
+  return clone(items);
+};
+
+export const updateLocalTestAttempt = (id, patch) => {
+  const state = readState();
+  const index = state.testAttempts.findIndex((attempt) => String(attempt._id) === String(id));
+  if (index < 0) return null;
+  state.testAttempts[index] = { ...state.testAttempts[index], ...patch, updatedAt: new Date().toISOString() };
+  writeState(state);
+  return clone(state.testAttempts[index]);
 };

@@ -54,6 +54,10 @@ export const validateMcqSetPayload = (payload = {}) => {
     source: clamp(payload.source || "telegram", 40),
     status: payload.status === "draft" ? "draft" : "published",
     questions: questions.slice(0, 50),
+    durationMinutes: Math.min(240, Math.max(1, Number(payload.durationMinutes) || 30)),
+    marksPerQuestion: Math.max(0, Number(payload.marksPerQuestion ?? 1) || 0),
+    negativeMarks: Math.max(0, Number(payload.negativeMarks) || 0),
+    allowReview: payload.allowReview !== false,
     createdBy: clamp(payload.createdBy || "telegram-admin", 80)
   };
 };
