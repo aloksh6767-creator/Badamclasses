@@ -1,16 +1,6 @@
 {
   "redirects": [
     {
-      "source": "/test-rank",
-      "destination": "https://badamtestranker.vercel.app/test-rank",
-      "permanent": false
-    },
-    {
-      "source": "/test-rank/:path*",
-      "destination": "https://badamtestranker.vercel.app/test-rank/:path*",
-      "permanent": false
-    },
-    {
       "source": "/(.*)",
       "has": [
         {
