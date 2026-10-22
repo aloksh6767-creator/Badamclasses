@@ -42,6 +42,7 @@ const normalizeTest = (item, sourceLabel) => {
         ? "Full-Length Tests" : "Practice Sets";
   return {
     id, title: item.title || "Practice set", exam, questionCount,
+    examSearchText: [item.examName, item.exam, item.category, item.source, item.sourcePdf, item.title].filter(Boolean).join(" "),
     duration: item.duration || (item.durationMinutes ? `${item.durationMinutes} min` : "—"), marks: item.marks || "—", difficulty: item.difficulty || "Mixed",
     language: item.language || "Hindi + English", access, type: item.testRankType || testType, source: sourceLabel,
     subject: item.subject || item.groupLabel || "", status: item.status || "Available",
@@ -71,9 +72,10 @@ const buildChapterTests = (pdfTests = []) => {
 };
 const matchesExam = (item, selected) => {
   if (selected === "All exams") return true;
-  const text = `${item.exam} ${item.title}`.toLowerCase();
-  if (examTerms[selected]) return examTerms[selected].some((term) => text.includes(term));
-  return text.includes(selected.toLowerCase());
+  const text = ` ${`${item.examSearchText || ""} ${item.exam} ${item.title}`.toLowerCase().replace(/[_-]+/g, " ").replace(/[^\p{L}\p{N}]+/gu, " ").trim()} `;
+  const matchesTerm = (term) => text.includes(` ${term.toLowerCase()} `);
+  if (examTerms[selected]) return examTerms[selected].some(matchesTerm);
+  return matchesTerm(selected);
 };
 
 const mainLinks = [
@@ -156,7 +158,6 @@ export default function TestRankPage() {
   const [selectedFormat, setSelectedFormat] = useState("");
   const [directExamView, setDirectExamView] = useState(false);
   const chooseExam = (value) => { setExam(value); setSubExam(""); setDirectExamView(false); };
-  const toggleExamPanel = (value) => { setExpandedExam((current) => current === value ? "" : value); setShowLibrary(true); };
   const openCategoryMocks = (category, selectedSubExam = "") => {
     setExam(category);
     setSubExam(selectedSubExam);
@@ -166,19 +167,17 @@ export default function TestRankPage() {
     setDifficulty("All levels");
     setLanguage("All languages");
     setSearch("");
-    // Keep category results in the single library below the format cards. The
-    // expandable preview inside each category card caused a second list in a
-    // different layout context and made the page appear to overlap.
-    setExpandedExam("");
+    // Keep the selected exam's results inside its category card so the page
+    // expands in place instead of opening a second library elsewhere.
+    const selectedPanel = selectedSubExam || category;
+    setExpandedExam(selectedPanel);
     setSelectedFormat("");
-    setDirectExamView(true);
-    setShowLibrary(true);
+    setDirectExamView(false);
+    setShowLibrary(false);
     setPageSize(12);
     const params = new URLSearchParams({ exam: category });
     if (selectedSubExam) params.set("subExam", selectedSubExam);
-    window.history.pushState(null, "", `/test-rank?${params.toString()}#test-library`);
-    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-    window.setTimeout(() => document.getElementById("test-library")?.scrollIntoView({ block: "start", behavior }), 0);
+    window.history.pushState(null, "", `/test-rank?${params.toString()}#popular-exams`);
   };
   const selectFormat = (format) => {
     setSelectedFormat((current) => current === format ? "" : format);
@@ -238,14 +237,17 @@ export default function TestRankPage() {
       const requestedMode = params.get("mode");
       const requestedTab = params.get("tab");
       const requestedSubExam = params.get("subExam");
+      const matchedCategory = mockExamCategories.find((category) => category.exam === requestedExam || category.subExams?.some((item) => item.name === requestedSubExam));
       const validExam = requestedExam && (requestedExam === "All exams" || mockExamCategories.some((category) => category.exam === requestedExam));
-      setExam(validExam ? requestedExam : "All exams");
-      setSubExam(requestedSubExam || "");
-      setDirectExamView(Boolean(requestedExam || requestedSubExam));
+      const inlineCategoryView = window.location.hash === "#popular-exams" && Boolean(matchedCategory);
+      setExam(inlineCategoryView ? matchedCategory.exam : validExam ? requestedExam : "All exams");
+      setSubExam(inlineCategoryView ? requestedSubExam || "" : requestedSubExam || "");
+      setExpandedExam(inlineCategoryView ? requestedSubExam || matchedCategory.exam : "");
+      setDirectExamView(Boolean((requestedExam || requestedSubExam) && !inlineCategoryView));
       setMockMode(mockModes.some((mode) => mode.id === requestedMode) ? requestedMode : "all");
       setTab(tabs.includes(requestedTab) ? requestedTab : "All Tests");
-      setShowLibrary(Boolean(requestedExam || requestedMode || requestedTab || requestedSubExam));
-      if (requestedExam || requestedMode || requestedTab || requestedSubExam) {
+      setShowLibrary(!inlineCategoryView && Boolean(requestedExam || requestedMode || requestedTab || requestedSubExam));
+      if (!inlineCategoryView && (requestedExam || requestedMode || requestedTab || requestedSubExam)) {
         window.setTimeout(() => document.getElementById("test-library")?.scrollIntoView({ block: "start", behavior: "smooth" }), 100);
       }
     };
@@ -280,7 +282,7 @@ export default function TestRankPage() {
       || (mockMode === "super" && /super[\s-]*set/i.test(modeText))
       || (mockMode === "calci" && /ultra\s*calci|calculat|arithmetic drill/i.test(modeText));
     return matchesTab && matchesMode && matchesExam(item, exam)
-      && (!subExam || modeText.includes(subExam.toLowerCase()))
+      && (!subExam || matchesExam(item, subExam))
       && (subject === "All subjects" || item.subject === subject)
       && (difficulty === "All levels" || item.difficulty === difficulty)
       && (language === "All languages" || item.language.includes(language))
@@ -434,7 +436,7 @@ export default function TestRankPage() {
             <aside className="grid content-start gap-4"><section className="rounded-xl border border-sky-400/20 bg-[#041326] p-4"><div className="flex items-center justify-between"><h2 className="font-bold text-white">Upcoming Tests</h2><a href="#all-tests" className="text-xs text-sky-300">View all →</a></div><div className="mt-3 rounded-lg border border-white/10 bg-white/[.025] p-4 text-center"><p className="text-sm font-medium text-slate-200">No scheduled tests available</p><p className="mt-1 text-xs text-slate-500">Published practice sets appear in All Mock Tests.</p></div></section><section id="my-performance" className="rounded-xl border border-sky-400/20 bg-[#041326] p-4"><div className="flex items-center justify-between"><h2 className="font-bold text-white">Performance Overview</h2><span className="text-[10px] text-slate-500">Verified submissions</span></div>{history.length ? <><div className="mt-5 flex h-32 items-end gap-2 border-b border-l border-white/10 px-2">{history.slice(-8).map((item, index) => <div key={item.id || index} className="flex-1 rounded-t bg-gradient-to-t from-blue-700 to-cyan-400" style={{ height: `${Math.max(8, Math.min(100, Number(item.percent) || 0))}%` }} title={`${item.percent}% accuracy`} />)}</div><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4"><SmallStat label="Attempts" value={history.length} /><SmallStat label="Average accuracy" value={`${average}%`} /><SmallStat label="Best score" value={`${best}%`} /><SmallStat label="Avg seconds / question" value={`${averageTimePerQuestion ?? "—"}s`} /></div></> : <div className="mt-4 rounded-lg border border-dashed border-white/10 p-5 text-center"><p className="text-sm text-slate-300">Your verified performance appears here</p><p className="mt-1 text-xs text-slate-500">Complete a published online test while logged in.</p></div>}</section><section className="rounded-xl border border-amber-300/20 bg-[linear-gradient(115deg,#211a0a,#11192b_65%,#0b2343)] p-5"><p className="text-xs font-bold uppercase tracking-wide text-amber-300">♛ Badam Classes</p><h2 className="mt-2 text-xl font-bold text-white">Build your exam plan</h2><p className="mt-2 text-xs leading-5 text-slate-300">Explore structured lessons, practice materials and live classes.</p><Link href="/courses" className="mt-4 inline-flex rounded-lg bg-amber-400 px-4 py-2 text-xs font-bold text-slate-950">Explore Courses →</Link></section></aside>
           </div> : null}
           </section>
-          <section className="mt-7"><div className="mb-3 flex flex-wrap items-end justify-between gap-2"><div><p className="text-[10px] font-bold uppercase tracking-[.18em] text-sky-300">Learning center</p><h2 className="mt-1 text-xl font-bold tracking-tight text-white">Popular Exam Categories</h2></div><a href="#all-tests" className="text-xs font-semibold text-sky-300 hover:text-white">View all mock tests →</a></div><div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">{mockExamCategories.map((group) => { const groupExpanded = expandedExam === group.exam; const selectedSubExam = group.subExams?.some((item) => item.name === expandedExam); const panelOpen = groupExpanded || selectedSubExam; const inlineTests = panelOpen ? tests.filter((item) => matchesExam(item, expandedExam)).slice(0, 5) : []; return <article key={group.exam} className={`overflow-hidden rounded-2xl border bg-[linear-gradient(145deg,#0c1c3b,#07142a)] p-3 shadow-[0_16px_38px_rgba(0,0,0,.16)] transition sm:p-5 ${panelOpen ? "border-cyan-300/45 shadow-[0_20px_50px_rgba(8,145,178,.12)]" : "border-white/[.1] hover:-translate-y-0.5 hover:border-blue-300/35"}`}>{group.logoImage ? <button type="button" aria-label={`Open ${group.exam} mock tests`} onClick={() => openCategoryMocks(group.exam)} className="mb-3 flex h-16 w-full items-center justify-center overflow-hidden rounded-xl border border-blue-200/10 bg-[radial-gradient(ellipse_at_center,rgba(30,86,160,.22),rgba(5,18,38,.4))] p-2 sm:mb-4 sm:h-24"><Image src={group.logoImage} alt={group.logoAlt || `${group.exam} mock tests`} width={480} height={260} className="h-full w-auto max-w-full rounded-lg bg-white object-contain px-2" /></button> : null}<div className="flex items-center justify-between gap-3"><button type="button" aria-label={`Open ${group.exam} mock tests`} onClick={() => openCategoryMocks(group.exam)} className="flex min-w-0 items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-orange-300/25 bg-orange-500/10 text-orange-100"><Icon name={categoryIconNames[group.exam] || "test"} className="h-5 w-5" /></span><span><span className="block text-[10px] font-bold uppercase tracking-[.2em] text-orange-300">{group.exam}</span><span className="mt-1 block text-2xl font-bold tracking-tight text-white">{group.totalTests} Tests</span></span></button><span className="shrink-0 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1.5 text-[10px] font-semibold text-cyan-100">{group.difficulty}</span></div><div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-300 sm:mt-4"><span className="rounded-lg border border-white/[.08] bg-white/[.04] px-3 py-2">Free: <b className="text-white">{group.freeTests}</b></span><span className="rounded-lg border border-white/[.08] bg-white/[.04] px-3 py-2">Paid: <b className="text-white">{group.paidTests}</b></span><span className="rounded-lg border border-white/[.08] bg-white/[.04] px-3 py-2">Avg: {group.duration}</span><span className="rounded-lg border border-white/[.08] bg-white/[.04] px-3 py-2">{group.pattern}</span></div><p className="mt-2 text-xs text-slate-400 sm:mt-3">{group.sections}</p><div className="mt-3 grid grid-cols-2 gap-1.5 sm:mt-4 sm:gap-2">{group.subExams?.map((subExam) => { const active = expandedExam === subExam.name; return <button key={subExam.name} type="button" aria-label={`Open ${subExam.name} mock tests`} onClick={() => openCategoryMocks(group.exam, subExam.name)} className={`flex min-w-0 items-center gap-2 rounded-lg border px-2 py-1.5 text-left text-[11px] font-semibold transition sm:px-2.5 sm:py-2 sm:text-xs ${active ? "border-cyan-300/45 bg-cyan-400/15 text-white" : "border-cyan-300/15 bg-cyan-400/[.07] text-cyan-50 hover:border-cyan-200/35 hover:bg-cyan-400/15"}`}><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-orange-300/20 sm:h-7 sm:w-7 bg-orange-500/10 text-orange-100"><Icon name={subExamIconName(subExam.name, group.exam)} className="h-4 w-4" /></span><span className="truncate">{subExam.name}</span></button>; })}</div>{panelOpen ? <div className="mt-4 rounded-xl border border-cyan-300/15 bg-[#06152a]/90 p-3"><div className="mb-2 flex items-center justify-between gap-2"><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-cyan-200">{expandedExam} Mocks</p><span className="text-[10px] text-slate-400">{loading ? "Loading…" : `${inlineTests.length}${inlineTests.length === 5 ? "+" : ""} shown`}</span></div>{inlineTests.length ? <div className="space-y-2">{inlineTests.map((item) => <div key={item.id} className="flex items-center justify-between gap-2 rounded-lg border border-white/[.07] bg-white/[.035] px-3 py-2"><div className="min-w-0"><p className="truncate text-xs font-semibold text-white">{item.title}</p><p className="mt-0.5 truncate text-[10px] text-slate-400">{item.exam} · {item.questionCount || "—"} questions · {item.duration}</p></div><Link href={item.href} className="shrink-0 rounded-md bg-cyan-400/15 px-2.5 py-1.5 text-[10px] font-bold text-cyan-100 transition hover:bg-cyan-300/25">Open</Link></div>)}</div> : <p className="rounded-lg bg-white/[.03] px-3 py-3 text-xs text-slate-400">{loading ? "Loading published mocks…" : `No published mocks found for ${expandedExam} yet.`}</p>}</div> : null}</article>; })}</div></section>
+          <section className="mt-7"><div className="mb-3 flex flex-wrap items-end justify-between gap-2"><div><p className="text-[10px] font-bold uppercase tracking-[.18em] text-sky-300">Learning center</p><h2 className="mt-1 text-xl font-bold tracking-tight text-white">Popular Exam Categories</h2></div><a href="#all-tests" className="text-xs font-semibold text-sky-300 hover:text-white">View all mock tests →</a></div><div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">{mockExamCategories.map((group) => { const groupExpanded = expandedExam === group.exam; const selectedSubExam = group.subExams?.some((item) => item.name === expandedExam); const panelOpen = groupExpanded || selectedSubExam; const inlineTests = panelOpen ? tests.filter((item) => matchesExam(item, expandedExam)) : []; return <article key={group.exam} className={`overflow-hidden rounded-2xl border bg-[linear-gradient(145deg,#0c1c3b,#07142a)] p-3 shadow-[0_16px_38px_rgba(0,0,0,.16)] transition sm:p-5 ${panelOpen ? "border-cyan-300/45 shadow-[0_20px_50px_rgba(8,145,178,.12)]" : "border-white/[.1] hover:-translate-y-0.5 hover:border-blue-300/35"}`}>{group.logoImage ? <button type="button" aria-label={`Open ${group.exam} mock tests`} aria-expanded={panelOpen} onClick={() => openCategoryMocks(group.exam)} className="mb-3 flex h-16 w-full items-center justify-center overflow-hidden rounded-xl border border-blue-200/10 bg-[radial-gradient(ellipse_at_center,rgba(30,86,160,.22),rgba(5,18,38,.4))] p-2 sm:mb-4 sm:h-24"><Image src={group.logoImage} alt={group.logoAlt || `${group.exam} mock tests`} width={480} height={260} className="h-full w-auto max-w-full rounded-lg bg-white object-contain px-2" /></button> : null}<div className="flex items-center justify-between gap-3"><button type="button" aria-label={`Open ${group.exam} mock tests`} aria-expanded={panelOpen} onClick={() => openCategoryMocks(group.exam)} className="flex min-w-0 items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-orange-300/25 bg-orange-500/10 text-orange-100"><Icon name={categoryIconNames[group.exam] || "test"} className="h-5 w-5" /></span><span><span className="block text-[10px] font-bold uppercase tracking-[.2em] text-orange-300">{group.exam}</span><span className="mt-1 block text-2xl font-bold tracking-tight text-white">{group.totalTests} Tests</span></span></button><span className="shrink-0 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1.5 text-[10px] font-semibold text-cyan-100">{group.difficulty}</span></div><div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-300 sm:mt-4"><span className="rounded-lg border border-white/[.08] bg-white/[.04] px-3 py-2">Free: <b className="text-white">{group.freeTests}</b></span><span className="rounded-lg border border-white/[.08] bg-white/[.04] px-3 py-2">Paid: <b className="text-white">{group.paidTests}</b></span><span className="rounded-lg border border-white/[.08] bg-white/[.04] px-3 py-2">Avg: {group.duration}</span><span className="rounded-lg border border-white/[.08] bg-white/[.04] px-3 py-2">{group.pattern}</span></div><p className="mt-2 text-xs text-slate-400 sm:mt-3">{group.sections}</p><div className="mt-3 grid grid-cols-2 gap-1.5 sm:mt-4 sm:gap-2">{group.subExams?.map((subExam) => { const active = expandedExam === subExam.name; return <button key={subExam.name} type="button" aria-label={`Open ${subExam.name} mock tests`} aria-expanded={active} onClick={() => openCategoryMocks(group.exam, subExam.name)} className={`flex min-w-0 items-center gap-2 rounded-lg border px-2 py-1.5 text-left text-[11px] font-semibold transition sm:px-2.5 sm:py-2 sm:text-xs ${active ? "border-cyan-300/45 bg-cyan-400/15 text-white" : "border-cyan-300/15 bg-cyan-400/[.07] text-cyan-50 hover:border-cyan-200/35 hover:bg-cyan-400/15"}`}><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-orange-300/20 sm:h-7 sm:w-7 bg-orange-500/10 text-orange-100"><Icon name={subExamIconName(subExam.name, group.exam)} className="h-4 w-4" /></span><span className="truncate">{subExam.name}</span></button>; })}</div>{panelOpen ? <div className="mt-4 rounded-xl border border-cyan-300/15 bg-[#06152a]/90 p-3"><div className="mb-2 flex items-center justify-between gap-2"><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-cyan-200">{expandedExam} Mocks</p><span className="text-[10px] text-slate-400">{loading ? "Loading…" : `${inlineTests.length} tests`}</span></div>{inlineTests.length ? <div className="max-h-80 space-y-2 overflow-y-auto pr-1">{inlineTests.map((item) => <div key={item.id} className="flex items-center justify-between gap-2 rounded-lg border border-white/[.07] bg-white/[.035] px-3 py-2"><div className="min-w-0"><p className="truncate text-xs font-semibold text-white">{item.title}</p><p className="mt-0.5 truncate text-[10px] text-slate-400">{item.exam} · {item.questionCount || "—"} questions · {item.duration}</p></div><Link href={item.href} className="shrink-0 rounded-md bg-cyan-400/15 px-2.5 py-1.5 text-[10px] font-bold text-cyan-100 transition hover:bg-cyan-300/25">Open</Link></div>)}</div> : <p className="rounded-lg bg-white/[.03] px-3 py-3 text-xs text-slate-400">{loading ? "Loading published mocks…" : `No published mocks found for ${expandedExam} yet.`}</p>}</div> : null}</article>; })}</div></section>
 
           <footer className="mt-8 border-t border-white/10 py-5 text-center text-xs text-slate-500">BADAM TESTRANK — Powered by Badam Classes</footer>
         </main>
