@@ -267,7 +267,7 @@ const homepageIconTabs = [
   },
   {
     label: "BadamTestRanker",
-    href: "/test-rank",
+    href: "https://badamtestranker.vercel.app",
     cardClass: "border-violet-300/24 bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.34),transparent_42%),linear-gradient(180deg,rgba(13,26,58,0.96),rgba(8,17,39,0.98))]",
     iconClass: "bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-[0_0_34px_rgba(124,58,237,0.38)]",
     glowClass: "bg-violet-300/16",
@@ -688,15 +688,16 @@ export default function HomePage() {
       ) : null}
 
       <div className="mb-5 flex justify-center sm:mb-6">
-        <div className="grid h-[82px] w-full max-w-[520px] grid-cols-2 rounded-full border border-violet-200/30 bg-[#070810] p-1.5 shadow-[0_8px_28px_rgba(5,8,25,.45),0_0_22px_rgba(91,33,182,.2)] ring-1 ring-white/[.04] sm:h-[76px]">
-          <Link href="/" aria-label="Open Badam Classes homepage" className="flex min-w-0 items-center justify-center gap-1.5 rounded-full border border-white/[.08] bg-gradient-to-b from-white/[.09] to-white/[.035] px-1.5 text-[clamp(12px,3.7vw,15px)] font-semibold tracking-tight text-slate-100 transition duration-200 hover:border-white/15 hover:from-white/[.13] hover:to-white/[.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 min-[360px]:gap-2.5 min-[360px]:px-2.5 sm:gap-3 sm:px-4 sm:text-base">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-100/[.09] text-slate-100 ring-1 ring-white/10 min-[360px]:h-9 min-[360px]:w-9 sm:h-10 sm:w-10">
+        <div className="relative isolate grid h-[82px] w-full max-w-[520px] grid-cols-2 rounded-full border border-violet-200/30 bg-[#070810] p-1.5 shadow-[0_8px_28px_rgba(5,8,25,.45),0_0_22px_rgba(91,33,182,.2)] ring-1 ring-white/[.04] sm:h-[76px]">
+          <span aria-hidden="true" className="nav-switch-indicator nav-switch-home absolute inset-y-1.5 left-1.5 z-0 w-[calc(50%-6px)] rounded-full bg-gradient-to-r from-violet-700 via-violet-600 to-indigo-600 shadow-[0_4px_18px_rgba(91,33,182,.5)]" />
+          <Link href="/" aria-label="Open Badam Classes homepage" aria-current="page" className="relative z-10 flex min-w-0 items-center justify-center gap-1.5 rounded-full px-1.5 text-[clamp(12px,3.7vw,15px)] font-bold tracking-tight text-white transition-colors duration-300 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 min-[360px]:gap-2.5 min-[360px]:px-2.5 sm:gap-3 sm:px-4 sm:text-base">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/[.14] text-white ring-1 ring-white/20 min-[360px]:h-9 min-[360px]:w-9 sm:h-10 sm:w-10">
               <svg viewBox="0 0 24 24" className="h-4 w-4 min-[360px]:h-[18px] min-[360px]:w-[18px] sm:h-5 sm:w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9M9 20v-7h6v7"/></svg>
             </span>
             <span className="whitespace-nowrap">Badam Classes</span>
           </Link>
-          <Link href="/test-rank" aria-label="Open BadamTestRanker" className="flex min-w-0 items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-violet-700 via-violet-600 to-indigo-600 px-1.5 text-[clamp(12px,3.7vw,15px)] font-bold tracking-tight text-white shadow-[0_4px_14px_rgba(91,33,182,.38)] transition duration-200 hover:brightness-110 hover:shadow-[0_5px_18px_rgba(91,33,182,.48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 min-[360px]:gap-2.5 min-[360px]:px-2.5 sm:gap-3 sm:px-3 sm:text-base">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/[.14] text-white ring-1 ring-white/20 min-[360px]:h-9 min-[360px]:w-9 sm:h-10 sm:w-10">
+          <Link href="https://badamtestranker.vercel.app" aria-label="Open BadamTestRanker" className="relative z-10 flex min-w-0 items-center justify-center gap-1.5 rounded-full px-1.5 text-[clamp(12px,3.7vw,15px)] font-semibold tracking-tight text-slate-300 transition-colors duration-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 min-[360px]:gap-2.5 min-[360px]:px-2.5 sm:gap-3 sm:px-3 sm:text-base">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-100/[.09] text-slate-100 ring-1 ring-white/10 min-[360px]:h-9 min-[360px]:w-9 sm:h-10 sm:w-10">
               <svg viewBox="0 0 24 24" className="h-4 w-4 min-[360px]:h-[18px] min-[360px]:w-[18px] sm:h-5 sm:w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h17"/><path d="m7 15 4-4 3 2 6-7"/><path d="M16 6h4v4"/></svg>
             </span>
             <span className="whitespace-nowrap">BadamTestRanker</span>

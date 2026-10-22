@@ -382,6 +382,39 @@ img, svg, video, canvas { max-width: 100%; }
   animation: fadeDown 0.28s ease-out;
 }
 
+@keyframes navSwitchFromRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes navSwitchToRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.nav-switch-indicator {
+  pointer-events: none;
+  animation-duration: 0.62s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+.nav-switch-home {
+  animation-name: navSwitchFromRight;
+}
+
+.nav-switch-rank {
+  animation-name: navSwitchToRight;
+}
+
 .success-group-transition {
   animation: successGroupIn 0.45s ease-out both;
 }
@@ -3517,6 +3550,7 @@ body.mock-test-active .pulse-glow {
 
 body.mock-test-active {
   overflow: hidden;
+  padding-bottom: 0;
 }
 
 /* Full-screen mock runner: clean government-exam style console. */
@@ -3524,6 +3558,8 @@ body.mock-test-active {
   --mock-blue: #2154d8;
   --mock-blue-dark: #183eaa;
   --mock-line: #d7dde8;
+  display: flex;
+  flex-direction: column;
   color: #111827;
   background: #ffffff;
 }
@@ -3652,6 +3688,22 @@ body.mock-test-active {
 @media (max-width: 1279px) {
   .mock-exam-console {
     height: 100dvh;
+    height: 100svh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .mock-exam-console > .mock-exam-toolbar + div.grid {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mock-exam-console > .mock-exam-toolbar + div.grid > section {
+    min-height: 100%;
   }
 
   .mock-exam-console .mock-question-palette {
@@ -3689,9 +3741,23 @@ body.mock-test-active {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .mock-exam-console .mock-exam-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mock-exam-console .mock-primary-actions {
+    width: 100%;
+    max-width: 100%;
+    min-height: 44px;
+    padding-bottom: 0.25rem;
+    scroll-snap-type: x proximity;
+  }
+
   .mock-exam-console .mock-exam-toolbar button {
     min-width: 72px;
     padding-inline: 0.55rem;
+    min-height: 44px;
   }
 
   .mock-exam-console > div.grid > section > div:last-child {
@@ -3705,5 +3771,9 @@ body.mock-test-active {
     flex-wrap: nowrap;
     justify-content: flex-start;
     width: max-content;
+  }
+
+  .mock-exam-console > div.grid > section article {
+    min-height: 16rem;
   }
 }
