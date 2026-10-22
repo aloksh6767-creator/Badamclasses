@@ -19,7 +19,7 @@ const practiceFormats = [
   { id: "sectional", title: "Sectional Tests", detail: "Build confidence one subject at a time.", icon: "layers", badge: "BY SUBJECT", tone: "cyan" },
   { id: "topic", title: "Topic Boost", detail: "Strengthen specific chapters with step-by-step practice.", icon: "book", badge: "TOPIC WISE", tone: "rose" }
 ];
-const examTerms = { Railway: ["railway", "rrb", "ntpc", "alp", "technician"], SSC: ["ssc", "cgl", "mts", "chsl", "cpo", "steno"], Banking: ["bank", "ibps", "sbi", "rbi", "po", "clerk"], Police: ["police", "constable", "rpf"], Teaching: ["teaching", "tet", "ctet", "uptet"], "State Exams": ["state", "psc", "up exams", "mp exams", "bihar"] };
+const examTerms = { Railway: ["railway", "rrb", "ntpc", "alp", "technician", "rpf", "railway je", "rrb je"], SSC: ["ssc", "cgl", "mts", "chsl", "cpo", "steno"], Banking: ["bank", "ibps", "sbi", "rbi", "po", "clerk"], Police: ["police", "constable", "rpf"], Teaching: ["teaching", "tet", "ctet", "uptet"], "State Exams": ["state", "psc", "up exams", "mp exams", "bihar"] };
 const buildPracticeHref = (exam, testId, subject, topic, chapter) => {
   const params = new URLSearchParams();
   if (exam) params.set("exam", exam);
@@ -166,11 +166,19 @@ export default function TestRankPage() {
     setDifficulty("All levels");
     setLanguage("All languages");
     setSearch("");
-    setExpandedExam(selectedSubExam || category);
+    // Keep category results in the single library below the format cards. The
+    // expandable preview inside each category card caused a second list in a
+    // different layout context and made the page appear to overlap.
+    setExpandedExam("");
     setSelectedFormat("");
-    setDirectExamView(false);
-    setShowLibrary(false);
+    setDirectExamView(true);
+    setShowLibrary(true);
     setPageSize(12);
+    const params = new URLSearchParams({ exam: category });
+    if (selectedSubExam) params.set("subExam", selectedSubExam);
+    window.history.pushState(null, "", `/test-rank?${params.toString()}#test-library`);
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    window.setTimeout(() => document.getElementById("test-library")?.scrollIntoView({ block: "start", behavior }), 0);
   };
   const selectFormat = (format) => {
     setSelectedFormat((current) => current === format ? "" : format);
@@ -224,18 +232,25 @@ export default function TestRankPage() {
   };
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const requestedExam = params.get("exam");
-    const requestedMode = params.get("mode");
-    const requestedTab = params.get("tab");
-    const requestedSubExam = params.get("subExam");
-    if (requestedExam && (requestedExam === "All exams" || mockExamCategories.some((category) => category.exam === requestedExam))) setExam(requestedExam);
-    if (requestedExam || requestedSubExam) setDirectExamView(true);
-    if (mockModes.some((mode) => mode.id === requestedMode)) setMockMode(requestedMode);
-    if (tabs.includes(requestedTab)) setTab(requestedTab);
-    if (requestedSubExam) setSubExam(requestedSubExam);
-    if (requestedExam || requestedMode || requestedTab || requestedSubExam) setShowLibrary(true);
-    if (requestedExam || requestedMode || requestedTab) window.setTimeout(() => document.getElementById("all-tests")?.scrollIntoView({ block: "start", behavior: "smooth" }), 100);
+    const syncLocationState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const requestedExam = params.get("exam");
+      const requestedMode = params.get("mode");
+      const requestedTab = params.get("tab");
+      const requestedSubExam = params.get("subExam");
+      const validExam = requestedExam && (requestedExam === "All exams" || mockExamCategories.some((category) => category.exam === requestedExam));
+      setExam(validExam ? requestedExam : "All exams");
+      setSubExam(requestedSubExam || "");
+      setDirectExamView(Boolean(requestedExam || requestedSubExam));
+      setMockMode(mockModes.some((mode) => mode.id === requestedMode) ? requestedMode : "all");
+      setTab(tabs.includes(requestedTab) ? requestedTab : "All Tests");
+      setShowLibrary(Boolean(requestedExam || requestedMode || requestedTab || requestedSubExam));
+      if (requestedExam || requestedMode || requestedTab || requestedSubExam) {
+        window.setTimeout(() => document.getElementById("test-library")?.scrollIntoView({ block: "start", behavior: "smooth" }), 100);
+      }
+    };
+    syncLocationState();
+    window.addEventListener("popstate", syncLocationState);
     setStudent(getUser());
     if (getToken()) {
       apiFetch("/test-rank/attempts").then((data) => {
@@ -243,6 +258,7 @@ export default function TestRankPage() {
       }).catch(() => setHistory([])).finally(() => setHistoryLoading(false));
     } else { setHistory([]); setHistoryLoading(false); }
     loadTests();
+    return () => window.removeEventListener("popstate", syncLocationState);
   }, []);
 
   const subjects = useMemo(() => [...new Set(tests.map((item) => item.subject).filter(Boolean))].sort(), [tests]);
@@ -386,7 +402,7 @@ export default function TestRankPage() {
               </article>;
               })}
             </div>
-          {showLibrary ? <div className="mt-4 grid items-start gap-4 2xl:grid-cols-[minmax(0,1.45fr)_minmax(310px,.75fr)]">
+          {showLibrary ? <div id="test-library" className="mt-4 scroll-mt-24 grid items-start gap-4 2xl:grid-cols-[minmax(0,1.45fr)_minmax(310px,.75fr)]">
             <section className="min-w-0 rounded-xl border border-sky-400/20 bg-[#041326] p-4 sm:p-5">
               <div className="mb-5">
                 <div className="mb-3"><p className="text-[10px] font-bold uppercase tracking-[.2em] text-cyan-300">Choose your practice</p><h2 className="mt-1 text-lg font-bold text-white">Find the right test for you</h2></div>
@@ -406,9 +422,9 @@ export default function TestRankPage() {
                 </div>
               </div>
               <div className="mb-4 flex flex-wrap items-end justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[.2em] text-blue-300">Test library</p><h2 className="mt-1 font-display text-2xl font-bold tracking-tight text-white">{directExamView ? `${subExam || exam} Mock Tests` : "All Mock Tests"}</h2><p className="mt-1 text-xs text-slate-400">{loading ? "Loading published tests…" : `${filteredTests.length} tests and practice sets`}</p></div><div className="grid w-full gap-2 sm:w-auto sm:grid-cols-2"><FilterSelect label="Exam" value={exam} onChange={chooseExam} options={["All exams", ...exams]} /><FilterSelect label="Subject" value={subject} onChange={setSubject} options={["All subjects", ...subjects]} /><FilterSelect label="Difficulty" value={difficulty} onChange={setDifficulty} options={["All levels", ...new Set(tests.map((item) => item.difficulty))]} /><FilterSelect label="Language" value={language} onChange={setLanguage} options={["All languages", ...new Set(tests.map((item) => item.language))]} /></div></div>
-              {!directExamView ? <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-[#07152c] p-2 sm:grid-cols-3 xl:grid-cols-5">{mockModes.map((mode) => <button key={mode.id} type="button" onClick={() => { setMockMode(mode.id); setTab("All Tests"); }} aria-pressed={mockMode === mode.id} className={`flex min-h-11 items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold transition sm:text-sm ${mockMode === mode.id ? "border-orange-300/40 bg-orange-500/15 text-orange-100 shadow-lg shadow-orange-950/10" : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[.04]"}`}><Icon name={mode.icon} className="h-4 w-4 shrink-0" />{mode.label}</button>)}</div> : null}
-              {!directExamView && selectedCategory?.subExams?.length ? <div className="mb-4 flex gap-2 overflow-x-auto pb-2">{[{ name: `All ${exam}` }, ...selectedCategory.subExams].map((item) => { const active = item.name === `All ${exam}` ? !subExam : subExam === item.name; return <button key={item.name} type="button" onClick={() => setSubExam(item.name === `All ${exam}` ? "" : item.name)} aria-pressed={active} className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition ${active ? "border-cyan-300/40 bg-cyan-400/15 text-cyan-50" : "border-white/10 bg-white/[.03] text-slate-300 hover:border-cyan-300/25"}`}><Icon name={item.name === `All ${exam}` ? "grid" : subExamIconName(item.name, exam)} className="h-4 w-4 shrink-0" />{item.name}</button>; })}</div> : null}
-              {!directExamView && <div id="test-filters" className="mb-4 flex scroll-mt-24 gap-2 overflow-x-auto pb-2">{tabs.map((name) => <button key={name} onClick={() => setTab(name)} aria-pressed={tab === name} className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs font-semibold transition ${tab === name ? "border-blue-300/50 bg-blue-500/20 text-blue-100" : "border-white/10 bg-white/[.03] text-slate-300 hover:bg-white/[.08]"}`}>{name}</button>)}</div>}
+              <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-[#07152c] p-2 sm:grid-cols-3 xl:grid-cols-5">{mockModes.map((mode) => <button key={mode.id} type="button" onClick={() => { setMockMode(mode.id); setTab("All Tests"); }} aria-pressed={mockMode === mode.id} className={`flex min-h-11 items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold transition sm:text-sm ${mockMode === mode.id ? "border-orange-300/40 bg-orange-500/15 text-orange-100 shadow-lg shadow-orange-950/10" : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[.04]"}`}><Icon name={mode.icon} className="h-4 w-4 shrink-0" />{mode.label}</button>)}</div>
+              {selectedCategory?.subExams?.length ? <div className="mb-4 flex gap-2 overflow-x-auto pb-2">{[{ name: `All ${exam}` }, ...selectedCategory.subExams].map((item) => { const active = item.name === `All ${exam}` ? !subExam : subExam === item.name; return <button key={item.name} type="button" onClick={() => { const nextSubExam = item.name === `All ${exam}` ? "" : item.name; setSubExam(nextSubExam); const params = new URLSearchParams(window.location.search); params.set("exam", exam); if (nextSubExam) params.set("subExam", nextSubExam); else params.delete("subExam"); window.history.pushState(null, "", `/test-rank?${params.toString()}#test-library`); }} aria-pressed={active} className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition ${active ? "border-cyan-300/40 bg-cyan-400/15 text-cyan-50" : "border-white/10 bg-white/[.03] text-slate-300 hover:border-cyan-300/25"}`}><Icon name={item.name === `All ${exam}` ? "grid" : subExamIconName(item.name, exam)} className="h-4 w-4 shrink-0" />{item.name}</button>; })}</div> : null}
+              <div id="test-filters" className="mb-4 flex scroll-mt-24 gap-2 overflow-x-auto pb-2">{tabs.map((name) => <button key={name} onClick={() => setTab(name)} aria-pressed={tab === name} className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs font-semibold transition ${tab === name ? "border-blue-300/50 bg-blue-500/20 text-blue-100" : "border-white/10 bg-white/[.03] text-slate-300 hover:bg-white/[.08]"}`}>{name}</button>)}</div>
               {error && <div role="status" className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-300/20 bg-amber-500/10 p-4 text-sm text-amber-100"><span>{error}</span><button onClick={loadTests} className="rounded-lg border border-amber-200/30 px-3 py-2 font-semibold">Retry</button></div>}
               {loading ? <div className="grid gap-4 md:grid-cols-2">{[1, 2, 3, 4].map((item) => <div key={item} className="h-48 animate-pulse rounded-xl border border-white/10 bg-white/[.04]" />)}</div> : filteredTests.length ? <div className="grid gap-3 md:grid-cols-2">{filteredTests.slice(0, pageSize).map((item) => <article key={item.id} className="rounded-xl border border-white/10 bg-[#07172e] p-4 transition hover:border-blue-300/30"><div className="flex items-start justify-between gap-2"><span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-semibold ${item.access === "Premium" ? "border-amber-300/20 bg-amber-400/10 text-amber-100" : "border-blue-300/20 bg-blue-400/10 text-blue-100"}`}><Icon name={item.access === "Premium" ? "school" : "check"} className="h-3.5 w-3.5" />{item.access}</span><span className="inline-flex items-center gap-1.5 rounded-full bg-white/[.06] px-2.5 py-1 text-[10px] text-slate-300"><Icon name="paper" className="h-3.5 w-3.5" />{item.type}</span></div><h3 className="mt-3 text-base font-bold text-white">{item.title}</h3><p className="mt-1 text-xs text-slate-400">{item.exam}</p><div className="mt-4 grid grid-cols-1 min-[420px]:grid-cols-3 gap-2 text-[11px]"><Detail icon="paper" label="Questions" value={item.questionCount || "—"} /><Detail icon="clock" label="Duration" value={item.duration} /><Detail icon="spark" label="Difficulty" value={item.difficulty} /></div><div className="mt-4 flex items-center justify-between gap-2 border-t border-white/10 pt-3"><span className="truncate text-[10px] text-slate-500">{item.source}</span><Link href={item.href} className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-blue-500 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-blue-400">{item.access === "Premium" ? "Unlock Test" : "Start Test"}<Icon name="arrow" className="h-3.5 w-3.5" /></Link></div></article>)}</div> : <div className="rounded-xl border border-dashed border-white/15 p-8 text-center"><span className="mx-auto grid h-12 w-12 place-items-center rounded-xl border border-blue-300/20 bg-blue-400/10 text-blue-200"><Icon name={mockMode === "timed" ? "clock" : "search"} className="h-6 w-6" /></span><p className="mt-3 font-semibold text-white">{mockMode === "timed" ? "No timed online tests are published yet" : "No tests match these filters"}</p><p className="mt-2 text-sm text-slate-400">{mockMode === "timed" ? "Check back when a verified online mock is available." : "Try another exam or search term."}</p></div>}
               {!loading && filteredTests.length > pageSize && <button onClick={() => setPageSize((size) => size + 12)} className="mx-auto mt-5 block rounded-xl border border-white/15 px-5 py-3 text-sm font-semibold text-slate-200 hover:border-blue-300/40">Load more tests</button>}
