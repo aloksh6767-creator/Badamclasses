@@ -161,6 +161,26 @@ export default function TestRankPage() {
   const [directExamView, setDirectExamView] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   useEffect(() => {
+    if (!mobileSidebarOpen) return undefined;
+    const mobileViewport = window.matchMedia("(max-width: 767px)");
+    if (!mobileViewport.matches) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setMobileSidebarOpen(false);
+    };
+    const closeOnDesktopResize = (event) => {
+      if (!event.matches) setMobileSidebarOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    mobileViewport.addEventListener("change", closeOnDesktopResize);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+      mobileViewport.removeEventListener("change", closeOnDesktopResize);
+    };
+  }, [mobileSidebarOpen]);
+  useEffect(() => {
     const selectedExam = subExam || (exam === "All exams" ? "Competitive Exam" : exam);
     document.title = `${selectedExam} Mock Tests | Badam TestRank`;
   }, [exam, subExam]);
@@ -356,7 +376,7 @@ export default function TestRankPage() {
             </nav>
           </section>)}
           <section className="mb-3 border-t border-white/[.07] pt-3"><p className="mb-1.5 px-2 text-[9px] font-extrabold uppercase tracking-[.2em] text-slate-500">Quick Access</p>
-            <nav className="grid gap-1">{[{ label: "Doubt Support", href: "/contact", icon: "help" }, { label: "Live Classes", href: "/batches", icon: "live" }, { label: "Notifications", href: "/dashboard", icon: "bell" }, { label: "Settings", href: "/profile", icon: "settings" }].map((item) => <Link key={item.label} href={item.href} className="group flex items-center gap-3 rounded-xl px-3 py-2 text-[12px] font-medium text-slate-400 transition hover:bg-white/[.045] hover:text-white"><Icon name={item.icon} className="h-[17px] w-[17px] text-slate-500 transition group-hover:text-sky-200" />{item.label}</Link>)}</nav>
+            <nav className="grid gap-1">{[{ label: "Doubt Support", href: "/contact", icon: "help" }, { label: "Live Classes", href: "/batches", icon: "live" }, { label: "Notifications", href: "/dashboard", icon: "bell" }, { label: "Settings", href: "/profile", icon: "settings" }].map((item) => <Link key={item.label} href={item.href} onClick={() => setMobileSidebarOpen(false)} className="group flex items-center gap-3 rounded-xl px-3 py-2 text-[12px] font-medium text-slate-400 transition hover:bg-white/[.045] hover:text-white"><Icon name={item.icon} className="h-[17px] w-[17px] text-slate-500 transition group-hover:text-sky-200" />{item.label}</Link>)}</nav>
           </section>
         </div>
         <div className="mt-3 rounded-2xl border border-amber-200/15 bg-[radial-gradient(ellipse_at_100%_0%,rgba(245,158,11,.15),transparent_55%),linear-gradient(140deg,rgba(17,43,80,.9),rgba(8,22,41,.96))] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,.06)]"><p className="flex items-center gap-2 text-[13px] font-extrabold text-amber-100"><span className="grid h-7 w-7 place-items-center rounded-lg border border-amber-200/15 bg-amber-300/10 text-amber-200" aria-hidden="true">♛</span> Go Premium</p><p className="mt-2 text-[10px] leading-4 text-slate-300">Unlock courses, tests, mock exams and expert guidance.</p><Link href="/courses" className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-300 to-orange-400 px-3 py-2 text-[11px] font-extrabold text-slate-950 shadow-lg shadow-amber-950/20 transition hover:brightness-110">Explore Courses <span aria-hidden="true">→</span></Link></div>
