@@ -206,9 +206,13 @@ export default function TestRankPage() {
     const localTests = Array.isArray(workspace.mockTests)
       ? workspace.mockTests.filter((item) => item?.status === "published" && item?.reviewStatus !== "pending" && item?.pipelineStage !== "Admin Review")
         .map((item) => normalizeTest(item, "Published mock")) : [];
-    const [mcqResult, pdfResult] = await Promise.allSettled([
+    const [mcqResult, pdfResult, bankResult] = await Promise.allSettled([
       apiFetch("/automation/public-mcqs?limit=100"),
-      apiFetch("/automation/public-pdf-mocks")
+      apiFetch("/automation/public-pdf-mocks"),
+      fetch("/mock-pdfs/mock-question-bank.json").then((response) => {
+        if (!response.ok) throw new Error("Question bank is unavailable.");
+        return response.json();
+      })
     ]);
     const mcqTests = mcqResult.status === "fulfilled" && Array.isArray(mcqResult.value?.mcqSets)
       ? mcqResult.value.mcqSets.map((item) => normalizeTest({ ...item, href: `/test/${encodeURIComponent(item._id || item.id)}` }, "Verified online test")) : [];
@@ -216,10 +220,21 @@ export default function TestRankPage() {
       ? enrichMockTests(pdfResult.value.mockTests) : [];
     const pdfTests = pdfSourceTests.map((item) => normalizeTest(item, "Published PDF question set"));
     const chapterTests = buildChapterTests(pdfSourceTests);
+    const questionBankTests = bankResult.status === "fulfilled" && Array.isArray(bankResult.value)
+      ? enrichMockTests(bankResult.value).map((item) => normalizeTest({
+          ...item,
+          examName: item.examName || item.category,
+          testRankType: item.mockType === "topic"
+            ? "Topic / Chapter Mock"
+            : item.subject && item.subject !== "Mixed Practice"
+              ? "Sectional Tests"
+              : "Practice Sets",
+          href: buildPracticeHref(item.examName || item.category, item.id, item.subject || "")
+        }, "Published question bank")) : [];
     if (mcqResult.status === "rejected" && pdfResult.status === "rejected") {
       setError("Live test lists are unavailable. Showing locally available published tests and practice sets.");
     }
-    const allTests = [...localTests, ...pdfTests, ...chapterTests, ...mcqTests, ...topicWiseAiMocks.map((item) => normalizeTest({ ...item, testRankType: /topic/i.test(`${item.examMode || ""} ${item.type || ""}`) ? "Topic / Chapter Mock" : item.testRankType }, "Badam Classes practice"))];
+    const allTests = [...localTests, ...pdfTests, ...chapterTests, ...mcqTests, ...questionBankTests, ...topicWiseAiMocks.map((item) => normalizeTest({ ...item, testRankType: /topic/i.test(`${item.examMode || ""} ${item.type || ""}`) ? "Topic / Chapter Mock" : item.testRankType }, "Badam Classes practice"))];
     const seen = new Set();
     setTests(allTests.filter((item) => {
       const key = item.id.toLowerCase();
