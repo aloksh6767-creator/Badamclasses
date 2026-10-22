@@ -16,6 +16,7 @@ export default function OnlineTestPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [saved, setSaved] = useState(true);
+  const [instructionAccepted, setInstructionAccepted] = useState(false);
 
   const loadAttempt = useCallback(async (id) => {
     const result = await apiFetch(`/test-rank/attempts/${encodeURIComponent(id)}`);
@@ -112,7 +113,31 @@ export default function OnlineTestPage() {
     </section>
 
     {message && <p role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-rose-300/20 bg-rose-500/10 p-3 text-sm text-rose-100"><TestIcon name="alert" className="mt-0.5 h-4 w-4 shrink-0" />{message}</p>}
-    {!attempt ? <section className="mt-5 rounded-2xl border border-white/10 bg-slate-900/75 p-5 shadow-lg sm:p-6"><div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-amber-400/10 text-amber-200"><TestIcon name="checkCircle" className="h-6 w-6" /></span><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-amber-200">Before you begin</p><h2 className="mt-1 text-lg font-semibold text-white">Your test session is ready</h2></div></div><div className="mt-5 grid gap-2 sm:grid-cols-3"><Instruction icon="clock" text="The timer starts with your attempt and auto-submits when it ends." /><Instruction icon="checkCircle" text="Your answers save to your account as you work." /><Instruction icon="award" text="Your score uses this test’s published answer key." /></div><button onClick={start} disabled={busy} className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 px-5 py-3 font-bold text-white shadow-lg shadow-blue-950/30 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-wait disabled:opacity-60"><TestIcon name={getToken() ? "arrowRight" : "shield"} className="h-5 w-5" />{busy ? "Starting test…" : getToken() ? "Start test" : "Log in to start"}</button></section> : <>
+    {!attempt ? <section className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/75 shadow-lg">
+      <div className="border-b border-white/10 bg-slate-950/40 px-5 py-4 sm:px-6">
+        <p className="text-[10px] font-bold uppercase tracking-[.16em] text-amber-200">Instructions, Terms &amp; Conditions</p>
+        <h2 className="mt-1 text-xl font-semibold text-white">Before you begin / शुरू करने से पहले</h2>
+        <p className="mt-1 text-sm text-slate-300">{test.title} · {test.examName || "Mock test"}</p>
+      </div>
+      <div className="grid gap-4 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_260px]">
+        <div className="space-y-3">
+          <Instruction icon="paper" text={`Exam overview / परीक्षा परिचय: ${totalQuestions || "—"} questions, ${test.durationMinutes || "—"} minutes. Questions are shown in the language provided with this test. / ${totalQuestions || "—"} प्रश्न, ${test.durationMinutes || "—"} मिनट। प्रश्न इस टेस्ट में उपलब्ध भाषा में दिखेंगे।`} />
+          <Instruction icon="clock" text="Timing / समय: The timer starts when you continue. The test is submitted automatically when time runs out. / आगे बढ़ने पर टाइमर शुरू होगा। समय समाप्त होने पर टेस्ट अपने आप जमा हो जाएगा।" />
+          <Instruction icon="checkCircle" text="Answering / उत्तर देना: Select one available option for each question. Your answers are saved as you work, and you can change them before submitting. / हर प्रश्न के लिए एक विकल्प चुनें। उत्तर काम करते समय सेव होते हैं और जमा करने से पहले बदले जा सकते हैं।" />
+          <Instruction icon="award" text={`Scoring / अंक: ${Number(test.negativeMarks) > 0 ? `${test.negativeMarks} marks are deducted for each wrong answer.` : "No negative marking is configured for this test."} Your result is calculated from the published answer key. / परिणाम प्रकाशित उत्तर-कुंजी के आधार पर बनेगा।`} />
+          <Instruction icon="shield" text="Navigation & submission / नेविगेशन और सबमिशन: Scroll through the questions, review your selections, then submit when ready. Once submitted, answers cannot be changed. / प्रश्नों को स्क्रॉल करके देखें, उत्तर जाँचें और तैयार होने पर सबमिट करें। सबमिट करने के बाद उत्तर नहीं बदले जा सकते।" />
+        </div>
+        <aside className="rounded-xl border border-sky-300/15 bg-slate-950/40 p-4">
+          <TestMeta icon="clock" label="Duration / समय" value={`${test.durationMinutes || "—"} min`} />
+          <div className="mt-2"><TestMeta icon="paper" label="Questions / प्रश्न" value={totalQuestions || "—"} /></div>
+          <label className="mt-4 flex items-start gap-3 rounded-xl border border-white/10 bg-white/[.04] p-3 text-xs leading-5 text-slate-200">
+            <input type="checkbox" checked={instructionAccepted} onChange={(event) => setInstructionAccepted(event.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-sky-400" />
+            <span>I have read and understood these instructions. / मैंने निर्देश पढ़ और समझ लिए हैं।</span>
+          </label>
+          <button onClick={start} disabled={busy || !instructionAccepted} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 px-5 py-3 font-bold text-white shadow-lg shadow-blue-950/30 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:opacity-50"><TestIcon name={getToken() ? "arrowRight" : "shield"} className="h-5 w-5" />{busy ? "Starting test…" : getToken() ? "Next / आगे" : "Next / आगे · Log in"}</button>
+        </aside>
+      </div>
+    </section> : <>
       <section aria-label="Attempt progress" className="mt-5 rounded-xl border border-white/10 bg-slate-900/75 p-4"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[.15em] text-slate-400">Test progress</p><p className="mt-1 text-sm font-semibold text-white">{answeredCount} of {totalQuestions} answered</p></div><span className="rounded-full border border-sky-300/20 bg-sky-400/[.08] px-3 py-1 text-xs font-bold text-sky-100">{answerProgress}%</span></div><div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-500 transition-[width] duration-300" style={{ width: `${answerProgress}%` }} /></div></section>
       <div className="mt-4 grid gap-3">{attempt.questions.map((question) => {
         const selectedAnswer = answers[String(question.index)];

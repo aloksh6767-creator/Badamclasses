@@ -733,7 +733,7 @@ export default function FreePracticePage() {
                 disabled={!instructionAccepted || !questions.length}
                 className="btn-gradient btn-anim mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Start Test
+                Next / आगे
               </button>
               <Link href="/mock-tests" className="mt-3 inline-flex w-full justify-center rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-slate-100 hover:border-orange-300">
                 Back
