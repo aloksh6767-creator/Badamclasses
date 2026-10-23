@@ -933,13 +933,38 @@ img, svg, video, canvas { max-width: 100%; }
 
 @keyframes liveMockCardGlow {
   0%, 100% {
-    border-color: rgba(253, 164, 175, 0.35);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(251, 113, 133, 0.08);
+    border-color: rgba(125, 211, 252, 0.34);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(96, 165, 250, 0.1);
   }
   50% {
-    border-color: rgba(253, 164, 175, 0.72);
-    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.3), 0 0 18px rgba(251, 113, 133, 0.2), 0 0 0 1px rgba(251, 113, 133, 0.42);
+    border-color: rgba(103, 232, 249, 0.72);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.3), 0 0 18px rgba(56, 189, 248, 0.2), 0 0 0 1px rgba(129, 140, 248, 0.34);
   }
+}
+
+.rank-format-card::before {
+  position: absolute;
+  z-index: 0;
+  top: -45%;
+  bottom: -45%;
+  left: -42%;
+  width: 26%;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent, rgba(186, 230, 253, 0.13), transparent);
+  transform: skewX(-22deg);
+  animation: rankFormatLightSweep 8s ease-in-out infinite;
+}
+
+.rank-format-card:hover::before,
+.rank-format-card:focus-visible::before {
+  background: linear-gradient(105deg, transparent, rgba(186, 230, 253, 0.2), transparent);
+}
+
+@keyframes rankFormatLightSweep {
+  0%, 48% { left: -42%; opacity: 0; }
+  56% { opacity: 1; }
+  72%, 100% { left: 118%; opacity: 0; }
 }
 
 .live-mock-card {
@@ -947,8 +972,8 @@ img, svg, video, canvas { max-width: 100%; }
 }
 
 @keyframes liveMockBadgeGlow {
-  0%, 100% { box-shadow: 0 0 0 rgba(251, 113, 133, 0); }
-  50% { box-shadow: 0 0 12px rgba(251, 113, 133, 0.48); }
+  0%, 100% { box-shadow: 0 0 0 rgba(103, 232, 249, 0); }
+  50% { box-shadow: 0 0 12px rgba(103, 232, 249, 0.42); }
 }
 
 .live-mock-badge {
@@ -960,13 +985,53 @@ img, svg, video, canvas { max-width: 100%; }
   width: 72px;
   height: 64px;
   overflow: visible;
-  filter: drop-shadow(0 0 7px rgba(255, 55, 153, 0.22));
+  filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.25));
   transition: transform 220ms ease, filter 220ms ease;
+}
+
+.format-icon-tile {
+  position: relative;
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 16px;
+  color: var(--format-icon-color);
+  background: linear-gradient(145deg, var(--format-icon-bg), rgba(4, 14, 34, 0.88));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.13), 0 8px 20px var(--format-icon-shadow), 0 0 22px var(--format-icon-shadow);
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.format-icon-tile::before {
+  position: absolute;
+  inset: 1px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 15px;
+  content: "";
+  pointer-events: none;
+}
+
+.format-icon-tile svg {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 7px currentColor);
+}
+
+.format-icon-premium { --format-icon-color: #ffdf86; --format-icon-bg: rgba(180, 119, 24, 0.3); --format-icon-shadow: rgba(245, 184, 61, 0.16); }
+.format-icon-pyq { --format-icon-color: #9aeeff; --format-icon-bg: rgba(18, 135, 190, 0.3); --format-icon-shadow: rgba(34, 211, 238, 0.16); }
+.format-icon-paid { --format-icon-color: #d5bcff; --format-icon-bg: rgba(115, 65, 197, 0.34); --format-icon-shadow: rgba(167, 139, 250, 0.18); }
+
+.group:hover .format-icon-tile,
+.group:focus-visible .format-icon-tile {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.18), 0 10px 26px var(--format-icon-shadow), 0 0 28px var(--format-icon-shadow);
 }
 
 .group:hover .live-test-artwork {
   transform: scale(1.06);
-  filter: drop-shadow(0 0 11px rgba(255, 55, 153, 0.45));
+  filter: drop-shadow(0 0 12px rgba(129, 140, 248, 0.5));
 }
 
 .group:active .live-test-artwork {
@@ -980,7 +1045,7 @@ img, svg, video, canvas { max-width: 100%; }
 }
 
 .live-test-platform {
-  filter: drop-shadow(0 2px 5px rgba(255, 28, 154, 0.55));
+  filter: drop-shadow(0 2px 5px rgba(56, 189, 248, 0.48));
   animation: liveTestPlatformGlow 3.2s ease-in-out infinite;
 }
 
@@ -1019,8 +1084,8 @@ img, svg, video, canvas { max-width: 100%; }
 }
 
 @keyframes liveTestPlatformGlow {
-  0%, 100% { filter: drop-shadow(0 2px 4px rgba(255, 28, 154, 0.34)); }
-  50% { filter: drop-shadow(0 2px 8px rgba(255, 28, 154, 0.72)); }
+  0%, 100% { filter: drop-shadow(0 2px 4px rgba(56, 189, 248, 0.28)); }
+  50% { filter: drop-shadow(0 2px 8px rgba(129, 140, 248, 0.68)); }
 }
 
 @keyframes liveTestBarRise {
