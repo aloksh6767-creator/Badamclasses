@@ -931,6 +931,30 @@ img, svg, video, canvas { max-width: 100%; }
   50% { box-shadow: 0 0 16px rgba(251,146,60,0.85); }
 }
 
+@keyframes liveMockCardGlow {
+  0%, 100% {
+    border-color: rgba(253, 164, 175, 0.35);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(251, 113, 133, 0.08);
+  }
+  50% {
+    border-color: rgba(253, 164, 175, 0.72);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.3), 0 0 18px rgba(251, 113, 133, 0.2), 0 0 0 1px rgba(251, 113, 133, 0.42);
+  }
+}
+
+.live-mock-card {
+  animation: liveMockCardGlow 3s ease-in-out infinite;
+}
+
+@keyframes liveMockBadgeGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(251, 113, 133, 0); }
+  50% { box-shadow: 0 0 12px rgba(251, 113, 133, 0.48); }
+}
+
+.live-mock-badge {
+  animation: liveMockBadgeGlow 1.8s ease-in-out infinite;
+}
+
 .live-badge {
   position: absolute;
   top: 10px;
