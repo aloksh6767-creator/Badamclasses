@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 
 export function middleware(request) {
   const pathname = request.nextUrl.pathname;
+  const hostname = request.nextUrl.hostname.toLowerCase();
+
+  if (hostname === "badamtestranker.vercel.app" && pathname === "/") {
+    const rankerUrl = request.nextUrl.clone();
+    rankerUrl.pathname = "/test-rank";
+    return NextResponse.redirect(rankerUrl, 307);
+  }
 
   const response = NextResponse.next();
   if (

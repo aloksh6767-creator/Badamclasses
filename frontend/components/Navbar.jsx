@@ -10,7 +10,7 @@ import { getUserScopedStorageEventName, readUserScopedString } from "@/lib/userS
 const menuItems = [
   { label: "Home", href: "/" },
   { label: "Courses", href: "/courses" },
-  { label: "Badam TestRank", href: "/test-rank" },
+  { label: "Badam TestRank", href: "https://badamtestranker.vercel.app/test-rank" },
   { label: "AI Planner", href: "/exam-planner" },
   { label: "Current Affairs", href: "/current-affairs" },
   { label: "Results", href: "/results" },
