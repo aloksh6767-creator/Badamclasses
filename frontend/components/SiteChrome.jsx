@@ -8,7 +8,6 @@ import ScrollProgress from "@/components/ScrollProgress";
 import FloatingEnrollButton from "@/components/FloatingEnrollButton";
 import BackToTop from "@/components/BackToTop";
 import AnnouncementTicker from "@/components/AnnouncementTicker";
-import SiteNotificationPopup from "@/components/SiteNotificationPopup";
 
 export default function SiteChrome({ children }) {
   const pathname = usePathname() || "";
@@ -32,7 +31,6 @@ export default function SiteChrome({ children }) {
       {!isLiveRoute ? <FloatingEnrollButton /> : null}
       {!isLiveRoute ? <BackToTop /> : null}
       {!isLiveRoute ? <ChatbotWidget /> : null}
-      {!isLiveRoute ? <SiteNotificationPopup /> : null}
     </>
   );
 }
