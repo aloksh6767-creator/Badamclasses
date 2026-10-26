@@ -10,6 +10,29 @@ import { mockExamCategories, topicWiseAiMocks } from "@/lib/mockTestCatalog";
 import { enrichMockTests } from "@/lib/mockQuestionFilters";
 
 const tabs = ["All Tests", "Free Tests", "Premium Tests", "Previous Year Papers", "Practice Sets"];
+const testRankHeroBanners = [
+  {
+    src: "/test-rank-hero-cyan.webp",
+    alt: "Badam Test Rankers online test series for SSC, Railway, Banking and Police exams",
+    label: "Blue and cyan",
+    width: 2171,
+    height: 724
+  },
+  {
+    src: "/test-rank-hero-gold.webp",
+    alt: "Badam Test Rankers exam practice banner with blue and gold styling",
+    label: "Blue and gold",
+    width: 2172,
+    height: 724
+  },
+  {
+    src: "/test-rank-welcome-banner.jpg",
+    alt: "Welcome to BadamTest with real exam pattern and smart analysis",
+    label: "Welcome",
+    width: 1024,
+    height: 320
+  }
+];
 const mockModes = [{ id: "all", label: "All Mocks", icon: "grid" }, { id: "full", label: "Full Mock", icon: "test" }, { id: "sectional", label: "Sectional Mock", icon: "layers" }, { id: "topic", label: "Topic / Chapter Mock", icon: "book" }, { id: "mini", label: "Mini Mocks", icon: "spark" }, { id: "super", label: "Super Sets", icon: "spark" }, { id: "calci", label: "Ultra Calci", icon: "calculator" }, { id: "timed", label: "Timed Online Tests", icon: "clock" }];
 const practiceFormats = [
   { id: "full", title: "Full Length Tests", detail: "Attempt realistic exam simulations and see where you stand.", icon: "test", badge: "EXAM MODE", tone: "blue" },
@@ -220,6 +243,16 @@ export default function TestRankPage() {
   const [expandedExam, setExpandedExam] = useState("");
   const [selectedFormat, setSelectedFormat] = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [heroBannerIndex, setHeroBannerIndex] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        setHeroBannerIndex((index) => (index + 1) % testRankHeroBanners.length);
+      }
+    }, 5000);
+    return () => window.clearInterval(intervalId);
+  }, []);
   useEffect(() => {
     if (!mobileSidebarOpen) return undefined;
     const mobileViewport = window.matchMedia("(max-width: 767px)");
@@ -459,10 +492,15 @@ export default function TestRankPage() {
         <main className="mx-auto max-w-[1600px] p-4 pb-24 text-slate-100 sm:p-6 lg:p-7">
           <p className="mb-4 hidden text-xs font-medium text-slate-400 sm:block"><Link href="https://www.badamclasses.in" className="transition hover:text-white">Home</Link><span className="mx-2 text-slate-600">/</span><span className="text-sky-200">Badam TestRank</span></p>
           <div className="grid gap-4">
-            <section aria-label="Badam TestRank welcome banner" className="overflow-hidden rounded-2xl border border-blue-200/20 bg-[#061a39] shadow-[0_22px_60px_rgba(0,0,0,.32)]">
-              <Link href="#choose-format" aria-label="Explore Badam TestRank mock tests" className="group block overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-200">
-                <Image src="/test-rank-welcome-banner.jpg" alt="Welcome to BadamTest, the new era of mock tests — real exam pattern and smart analysis" width={1024} height={320} priority sizes="(max-width: 768px) 100vw, (max-width: 1600px) 100vw, 1600px" className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.01]" />
+            <section aria-label="Badam TestRank banner slider" className="overflow-hidden rounded-2xl border border-blue-200/20 bg-[#061a39] shadow-[0_22px_60px_rgba(0,0,0,.32)]">
+              <Link href="#choose-format" aria-label={`Explore mock tests — ${testRankHeroBanners[heroBannerIndex].label} banner`} className="group block overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-200">
+                <Image src={testRankHeroBanners[heroBannerIndex].src} alt={testRankHeroBanners[heroBannerIndex].alt} width={testRankHeroBanners[heroBannerIndex].width} height={testRankHeroBanners[heroBannerIndex].height} priority sizes="(max-width: 768px) 100vw, (max-width: 1600px) 100vw, 1600px" className="h-[150px] max-h-none w-full object-cover object-left transition-transform duration-500 group-hover:scale-[1.005] sm:h-auto sm:max-h-[340px] sm:object-center lg:max-h-[380px]" />
               </Link>
+              <div className="flex items-center justify-center border-t border-white/10 bg-[#061a39] px-3 py-2">
+                <div role="group" aria-label="Choose banner slide" className="flex items-center justify-center gap-2">
+                  {testRankHeroBanners.map((banner, index) => <button key={banner.src} type="button" aria-label={`Show ${banner.label} banner`} aria-pressed={heroBannerIndex === index} onClick={() => setHeroBannerIndex(index)} className={`h-2.5 w-2.5 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061a39] ${heroBannerIndex === index ? "bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,.8)]" : "bg-slate-500 hover:bg-slate-300"}`} />)}
+                </div>
+              </div>
             </section>
             <section className="grid gap-3 rounded-2xl border border-blue-500/35 bg-[radial-gradient(ellipse_at_12%_20%,rgba(16,102,234,.18),transparent_42%),linear-gradient(120deg,#031a43,#05245a_58%,#031633)] p-3 shadow-[0_24px_65px_rgba(0,0,0,.2)] sm:grid-cols-[minmax(0,1.2fr)_minmax(250px,.8fr)] sm:items-center sm:gap-5 sm:p-6"><div className="flex min-w-0 items-center gap-3 sm:gap-6"><div className="grid h-16 w-16 shrink-0 place-items-center rounded-full p-[5px] sm:h-28 sm:w-28 sm:p-[6px]" style={{ background: `conic-gradient(#1687ff ${completionProgress}%,#0c3978 0)` }}><div className="grid h-full w-full place-items-center rounded-full bg-[#06204a] text-lg font-bold text-white sm:text-2xl">{historyLoading ? "…" : `${completionProgress}%`}</div></div><div className="hidden h-20 w-px shrink-0 bg-blue-400/25 sm:block" /><div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-[.12em] text-blue-200 sm:text-xs sm:tracking-[.15em]">Overall Progress</p><h2 className="mt-1 text-base font-bold text-white sm:mt-2 sm:text-2xl">Completed practice</h2><p className="mt-0.5 text-xl font-bold text-cyan-300 sm:mt-1.5 sm:text-2xl">{historyLoading ? "…" : history.length}<span className="ml-2 text-sm font-semibold text-white sm:text-base">attempts</span></p><p className="mt-0.5 text-[10px] leading-4 text-blue-200 sm:mt-1 sm:text-xs sm:leading-5">{loading ? "Loading available tests…" : `Out of ${tests.length} available tests`} · Keep practicing to improve your performance.</p></div></div><div className="flex min-h-0 items-center gap-3 rounded-xl border border-blue-400/25 bg-blue-900/25 p-3 sm:min-h-28 sm:gap-4 sm:p-5"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-500/20 text-cyan-300 sm:h-12 sm:w-12"><svg viewBox="0 0 24 24" className="h-6 w-6 sm:h-7 sm:w-7" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 21h8m-4-4v4M7 4H4v2a5 5 0 0 0 4.3 5M17 4h3v2a5 5 0 0 1-4.3 5M7 3h10v7a5 5 0 0 1-10 0z"/><path d="m12 5 1 2 2 .3-1.5 1.5.4 2.2-1.9-1-1.9 1 .4-2.2L9 7.3 11 7z"/></svg></span><div><p className="text-[10px] font-semibold uppercase tracking-[.12em] text-blue-200 sm:text-xs sm:tracking-[.15em]">Best saved score</p><p className="mt-1 text-xl font-bold text-white sm:mt-1.5 sm:text-2xl">{historyLoading ? "…" : best === null ? "—" : `${best}%`}</p><p className="mt-1 text-[10px] text-blue-200 sm:text-[11px]">Highest score across submitted tests</p></div></div></section>
           </div>
