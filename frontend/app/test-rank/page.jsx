@@ -12,6 +12,13 @@ import { enrichMockTests } from "@/lib/mockQuestionFilters";
 const tabs = ["All Tests", "Free Tests", "Premium Tests", "Previous Year Papers", "Practice Sets"];
 const testRankHeroBanners = [
   {
+    src: "/test-rank-hero-online-series.png",
+    alt: "Badam Test Rankers online test series for competitive exams with full length mock tests, sectional tests, performance tracking, and analysis",
+    label: "Online test series",
+    width: 1571,
+    height: 412
+  },
+  {
     src: "/test-rank-hero-cyan.webp",
     alt: "Badam Test Rankers online test series for SSC, Railway, Banking and Police exams",
     label: "Blue and cyan",
