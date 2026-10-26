@@ -87,7 +87,8 @@ const practiceFormats = [
   { id: "super", title: "Super Set Tests", detail: "Curated mixed practice sets for a focused challenge.", icon: "spark", badge: "FEATURED", tone: "violet" },
   { id: "calci", title: "Ultra Calci Tests", detail: "Sharpen calculation speed with short timed drills.", icon: "calculator", badge: "QUICK DRILL", tone: "amber" },
   { id: "sectional", title: "Sectional Tests", detail: "Build confidence one subject at a time.", icon: "layers", badge: "BY SUBJECT", tone: "cyan" },
-  { id: "topic", title: "Topic Boost", detail: "Strengthen specific chapters with step-by-step practice.", icon: "book", badge: "TOPIC WISE", tone: "rose" }
+  { id: "topic", title: "Topic Boost", detail: "Strengthen specific chapters with step-by-step practice.", icon: "book", badge: "TOPIC WISE", tone: "rose" },
+  { id: "ai", title: "AI Mock Test", detail: "Practice published topic mocks with smart AI focus guidance.", icon: "spark", badge: "AI PRACTICE", tone: "violet" }
 ];
 const examTerms = { Railway: ["railway", "rrb", "ntpc", "alp", "technician", "rpf", "railway je", "rrb je"], SSC: ["ssc", "cgl", "mts", "chsl", "cpo", "steno"], Banking: ["bank", "ibps", "sbi", "rbi", "po", "clerk"], Police: ["police", "constable", "rpf"], Teaching: ["teaching", "tet", "ctet", "uptet"], "State Exams": ["state", "psc", "up exams", "mp exams", "bihar"] };
 const buildPracticeHref = (exam, testId, subject, topic, chapter) => {
@@ -456,7 +457,8 @@ export default function TestRankPage() {
       || (mockMode === "topic" && item.type === "Topic / Chapter Mock")
       || (mockMode === "mini" && item.questionCount > 0 && item.questionCount <= 30)
       || (mockMode === "super" && /super[\s-]*set/i.test(modeText))
-      || (mockMode === "calci" && /ultra\s*calci|calculat|arithmetic drill/i.test(modeText));
+      || (mockMode === "calci" && /ultra\s*calci|calculat|arithmetic drill/i.test(modeText))
+      || (mockMode === "ai" && item.source === "Badam Classes practice" && item.type === "Topic / Chapter Mock");
     return matchesTab && matchesMode && matchesExam(item, exam)
       && (!subExam || matchesExam(item, subExam))
       && (subject === "All subjects" || item.subject === subject)
