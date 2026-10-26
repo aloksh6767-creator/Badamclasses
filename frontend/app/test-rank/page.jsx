@@ -82,9 +82,9 @@ const matchesExam = (item, selected) => {
 const mainLinks = [
   { label: "Dashboard", href: "/dashboard", icon: "home", section: "Overview" },
   { label: "My Courses", href: "/dashboard", icon: "book", section: "Overview" },
-  { label: "Mock Tests", href: "/test-rank", icon: "test", active: true, section: "Test Library" },
-  { label: "Daily Quiz", href: "/mock-tests", icon: "quiz", badge: "NEW", section: "Test Library" },
-  { label: "Previous Year Papers", href: "/mock-tests", icon: "paper", section: "Test Library" },
+  { label: "Mock Tests", href: "/test-rank", icon: "test", active: true, section: "Practice" },
+  { label: "Daily Quiz", href: "/mock-tests", icon: "quiz", badge: "NEW", section: "Practice" },
+  { label: "Previous Year Papers", href: "/mock-tests", icon: "paper", section: "Practice" },
   { label: "Current Affairs", href: "/current-affairs", icon: "news", section: "Study Library" },
   { label: "Study Material", href: "/class-pdfs", icon: "book", section: "Study Library" },
   { label: "Performance", href: "/test-rank#my-performance", icon: "chart", section: "Your Progress" },
