@@ -12,6 +12,46 @@ import { enrichMockTests } from "@/lib/mockQuestionFilters";
 const tabs = ["All Tests", "Free Tests", "Premium Tests", "Previous Year Papers", "Practice Sets"];
 const testRankHeroBanners = [
   {
+    src: "/test-rank-pyq-mock.webp",
+    alt: "Badam Test Rankers PYQ mock practice with previous year question papers",
+    label: "PYQ Mock",
+    href: "/test-rank?tab=Previous%20Year%20Papers#choose-format",
+    width: 2118,
+    height: 742
+  },
+  {
+    src: "/test-rank-live-mock.webp",
+    alt: "Badam Test Rankers all India live mock test for competitive exam aspirants",
+    label: "Live Mock",
+    href: "/test-rank?mode=timed#choose-format",
+    width: 2120,
+    height: 742
+  },
+  {
+    src: "/test-rank-railway-mock.webp",
+    alt: "RRB mock tests for Railway exam practice on Badam Test Rankers",
+    label: "RRB Mock Tests",
+    href: "/test-rank?exam=Railway#choose-format",
+    width: 2058,
+    height: 764
+  },
+  {
+    src: "/test-rank-ssc-mock.webp",
+    alt: "SSC mock tests and focused exam preparation on Badam Test Rankers",
+    label: "SSC Mock Tests",
+    href: "/test-rank?exam=SSC#choose-format",
+    width: 2118,
+    height: 742
+  },
+  {
+    src: "/test-rank-state-exams.webp",
+    alt: "State exam mock tests for competitive exam preparation on Badam Test Rankers",
+    label: "State Exam Mocks",
+    href: "/test-rank?exam=State%20Exams#choose-format",
+    width: 2040,
+    height: 771
+  },
+  {
     src: "/test-rank-hero-online-series.png",
     alt: "Badam Test Rankers online test series for competitive exams with full length mock tests, sectional tests, performance tracking, and analysis",
     label: "Online test series",
@@ -500,8 +540,8 @@ export default function TestRankPage() {
           <p className="mb-4 hidden text-xs font-medium text-slate-400 sm:block"><Link href="https://www.badamclasses.in" className="transition hover:text-white">Home</Link><span className="mx-2 text-slate-600">/</span><span className="text-sky-200">Badam TestRank</span></p>
           <div className="grid gap-4">
             <section aria-label="Badam TestRank banner slider" className="overflow-hidden rounded-2xl border border-blue-200/20 bg-[#061a39] shadow-[0_22px_60px_rgba(0,0,0,.32)]">
-              <Link href="#choose-format" aria-label={`Explore mock tests — ${testRankHeroBanners[heroBannerIndex].label} banner`} className="group block overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-200">
-                <Image src={testRankHeroBanners[heroBannerIndex].src} alt={testRankHeroBanners[heroBannerIndex].alt} width={testRankHeroBanners[heroBannerIndex].width} height={testRankHeroBanners[heroBannerIndex].height} priority sizes="(max-width: 768px) 100vw, (max-width: 1600px) 100vw, 1600px" className="h-[150px] max-h-none w-full object-cover object-left transition-transform duration-500 group-hover:scale-[1.005] sm:h-auto sm:max-h-[340px] sm:object-center lg:max-h-[380px]" />
+              <Link href={testRankHeroBanners[heroBannerIndex].href || "#choose-format"} aria-label={`Explore mock tests — ${testRankHeroBanners[heroBannerIndex].label} banner`} className="group block overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-200">
+                <Image src={testRankHeroBanners[heroBannerIndex].src} alt={testRankHeroBanners[heroBannerIndex].alt} width={testRankHeroBanners[heroBannerIndex].width} height={testRankHeroBanners[heroBannerIndex].height} priority sizes="(max-width: 768px) 100vw, (max-width: 1600px) 100vw, 1600px" className="h-[150px] max-h-none w-full object-cover object-left transition-transform duration-500 group-hover:scale-[1.005] sm:h-auto sm:max-h-[560px] sm:object-center" />
               </Link>
               <div className="flex items-center justify-center border-t border-white/10 bg-[#061a39] px-3 py-2">
                 <div role="group" aria-label="Choose banner slide" className="flex items-center justify-center gap-2">
