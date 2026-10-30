@@ -10,6 +10,7 @@ export const mockExamCategories = [
     sections: "Maths, Reasoning, GK",
     logoImage: "/exam-logos/railways.png",
     logoAlt: "Indian Railways emblem",
+    artImage: "/exam-logos/railway-category-art.png",
     logo: "🚆",
     subExams: [
       { name: "RRB NTPC", logo: "🚆", logoImage: "/exam-logos/railways.png" },
@@ -31,6 +32,7 @@ export const mockExamCategories = [
     sections: "Quant, Reasoning, English, GS",
     logoImage: "/exam-logos/ssc.png",
     logoAlt: "Staff Selection Commission emblem",
+    artImage: "/exam-logos/ssc-category-art.png",
     logo: "📋",
     subExams: [
       { name: "SSC CGL", logo: "📊", logoImage: "/exam-logos/ssc.png" },
@@ -52,6 +54,7 @@ export const mockExamCategories = [
     sections: "Quant, Reasoning, English",
     logoImage: "/exam-logos/banking.png",
     logoAlt: "State Bank of India emblem",
+    artImage: "/exam-logos/banking-category-art.png",
     logo: "🏦",
     subExams: [
       { name: "IBPS PO", logo: "🏦", logoImage: "/exam-logos/banking.png" },
@@ -81,6 +84,7 @@ export const mockExamCategories = [
       { src: "/exam-logos/bihar-police.png", alt: "Bihar Police emblem" },
       { src: "/exam-logos/rajasthan-police.png", alt: "Rajasthan Police emblem" }
     ],
+    artImage: "/exam-logos/police-category-art.png",
     logo: "👮",
     subExams: [
       { name: "UP Police", logo: "👮", logoImage: "/exam-logos/uppbpb.png" },
@@ -101,8 +105,9 @@ export const mockExamCategories = [
     difficulty: "TET Level",
     pattern: "TET pattern",
     sections: "CDP, Language, Maths, EVS",
-    logoImage: "/mock-test-logos/teaching-mock-test.webp",
-    logoAlt: "Teaching mock test logo",
+    logoImage: "/exam-logos/teaching-emblem-reference.png",
+    logoAlt: "Teaching exam emblem",
+    artImage: "/exam-logos/teaching-category-art.png",
     logo: "📚",
     subExams: [
       { name: "CTET", logo: "📚" },
@@ -120,8 +125,9 @@ export const mockExamCategories = [
     difficulty: "Mixed",
     pattern: "State exam pattern",
     sections: "GK, Reasoning, Maths, Hindi",
-    logoImage: "/mock-test-logos/state-exam-mock-test.webp",
-    logoAlt: "State exam mock test logo",
+    logoImage: "/exam-logos/state-exam-emblem-reference.png",
+    logoAlt: "State exam emblem",
+    artImage: "/exam-logos/state-exam-category-art.png",
     logo: "🏛️",
     subExams: [
       { name: "UP Exams", logo: "🏛️" },
