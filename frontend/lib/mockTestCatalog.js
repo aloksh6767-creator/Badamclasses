@@ -8,16 +8,16 @@ export const mockExamCategories = [
     difficulty: "Exam Level",
     pattern: "CBT pattern",
     sections: "Maths, Reasoning, GK",
-    logoImage: "/mock-test-logos/rrb-mock-test.webp",
-    logoAlt: "RRB mock test logo",
+    logoImage: "/exam-logos/railways.png",
+    logoAlt: "Indian Railways emblem",
     logo: "🚆",
     subExams: [
-      { name: "RRB NTPC", logo: "🚆" },
-      { name: "RRB Group D", logo: "🛤️" },
-      { name: "RRB ALP", logo: "🚉" },
-      { name: "RRB Technician", logo: "🛠️" },
-      { name: "RPF SI", logo: "🛡️" },
-      { name: "Railway JE", logo: "⚙️" }
+      { name: "RRB NTPC", logo: "🚆", logoImage: "/exam-logos/railways.png" },
+      { name: "RRB Group D", logo: "🛤️", logoImage: "/exam-logos/railways.png" },
+      { name: "RRB ALP", logo: "🚉", logoImage: "/exam-logos/railways.png" },
+      { name: "RRB Technician", logo: "🛠️", logoImage: "/exam-logos/railways.png" },
+      { name: "RPF SI", logo: "🛡️", logoImage: "/exam-logos/rpf.png" },
+      { name: "Railway JE", logo: "⚙️", logoImage: "/exam-logos/railways.png" }
     ]
   },
   {
@@ -29,16 +29,16 @@ export const mockExamCategories = [
     difficulty: "Moderate",
     pattern: "Tier pattern",
     sections: "Quant, Reasoning, English, GS",
-    logoImage: "/mock-test-logos/ssc-mock-test.webp",
-    logoAlt: "SSC mock test logo",
+    logoImage: "/exam-logos/ssc.png",
+    logoAlt: "Staff Selection Commission emblem",
     logo: "📋",
     subExams: [
-      { name: "SSC CGL", logo: "📊" },
-      { name: "SSC CHSL", logo: "⌨️" },
-      { name: "SSC MTS", logo: "📄" },
-      { name: "SSC GD", logo: "🛡️" },
-      { name: "CPO SI", logo: "⭐" },
-      { name: "Steno", logo: "✍️" }
+      { name: "SSC CGL", logo: "📊", logoImage: "/exam-logos/ssc.png" },
+      { name: "SSC CHSL", logo: "⌨️", logoImage: "/exam-logos/ssc.png" },
+      { name: "SSC MTS", logo: "📄", logoImage: "/exam-logos/ssc.png" },
+      { name: "SSC GD", logo: "🛡️", logoImage: "/exam-logos/ssc.png" },
+      { name: "CPO SI", logo: "⭐", logoImage: "/exam-logos/ssc.png" },
+      { name: "Steno", logo: "✍️", logoImage: "/exam-logos/ssc.png" }
     ]
   },
   {
@@ -50,14 +50,14 @@ export const mockExamCategories = [
     difficulty: "Sectional",
     pattern: "Prelims + mains",
     sections: "Quant, Reasoning, English",
-    logoImage: "/mock-test-logos/banker-mock-test.webp",
-    logoAlt: "Banker mock test logo",
+    logoImage: "/exam-logos/banking.png",
+    logoAlt: "State Bank of India emblem",
     logo: "🏦",
     subExams: [
-      { name: "IBPS PO", logo: "🏦" },
-      { name: "IBPS Clerk", logo: "💼" },
-      { name: "SBI PO", logo: "💳" },
-      { name: "RBI Assistant", logo: "₹" }
+      { name: "IBPS PO", logo: "🏦", logoImage: "/exam-logos/banking.png" },
+      { name: "IBPS Clerk", logo: "💼", logoImage: "/exam-logos/banking.png" },
+      { name: "SBI PO", logo: "💳", logoImage: "/exam-logos/banking.png" },
+      { name: "RBI Assistant", logo: "₹", logoImage: "/exam-logos/banking.png" }
     ]
   },
   {
@@ -71,12 +71,25 @@ export const mockExamCategories = [
     sections: "Reasoning, GK, Maths",
     logoImage: "/mock-test-logos/police-mock-test.webp",
     logoAlt: "Police mock test logo",
+    logoImages: [
+      { src: "/exam-logos/intelligence-bureau.png", alt: "Intelligence Bureau emblem" },
+      { src: "/exam-logos/uppbpb.png", alt: "Uttar Pradesh Police emblem" },
+      { src: "/exam-logos/rpf.png", alt: "Railway Protection Force emblem" },
+      { src: "/exam-logos/delhi-police.png", alt: "Delhi Police emblem" },
+      { src: "/exam-logos/mp-police.png", alt: "Madhya Pradesh Police emblem" },
+      { src: "/exam-logos/defence.png", alt: "Defence services emblem" },
+      { src: "/exam-logos/bihar-police.png", alt: "Bihar Police emblem" },
+      { src: "/exam-logos/rajasthan-police.png", alt: "Rajasthan Police emblem" }
+    ],
     logo: "👮",
     subExams: [
-      { name: "UP Police", logo: "👮" },
-      { name: "MP Police", logo: "🛡️" },
-      { name: "Delhi Police", logo: "⭐" },
-      { name: "SI", logo: "🎖️" }
+      { name: "UP Police", logo: "👮", logoImage: "/exam-logos/uppbpb.png" },
+      { name: "MP Police", logo: "🛡️", logoImage: "/exam-logos/mp-police.png" },
+      { name: "Delhi Police", logo: "⭐", logoImage: "/exam-logos/delhi-police.png" },
+      { name: "Bihar Police", logo: "🛡️", logoImage: "/exam-logos/bihar-police.png" },
+      { name: "Rajasthan Police", logo: "🛡️", logoImage: "/exam-logos/rajasthan-police.png" },
+      { name: "Intelligence Bureau", logo: "🕵️", logoImage: "/exam-logos/intelligence-bureau.png" },
+      { name: "Defence", logo: "🎖️", logoImage: "/exam-logos/defence.png" }
     ]
   },
   {
