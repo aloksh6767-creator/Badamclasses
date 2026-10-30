@@ -11,12 +11,12 @@ import { enrichMockTests } from "@/lib/mockQuestionFilters";
 
 const tabs = ["All Tests", "Free Tests", "Premium Tests", "Previous Year Papers", "Practice Sets"];
 const examCategoryCardThemes = [
-  { card: "border-pink-500/60 bg-[linear-gradient(135deg,#3a0d36,#211039_58%,#071b3d)] hover:border-pink-300", badge: "border-pink-400/40 bg-pink-500/15 text-pink-100", button: "from-pink-500 to-rose-600" },
-  { card: "border-violet-500/60 bg-[linear-gradient(135deg,#301875,#20104c_58%,#0b1742)] hover:border-violet-300", badge: "border-violet-400/40 bg-violet-500/15 text-violet-100", button: "from-violet-500 to-indigo-600" },
-  { card: "border-teal-400/60 bg-[linear-gradient(135deg,#063b4b,#073047_58%,#071c39)] hover:border-teal-200", badge: "border-teal-300/40 bg-teal-500/15 text-teal-100", button: "from-teal-400 to-cyan-600" },
-  { card: "border-cyan-500/60 bg-[linear-gradient(135deg,#073d75,#082e60_58%,#071839)] hover:border-cyan-300", badge: "border-cyan-400/40 bg-cyan-500/15 text-cyan-100", button: "from-cyan-400 to-blue-600" },
-  { card: "border-amber-400/60 bg-[linear-gradient(135deg,#55300b,#38220b_58%,#1b1930)] hover:border-amber-200", badge: "border-amber-300/40 bg-amber-500/15 text-amber-100", button: "from-amber-400 to-orange-600" },
-  { card: "border-fuchsia-500/60 bg-[linear-gradient(135deg,#351276,#24104e_58%,#100d39)] hover:border-fuchsia-300", badge: "border-fuchsia-400/40 bg-fuchsia-500/15 text-fuchsia-100", button: "from-violet-400 to-fuchsia-600" }
+  { card: "border-pink-400/80 bg-[radial-gradient(ellipse_at_100%_85%,rgba(236,72,153,.28),transparent_48%),linear-gradient(135deg,#570b3d,#281039_62%,#071b3d)] shadow-[0_0_26px_rgba(236,72,153,.18)] hover:border-pink-200", badge: "border-pink-300/50 bg-rose-600/80 text-white", button: "from-pink-500 to-rose-600" },
+  { card: "border-violet-400/80 bg-[radial-gradient(ellipse_at_100%_85%,rgba(99,102,241,.3),transparent_48%),linear-gradient(135deg,#3c169a,#24104f_62%,#0b1742)] shadow-[0_0_26px_rgba(99,102,241,.2)] hover:border-violet-200", badge: "border-violet-300/50 bg-indigo-600/80 text-white", button: "from-violet-500 to-indigo-600" },
+  { card: "border-teal-300/80 bg-[radial-gradient(ellipse_at_100%_85%,rgba(20,184,166,.3),transparent_48%),linear-gradient(135deg,#064b50,#073047_62%,#071c39)] shadow-[0_0_26px_rgba(20,184,166,.18)] hover:border-teal-100", badge: "border-teal-200/50 bg-teal-600/80 text-white", button: "from-teal-400 to-cyan-600" },
+  { card: "border-sky-400/80 bg-[radial-gradient(ellipse_at_100%_85%,rgba(14,165,233,.32),transparent_48%),linear-gradient(135deg,#0750a6,#082e60_62%,#071839)] shadow-[0_0_26px_rgba(14,165,233,.2)] hover:border-sky-200", badge: "border-sky-300/50 bg-blue-600/80 text-white", button: "from-cyan-400 to-blue-600" },
+  { card: "border-amber-400/80 bg-[radial-gradient(ellipse_at_100%_85%,rgba(245,158,11,.3),transparent_48%),linear-gradient(135deg,#71380a,#38220b_62%,#1b1930)] shadow-[0_0_26px_rgba(245,158,11,.2)] hover:border-amber-200", badge: "border-amber-300/50 bg-amber-600/80 text-white", button: "from-amber-400 to-orange-600" },
+  { card: "border-fuchsia-400/80 bg-[radial-gradient(ellipse_at_100%_85%,rgba(168,85,247,.32),transparent_48%),linear-gradient(135deg,#46129e,#24104e_62%,#100d39)] shadow-[0_0_26px_rgba(168,85,247,.2)] hover:border-fuchsia-200", badge: "border-fuchsia-300/50 bg-violet-600/80 text-white", button: "from-violet-400 to-fuchsia-600" }
 ];
 const testRankHeroBanners = [
   {
@@ -212,68 +212,6 @@ function Icon({ name, className = "h-5 w-5" }) {
     arrow: <><path d="M5 12h14m-6-6 6 6-6 6"/></>
   };
   return <svg {...shared}>{paths[name] || paths.test}</svg>;
-}
-
-function LiveTestArtwork({ idPrefix }) {
-  const rankGradient = `${idPrefix}-live-rank`;
-  const platformGradient = `${idPrefix}-live-platform`;
-  const orbitGradient = `${idPrefix}-live-orbit`;
-  const sweepGradient = `${idPrefix}-live-sweep`;
-  const barsClip = `${idPrefix}-live-bars`;
-
-  return (
-    <svg className="live-test-artwork" viewBox="0 0 88 76" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id={rankGradient} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#8be9ff" />
-          <stop offset="0.42" stopColor="#3987ff" />
-          <stop offset="1" stopColor="#7148ed" />
-        </linearGradient>
-        <linearGradient id={platformGradient} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#91f0ff" />
-          <stop offset="0.42" stopColor="#305edb" />
-          <stop offset="1" stopColor="#15143f" />
-        </linearGradient>
-        <linearGradient id={orbitGradient} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#4b8dff" stopOpacity="0.08" />
-          <stop offset="0.5" stopColor="#a9f4ff" />
-          <stop offset="1" stopColor="#946cff" stopOpacity="0.12" />
-        </linearGradient>
-        <linearGradient id={sweepGradient} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#fff" stopOpacity="0" />
-          <stop offset="0.5" stopColor="#fff" stopOpacity="0.75" />
-          <stop offset="1" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <clipPath id={barsClip}>
-          <rect x="15" y="42" width="18" height="24" rx="4" />
-          <rect x="35" y="29" width="18" height="37" rx="4" />
-          <rect x="55" y="47" width="18" height="19" rx="4" />
-        </clipPath>
-      </defs>
-
-      <ellipse className="live-test-orbit" cx="44" cy="52" rx="37" ry="16" fill="none" stroke={`url(#${orbitGradient})`} strokeWidth="1.2" />
-      <ellipse className="live-test-platform" cx="44" cy="67" rx="31" ry="5" fill={`url(#${platformGradient})`} stroke="#83eaff" strokeWidth="1.2" />
-      <ellipse cx="44" cy="66" rx="23" ry="2.2" fill="#a48aff" opacity="0.72" />
-
-      <g className="live-test-bars" fill={`url(#${rankGradient})`} stroke="#a6efff" strokeWidth="1">
-        <rect className="live-test-bar live-test-bar-one" x="15" y="42" width="18" height="24" rx="4" />
-        <rect className="live-test-bar live-test-bar-two" x="35" y="29" width="18" height="37" rx="4" />
-        <rect className="live-test-bar live-test-bar-three" x="55" y="47" width="18" height="19" rx="4" />
-        <rect className="live-test-sweep" x="12" y="27" width="64" height="40" fill={`url(#${sweepGradient})`} stroke="none" clipPath={`url(#${barsClip})`} />
-      </g>
-
-      <g className="live-test-star-float">
-        <path className="live-test-star" d="m44 5 4 8.4 9.2 1.3-6.6 6.4 1.6 9.1-8.2-4.3-8.2 4.3 1.6-9.1-6.6-6.4 9.2-1.3L44 5Z" fill="#ffd66e" stroke="#fff3c4" strokeWidth="1.6" strokeLinejoin="round" />
-      </g>
-    </svg>
-  );
-}
-
-function FormatIcon({ kind }) {
-  const icon = kind === "Premium Mock" ? "crown" : kind === "PYQ Mock" ? "paper" : "payment";
-  const tone = kind === "Premium Mock" ? "premium" : kind === "PYQ Mock" ? "pyq" : "paid";
-
-  return <span className={`format-icon-tile format-icon-${tone}`} aria-hidden="true"><Icon name={icon} className="h-7 w-7" /></span>;
 }
 
 const subExamIconName = (name, exam) => {
@@ -583,27 +521,6 @@ export default function TestRankPage() {
             <section className="grid gap-3 rounded-2xl border border-blue-500/35 bg-[radial-gradient(ellipse_at_12%_20%,rgba(16,102,234,.18),transparent_42%),linear-gradient(120deg,#031a43,#05245a_58%,#031633)] p-3 shadow-[0_24px_65px_rgba(0,0,0,.2)] sm:grid-cols-[minmax(0,1.2fr)_minmax(250px,.8fr)] sm:items-center sm:gap-5 sm:p-6"><div className="flex min-w-0 items-center gap-3 sm:gap-6"><div className="grid h-16 w-16 shrink-0 place-items-center rounded-full p-[5px] sm:h-28 sm:w-28 sm:p-[6px]" style={{ background: `conic-gradient(#1687ff ${completionProgress}%,#0c3978 0)` }}><div className="grid h-full w-full place-items-center rounded-full bg-[#06204a] text-lg font-bold text-white sm:text-2xl">{historyLoading ? "…" : `${completionProgress}%`}</div></div><div className="hidden h-20 w-px shrink-0 bg-blue-400/25 sm:block" /><div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-[.12em] text-blue-200 sm:text-xs sm:tracking-[.15em]">Overall Progress</p><h2 className="mt-1 text-base font-bold text-white sm:mt-2 sm:text-2xl">Completed practice</h2><p className="mt-0.5 text-xl font-bold text-cyan-300 sm:mt-1.5 sm:text-2xl">{historyLoading ? "…" : history.length}<span className="ml-2 text-sm font-semibold text-white sm:text-base">attempts</span></p><p className="mt-0.5 text-[10px] leading-4 text-blue-200 sm:mt-1 sm:text-xs sm:leading-5">{loading ? "Loading available tests…" : `Out of ${tests.length} available tests`} · Keep practicing to improve your performance.</p></div></div><div className="flex min-h-0 items-center gap-3 rounded-xl border border-blue-400/25 bg-blue-900/25 p-3 sm:min-h-28 sm:gap-4 sm:p-5"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-500/20 text-cyan-300 sm:h-12 sm:w-12"><svg viewBox="0 0 24 24" className="h-6 w-6 sm:h-7 sm:w-7" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 21h8m-4-4v4M7 4H4v2a5 5 0 0 0 4.3 5M17 4h3v2a5 5 0 0 1-4.3 5M7 3h10v7a5 5 0 0 1-10 0z"/><path d="m12 5 1 2 2 .3-1.5 1.5.4 2.2-1.9-1-1.9 1 .4-2.2L9 7.3 11 7z"/></svg></span><div><p className="text-[10px] font-semibold uppercase tracking-[.12em] text-blue-200 sm:text-xs sm:tracking-[.15em]">Best saved score</p><p className="mt-1 text-xl font-bold text-white sm:mt-1.5 sm:text-2xl">{historyLoading ? "…" : best === null ? "—" : `${best}%`}</p><p className="mt-1 text-[10px] text-blue-200 sm:text-[11px]">Highest score across submitted tests</p></div></div></section>
           </div>
 
-          <section aria-label="Choose a test format" className="tr-mobile-quick tr-mobile-dashboard-quick mt-5">
-            <div className="mb-3 flex items-end justify-between gap-2">
-              <div><p className="text-[9px] font-bold uppercase tracking-[.18em] text-sky-300">Quick access</p><h2 className="mt-1 text-base font-bold text-white sm:text-lg">Choose your test</h2></div>
-              <span className="pb-0.5 text-[10px] font-medium text-slate-400">Pick a format <span aria-hidden="true">→</span></span>
-            </div>
-            <div className="grid grid-cols-1 gap-3 min-[460px]:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-              {[
-                { title: "Live Mock", detail: "Timed exam simulations", label: "REAL-TIME PRACTICE", action: "Explore tests", icon: "live", card: "border-blue-500/70 bg-[linear-gradient(145deg,#08245e,#061942_60%,#020d2a)] hover:border-blue-300", accent: "text-sky-300", button: "from-blue-500 to-cyan-500", href: "/test-rank?mode=timed#choose-format" },
-                { title: "AI Mock", detail: "Personalized exam and topic practice", label: "PERSONALIZED AI", action: "Create mock", icon: "spark", card: "border-cyan-400/60 bg-[linear-gradient(145deg,#063c50,#042b3d_60%,#031a31)] hover:border-cyan-200", accent: "text-cyan-300", button: "from-cyan-500 to-teal-500", href: "/test-rank?mode=topic#choose-format" },
-                { title: "Premium Mock", detail: "Exam-length premium practice", label: "EXCLUSIVE SERIES", action: "View series", icon: "crown", card: "border-amber-400/60 bg-[linear-gradient(145deg,#493313,#292018_60%,#151522)] hover:border-amber-200", accent: "text-amber-300", button: "from-amber-400 to-orange-600", href: "/test-rank?mode=full#choose-format" },
-                { title: "PYQ Mock", detail: "Previous year question papers", label: "PAST EXAM PAPERS", action: "Practice PYQs", icon: "paper", card: "border-violet-500/65 bg-[linear-gradient(145deg,#302078,#21184e_60%,#110e31)] hover:border-violet-300", accent: "text-fuchsia-300", button: "from-violet-500 to-fuchsia-600", href: "/test-rank?tab=Previous%20Year%20Papers#choose-format" },
-                { title: "Paid Mock", detail: `${tests.filter((item) => item.access === "Premium").length} paid tests · unlock test series`, label: "PREMIUM ACCESS", action: "View tests", icon: "payment", card: "border-teal-400/60 bg-[linear-gradient(145deg,#063c50,#062b3c_60%,#03182c)] hover:border-teal-200", accent: "text-teal-300", button: "from-teal-400 to-cyan-600", href: "/test-rank?tab=Premium%20Tests#choose-format" }
-              ].map((item) => <Link key={item.title} href={item.href} aria-label={`${item.title}: ${item.detail}. ${item.action}`} className={`rank-format-card group relative isolate flex min-h-[190px] min-w-0 flex-col justify-between overflow-hidden rounded-[22px] border p-3.5 shadow-[0_14px_30px_rgba(0,0,0,.3)] ring-1 ring-white/[.04] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_42px_rgba(0,0,0,.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#030d1b] motion-reduce:transform-none motion-reduce:transition-none ${item.card}`}>
-                <span aria-hidden="true" className="pointer-events-none absolute -right-7 -top-8 h-28 w-28 rounded-full bg-white/[.1] blur-2xl transition-opacity group-hover:opacity-90" />
-                <span aria-hidden="true" className="pointer-events-none absolute -bottom-14 -right-5 h-24 w-2/3 rotate-[-28deg] bg-gradient-to-r from-transparent via-white/5 to-white/15" />
-                <span className="relative z-10 flex items-start justify-between gap-2"><span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/[.08] ${item.accent} shadow-[0_10px_28px_rgba(0,0,0,.2)]`}>{item.icon === "live" ? <LiveTestArtwork idPrefix="quick" /> : <Icon name={item.icon} className="h-8 w-8" />}</span><span className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-white/[.08] text-xl text-white transition group-hover:translate-x-0.5 group-hover:bg-white/[.16]">→</span></span>
-                <span className="relative z-10 block min-w-0"><small className="block text-[9px] font-extrabold tracking-[.14em] text-white/65"><span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current align-middle ${item.accent}`} />{item.label}</small><b className="mt-2 block text-lg font-extrabold leading-tight tracking-tight text-white sm:text-xl">{item.title}</b><small className="mt-2 block min-h-10 text-xs leading-5 text-slate-200/85 sm:text-sm">{item.detail}</small><span className={`mt-2.5 flex min-h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r px-3 py-2 text-xs font-extrabold text-white shadow-md transition group-hover:brightness-110 sm:text-sm ${item.button}`}>{item.action}<span aria-hidden="true" className="text-base transition group-hover:translate-x-0.5">→</span></span></span>
-              </Link>)}
-            </div>
-          </section>
-
           <section className="tr-mobile-target tr-mobile-dashboard-target relative mt-3 overflow-hidden rounded-2xl border border-blue-300/20 bg-[linear-gradient(115deg,#102f85,#143caa_62%,#0b245f)] p-3 text-white shadow-[0_18px_45px_rgba(7,25,83,.28)] sm:mt-4 sm:p-5 md:hidden">
             <div className="pointer-events-none absolute -right-8 -top-10 h-36 w-36 rounded-full bg-cyan-300/15 blur-2xl" />
             <div className="relative flex items-start gap-2.5 sm:gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/20 bg-white/10 text-amber-200 sm:h-11 sm:w-11 sm:rounded-xl"><Icon name="school" className="h-5 w-5 sm:h-6 sm:w-6" /></span><div className="min-w-0"><p className="text-[9px] font-bold uppercase tracking-[.16em] text-blue-200 sm:text-[10px] sm:tracking-[.18em]">Your preparation plan</p><h2 className="mt-0.5 text-base font-bold sm:mt-1 sm:text-lg">Build a stronger daily routine</h2><p className="mt-1 text-[11px] leading-4 text-blue-100/80 sm:text-xs sm:leading-5">Practice topic-wise, follow current affairs and keep your exam goals on track.</p></div></div>
@@ -656,21 +573,21 @@ export default function TestRankPage() {
                 const visibleTests = filteredTests.filter((test) => matchesExam(test, category.exam) && (!selectedSeries || matchesExam(test, selectedSeries.name)));
                 const availableSubExams = (category.subExams || []).filter((item) => tests.some((test) => matchesExam(test, item.name)));
                 const cardId = `exam-tests-${category.exam.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-                return <article key={category.exam} className={`group relative isolate min-w-0 overflow-hidden rounded-[22px] border p-4 shadow-[0_16px_36px_rgba(0,0,0,.25)] transition duration-200 hover:shadow-[0_22px_42px_rgba(0,0,0,.34)] ${theme.card} ${isExpanded ? "ring-2 ring-white/40" : "hover:-translate-y-0.5"}`}>
-                  <button type="button" aria-expanded={isExpanded} aria-controls={cardId} onClick={() => isExpanded ? closeCategoryMocks() : openCategoryMocks(category.exam)} aria-label={`${isExpanded ? "Close" : "Explore"} ${category.exam} test series`} className="relative flex min-h-[270px] w-full flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020c22] sm:min-h-[270px]">
-                    {category.artImage ? <Image src={category.artImage} alt="" aria-hidden="true" width={300} height={180} className="pointer-events-none absolute bottom-7 right-0 z-0 h-36 w-[46%] object-contain object-right-bottom opacity-95 transition duration-300 group-hover:scale-[1.03] sm:h-40" /> : null}
+                return <article key={category.exam} className={`group relative isolate min-w-0 overflow-hidden rounded-[28px] border p-4 shadow-[0_20px_48px_rgba(0,0,0,.3)] transition duration-200 hover:shadow-[0_24px_54px_rgba(0,0,0,.4)] sm:p-5 ${theme.card} ${isExpanded ? "ring-2 ring-white/50" : "hover:-translate-y-0.5"}`}>
+                  <button type="button" aria-expanded={isExpanded} aria-controls={cardId} onClick={() => isExpanded ? closeCategoryMocks() : openCategoryMocks(category.exam)} aria-label={`${isExpanded ? "Close" : "Explore"} ${category.exam} test series`} className="relative flex min-h-[300px] w-full flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020c22] sm:min-h-[300px]">
+                    {category.artImage ? <Image src={category.artImage} alt="" aria-hidden="true" width={300} height={180} className="pointer-events-none absolute bottom-7 right-0 z-0 h-40 w-[46%] object-contain object-right-bottom opacity-95 transition duration-300 group-hover:scale-[1.03] sm:h-44" /> : null}
                     <span className="relative z-10 flex w-full items-start justify-between gap-3">
                       <span className="flex min-w-0 items-center gap-3">
-                        <span className="grid h-[68px] w-[68px] shrink-0 place-items-center rounded-full border-[3px] border-white/90 bg-white p-2 shadow-[0_0_0_5px_rgba(255,255,255,.08),0_10px_28px_rgba(0,0,0,.32)] transition duration-200 group-hover:scale-105 sm:h-[76px] sm:w-[76px]">{category.logoImages?.length ? <span className="grid grid-cols-3 gap-0.5">{category.logoImages.slice(0, 6).map((logo) => <Image key={logo.src} src={logo.src} alt={logo.alt} width={16} height={16} className="h-4 w-4 rounded-full object-contain" />)}</span> : category.logoImage ? <Image src={category.logoImage} alt={category.logoAlt || `${category.exam} exam emblem`} width={64} height={64} className="h-full w-full object-contain" /> : <span className="text-3xl" aria-hidden="true">{category.logo || "🎓"}</span>}</span>
-                      <span className="min-w-0"><span className="block truncate text-lg font-extrabold tracking-tight text-white sm:text-xl">{category.exam}</span><span className="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-blue-100/80"><Icon name="test" className="h-3.5 w-3.5 shrink-0" />{loading ? "Loading tests…" : `${categoryTests.length} available tests`}</span></span>
+                        <span className="grid h-[80px] w-[80px] shrink-0 place-items-center rounded-full border-[3px] border-white/95 bg-white p-2.5 shadow-[0_0_0_5px_rgba(255,255,255,.1),0_10px_28px_rgba(0,0,0,.36)] transition duration-200 group-hover:scale-105 sm:h-[92px] sm:w-[92px]">{category.logoImages?.length ? <span className="grid grid-cols-3 gap-0.5">{category.logoImages.slice(0, 6).map((logo) => <Image key={logo.src} src={logo.src} alt={logo.alt} width={18} height={18} className="h-[18px] w-[18px] rounded-full object-contain" />)}</span> : category.logoImage ? <Image src={category.logoImage} alt={category.logoAlt || `${category.exam} exam emblem`} width={76} height={76} className="h-full w-full object-contain" /> : <span className="text-3xl" aria-hidden="true">{category.logo || "🎓"}</span>}</span>
+                      <span className="min-w-0"><span className="block truncate text-2xl font-extrabold tracking-tight text-white sm:text-3xl">{category.exam}</span><span className="mt-1 flex items-center gap-1.5 text-xs font-medium text-blue-100/85 sm:text-sm"><Icon name="test" className="h-4 w-4 shrink-0" />{loading ? "Loading tests…" : `${categoryTests.length} available tests`}</span></span>
                     </span>
-                    <span className={`shrink-0 rounded-full border px-2.5 py-1.5 text-[9px] font-extrabold sm:text-[10px] ${theme.badge}`}>{category.difficulty}</span>
+                    <span className={`shrink-0 rounded-full border px-3 py-2 text-[10px] font-extrabold sm:px-4 sm:text-xs ${theme.badge}`}>{category.difficulty}</span>
                   </span>
                   <span className="relative z-10 mt-4 flex flex-wrap gap-2">
-                    {[{ label: "Free", value: freeCount, icon: "gift" }, { label: "Paid", value: paidCount, icon: "payment" }, { label: category.duration, value: category.pattern, icon: "clock" }].map((item) => <span key={item.label} className="inline-flex min-h-[50px] items-center gap-2 rounded-2xl border border-white/15 bg-black/15 px-3 py-2 text-[10px] text-white/75 shadow-inner shadow-white/[.025]"><Icon name={item.icon} className="h-4 w-4 shrink-0 text-white/85" /><span><span className="block font-semibold">{item.label}</span><b className="text-xs text-white">{item.value}</b></span></span>)}
+                    {[{ label: "Free", value: freeCount, icon: "gift" }, { label: "Paid", value: paidCount, icon: "payment" }, { label: category.duration, value: category.pattern, icon: "clock" }].map((item) => <span key={item.label} className="inline-flex min-h-[60px] items-center gap-2 rounded-2xl border border-white/20 bg-black/15 px-3 py-2 text-[11px] text-white/80 shadow-inner shadow-white/[.035] sm:px-4"><Icon name={item.icon} className="h-[18px] w-[18px] shrink-0 text-white/90" /><span><span className="block font-semibold">{item.label}</span><b className="text-sm text-white">{item.value}</b></span></span>)}
                   </span>
-                  <span className="relative z-10 mt-3 line-clamp-1 text-[10px] font-medium text-blue-100/75 sm:text-[11px]">{category.sections}</span>
-                  <span className={`relative z-10 mt-auto inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r px-4 py-2.5 text-xs font-extrabold text-white shadow-[0_8px_22px_rgba(0,0,0,.24)] transition group-hover:brightness-110 sm:text-sm ${theme.button}`}><span>{isExpanded ? "Close test series" : "Explore mocks"}</span><span aria-hidden="true" className={`text-base transition-transform ${isExpanded ? "rotate-180" : "group-hover:translate-y-0.5"}`}>↓</span></span>
+                  <span className="relative z-10 mt-3 line-clamp-1 text-xs font-medium text-blue-100/80 sm:text-sm">{category.sections}</span>
+                  <span className={`relative z-10 mt-auto inline-flex min-h-[54px] w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r px-4 py-3 text-sm font-extrabold text-white shadow-[0_8px_22px_rgba(0,0,0,.28)] transition group-hover:brightness-110 sm:text-base ${theme.button}`}><span>{isExpanded ? "Close test series" : "Explore mocks"}</span><span aria-hidden="true" className={`text-lg transition-transform ${isExpanded ? "rotate-180" : "group-hover:translate-y-0.5"}`}>↓</span></span>
                   </button>
                   {isExpanded ? <div id={cardId} className="relative z-10 mt-3 border-t border-white/15 pt-3" aria-live="polite">
                     <div className="mb-3 flex flex-wrap gap-1.5">
