@@ -11,15 +11,82 @@ import { enrichMockTests } from "@/lib/mockQuestionFilters";
 
 const tabs = ["All Tests", "Free Tests", "Premium Tests", "Previous Year Papers", "Practice Sets"];
 const testRankHeroBanners = [
-  { src: "/test-rank-pyq-mock.webp", alt: "Badam Test Rankers PYQ mock practice with previous year question papers", label: "PYQ Mock", href: "/test-rank?tab=Previous%20Year%20Papers#choose-format", width: 2118, height: 742 },
-  { src: "/test-rank-live-mock.webp", alt: "Badam Test Rankers all India live mock test for competitive exam aspirants", label: "Live Mock", href: "/test-rank?mode=timed#choose-format", width: 2120, height: 742 },
-  { src: "/test-rank-railway-mock.webp", alt: "RRB mock tests for Railway exam practice on Badam Test Rankers", label: "RRB Mock Tests", href: "/test-rank?exam=Railway#choose-format", width: 2058, height: 764 },
-  { src: "/test-rank-ssc-mock.webp", alt: "SSC mock tests and focused exam preparation on Badam Test Rankers", label: "SSC Mock Tests", href: "/test-rank?exam=SSC#choose-format", width: 2118, height: 742 },
-  { src: "/test-rank-state-exams.webp", alt: "State exam mock tests for competitive exam preparation on Badam Test Rankers", label: "State Exam Mocks", href: "/test-rank?exam=State%20Exams#choose-format", width: 2040, height: 771 },
-  { src: "/test-rank-hero-online-series.png", alt: "Badam Test Rankers online test series for competitive exams with full length mock tests, sectional tests, performance tracking, and analysis", label: "Online test series", width: 1571, height: 412 },
-  { src: "/test-rank-hero-cyan.webp", alt: "Badam Test Rankers online test series for SSC, Railway, Banking and Police exams", label: "Blue and cyan", width: 2171, height: 724 },
-  { src: "/test-rank-hero-gold.webp", alt: "Badam Test Rankers exam practice banner with blue and gold styling", label: "Blue and gold", width: 2172, height: 724 },
-  { src: "/test-rank-welcome-banner.jpg", alt: "Welcome to BadamTest with real exam pattern and smart analysis", label: "Welcome", width: 1024, height: 320 }
+  {
+    src: "/badam-testranker-hero.png",
+    alt: "Badam TestRanker exam preparation, mock tests and free practice",
+    label: "Badam TestRanker",
+    href: "/mock-tests/free-practice",
+    width: 1820,
+    height: 879
+  },
+  {
+    src: "/test-rank-pyq-mock.webp",
+    alt: "Badam Test Rankers PYQ mock practice with previous year question papers",
+    label: "PYQ Mock",
+    href: "/test-rank?tab=Previous%20Year%20Papers#choose-format",
+    width: 2118,
+    height: 742
+  },
+  {
+    src: "/test-rank-live-mock.webp",
+    alt: "Badam Test Rankers all India live mock test for competitive exam aspirants",
+    label: "Live Mock",
+    href: "/test-rank?mode=timed#choose-format",
+    width: 2120,
+    height: 742
+  },
+  {
+    src: "/test-rank-railway-mock.webp",
+    alt: "RRB mock tests for Railway exam practice on Badam Test Rankers",
+    label: "RRB Mock Tests",
+    href: "/test-rank?exam=Railway#choose-format",
+    width: 2058,
+    height: 764
+  },
+  {
+    src: "/test-rank-ssc-mock.webp",
+    alt: "SSC mock tests and focused exam preparation on Badam Test Rankers",
+    label: "SSC Mock Tests",
+    href: "/test-rank?exam=SSC#choose-format",
+    width: 2118,
+    height: 742
+  },
+  {
+    src: "/test-rank-state-exams.webp",
+    alt: "State exam mock tests for competitive exam preparation on Badam Test Rankers",
+    label: "State Exam Mocks",
+    href: "/test-rank?exam=State%20Exams#choose-format",
+    width: 2040,
+    height: 771
+  },
+  {
+    src: "/test-rank-hero-online-series.png",
+    alt: "Badam Test Rankers online test series for competitive exams with full length mock tests, sectional tests, performance tracking, and analysis",
+    label: "Online test series",
+    width: 1571,
+    height: 412
+  },
+  {
+    src: "/test-rank-hero-cyan.webp",
+    alt: "Badam Test Rankers online test series for SSC, Railway, Banking and Police exams",
+    label: "Blue and cyan",
+    width: 2171,
+    height: 724
+  },
+  {
+    src: "/test-rank-hero-gold.webp",
+    alt: "Badam Test Rankers exam practice banner with blue and gold styling",
+    label: "Blue and gold",
+    width: 2172,
+    height: 724
+  },
+  {
+    src: "/test-rank-welcome-banner.jpg",
+    alt: "Welcome to BadamTest with real exam pattern and smart analysis",
+    label: "Welcome",
+    width: 1024,
+    height: 320
+  }
 ];
 const mockModes = [{ id: "all", label: "All Mocks", icon: "grid" }, { id: "full", label: "Full Mock", icon: "test" }, { id: "sectional", label: "Sectional Mock", icon: "layers" }, { id: "topic", label: "Topic / Chapter Mock", icon: "book" }, { id: "mini", label: "Mini Mocks", icon: "spark" }, { id: "super", label: "Super Sets", icon: "spark" }, { id: "calci", label: "Ultra Calci", icon: "calculator" }, { id: "timed", label: "Timed Online Tests", icon: "clock" }];
 const practiceFormats = [
@@ -58,10 +125,6 @@ const normalizeTest = (item, sourceLabel) => {
     examSearchText: [item.examName, item.exam, item.category, item.source, item.sourcePdf, item.title].filter(Boolean).join(" "),
     duration: item.duration || (item.durationMinutes ? `${item.durationMinutes} min` : "—"), marks: item.marks || item.maxMarks || (item.marksPerQuestion != null ? questionCount * Number(item.marksPerQuestion) : "—"), difficulty: item.difficulty || "Not specified",
     language: item.language || "Not specified", access, type: item.testRankType || testType, source: sourceLabel,
-    createdAt: item.createdAt || item.publishedAt || item.updatedAt || null,
-    bucket: item.testBucket || item.bucketName || item.bucket || "",
-    guidance: Boolean(item.topperGuidance || item.guidanceProgram || /topper'?s? guidance/i.test(`${item.title || ""} ${item.type || ""} ${item.source || ""}`)),
-    courseId: typeof item.courseId === "string" ? item.courseId : item.courseId?._id || item.courseId?.id || "",
     subject: item.subject || item.groupLabel || "", status: item.status || "Available",
     href: item.href || (item.testUrl?.startsWith("/") ? item.testUrl : buildPracticeHref(exam, id, item.subject || ""))
   };
@@ -199,97 +262,13 @@ function LiveTestArtwork({ idPrefix }) {
 }
 
 function FormatIcon({ kind }) {
-  const icon = kind === "Premium Mock" ? "crown" : kind === "PYQ Mock" ? "paper" : kind === "AI Mock" ? "spark" : "payment";
-  const tone = kind === "Premium Mock" ? "premium" : kind === "PYQ Mock" ? "pyq" : kind === "AI Mock" ? "ai" : "paid";
+  const icon = kind === "Premium Mock" ? "crown" : kind === "PYQ Mock" ? "paper" : "payment";
+  const tone = kind === "Premium Mock" ? "premium" : kind === "PYQ Mock" ? "pyq" : "paid";
 
   return <span className={`format-icon-tile format-icon-${tone}`} aria-hidden="true"><Icon name={icon} className="h-7 w-7" /></span>;
 }
 
 const categoryIconNames = { Railway: "train", SSC: "test", Banking: "bank", Police: "shield", Teaching: "school", "State Exams": "government" };
-const examDashboardCategories = [
-  { id: "Railway", label: "Railway", parent: "Railway", terms: ["railway", "rrb"], icon: "train" },
-  { id: "SSC", label: "SSC", parent: "SSC", terms: ["ssc"], icon: "test" },
-  { id: "Banking", label: "Banking", parent: "Banking", terms: ["bank", "ibps", "sbi", "rbi"], icon: "bank" },
-  { id: "Police", label: "Police", parent: "Police", terms: ["police", "constable", "rpf"], icon: "shield" },
-  { id: "Teaching", label: "Teaching", parent: "Teaching", terms: ["teaching", "tet", "ctet"], icon: "school" },
-  { id: "State Exams", label: "State Exams", parent: "State Exams", terms: ["state", "psc", "bihar exams", "up exams", "mp exams"], icon: "government" },
-  { id: "IB", label: "IB", parent: "IB", terms: ["intelligence bureau", "acio"], icon: "government" },
-  { id: "UP Police", label: "UP Police", parent: "Police", terms: ["up police", "uttar pradesh police"], icon: "shield" },
-  { id: "RPF", label: "RPF", parent: "Railway", terms: ["rpf", "railway protection force"], icon: "shield" },
-  { id: "Delhi Police", label: "Delhi Police", parent: "Police", terms: ["delhi police"], icon: "shield" },
-  { id: "MP Police", label: "MP Police", parent: "Police", terms: ["mp police", "madhya pradesh police"], icon: "shield" },
-  { id: "Bihar Police", label: "Bihar Police", parent: "Police", terms: ["bihar police"], icon: "shield" },
-  { id: "Rajasthan Police", label: "Rajasthan Police", parent: "Police", terms: ["rajasthan police"], icon: "shield" },
-  { id: "Defence", label: "Defence", parent: "Defence", terms: ["defence", "defense", "nda", "cds", "afcat", "agniveer"], icon: "government" }
-];
-const examCategoryCardTones = [
-  { border: "border-pink-500/65 hover:border-pink-300", glow: "from-pink-600/25", pill: "border-pink-400/40 bg-pink-500/15 text-pink-100", accent: "from-pink-500 to-rose-600" },
-  { border: "border-violet-500/65 hover:border-violet-300", glow: "from-violet-600/25", pill: "border-violet-400/40 bg-violet-500/15 text-violet-100", accent: "from-violet-500 to-indigo-600" },
-  { border: "border-teal-400/60 hover:border-teal-200", glow: "from-teal-500/25", pill: "border-teal-300/40 bg-teal-500/15 text-teal-100", accent: "from-teal-400 to-cyan-600" },
-  { border: "border-blue-500/65 hover:border-cyan-300", glow: "from-blue-600/25", pill: "border-blue-400/40 bg-blue-500/15 text-blue-100", accent: "from-cyan-400 to-blue-600" },
-  { border: "border-amber-400/60 hover:border-amber-200", glow: "from-amber-500/25", pill: "border-amber-300/40 bg-amber-500/15 text-amber-100", accent: "from-amber-400 to-orange-600" },
-  { border: "border-fuchsia-500/60 hover:border-fuchsia-300", glow: "from-fuchsia-600/25", pill: "border-fuchsia-400/40 bg-fuchsia-500/15 text-fuchsia-100", accent: "from-violet-400 to-fuchsia-600" }
-];
-const testSeriesByCategory = {
-  Railway: [
-    { id: "rrb-ntpc", name: "RRB NTPC Mock Test Series", terms: ["ntpc"] },
-    { id: "rrb-group-d", name: "RRB Group D Mock Test Series", terms: ["group d"] },
-    { id: "rrb-alp", name: "RRB ALP Mock Test Series", terms: ["alp"] },
-    { id: "rrb-technician", name: "RRB Technician Mock Test Series", terms: ["technician"] },
-    { id: "rpf-series", name: "RPF Mock Test Series", terms: ["rpf"] }
-  ],
-  SSC: [
-    { id: "ssc-cgl-tier-1", name: "SSC CGL Tier-1 Mock Test Series", terms: ["cgl"], exclude: ["tier 2", "tier-2"] },
-    { id: "ssc-cgl-tier-2", name: "SSC CGL Tier-2 Mock Test Series", terms: ["cgl", "tier 2"] },
-    { id: "ssc-chsl-tier-1", name: "SSC CHSL Tier-1 Mock Test Series", terms: ["chsl"], exclude: ["tier 2", "tier-2"] },
-    { id: "ssc-chsl-tier-2", name: "SSC CHSL Tier-2 Mock Test Series", terms: ["chsl", "tier 2"] },
-    { id: "ssc-cpo-tier-1", name: "SSC CPO Tier-1 Mock Test Series", terms: ["cpo"], exclude: ["tier 2", "tier-2"] },
-    { id: "ssc-cpo-tier-2", name: "SSC CPO Tier-2 Mock Test Series", terms: ["cpo", "tier 2"] },
-    { id: "ssc-selection-post", name: "SSC Selection Post Mock Test Series", terms: ["selection post"] },
-    { id: "ssc-mts", name: "SSC MTS Mock Test Series", terms: ["mts"] }
-  ],
-  Banking: [
-    { id: "ibps-po", name: "IBPS PO Test Series", terms: ["ibps po"] },
-    { id: "ibps-clerk", name: "IBPS Clerk Test Series", terms: ["ibps clerk"] },
-    { id: "sbi-po", name: "SBI PO Test Series", terms: ["sbi po"] },
-    { id: "sbi-clerk", name: "SBI Clerk Test Series", terms: ["sbi clerk"] },
-    { id: "rbi-assistant", name: "RBI Assistant Test Series", terms: ["rbi assistant"] },
-    { id: "ibps-rrb", name: "IBPS RRB Test Series", terms: ["ibps rrb"] }
-  ],
-  Police: [
-    { id: "up-police", name: "UP Police Test Series", terms: ["up police", "uttar pradesh police"] },
-    { id: "rpf", name: "RPF Test Series", terms: ["rpf"] },
-    { id: "delhi-police", name: "Delhi Police Test Series", terms: ["delhi police"] },
-    { id: "mp-police", name: "MP Police Test Series", terms: ["mp police", "madhya pradesh police"] },
-    { id: "bihar-police", name: "Bihar Police Test Series", terms: ["bihar police"] },
-    { id: "rajasthan-police", name: "Rajasthan Police Test Series", terms: ["rajasthan police"] }
-  ],
-  Teaching: [
-    { id: "ctet", name: "CTET Paper I & II Test Series", terms: ["ctet"] },
-    { id: "uptet", name: "UPTET Test Series", terms: ["uptet"] },
-    { id: "reet", name: "REET Test Series", terms: ["reet"] },
-    { id: "tgt-pgt", name: "TGT / PGT Test Series", terms: ["tgt", "pgt"] }
-  ],
-  "State Exams": [
-    { id: "up-exams", name: "UP State Exams Test Series", terms: ["up exams", "uttar pradesh"] },
-    { id: "mp-exams", name: "MP State Exams Test Series", terms: ["mp exams", "madhya pradesh"] },
-    { id: "bihar-exams", name: "Bihar State Exams Test Series", terms: ["bihar"] },
-    { id: "state-psc", name: "State PSC Test Series", terms: ["psc"] }
-  ],
-  IB: [{ id: "ib-acio-tier-1", name: "IB ACIO Tier-I Test Series", terms: ["acio"] }, { id: "ib-acio-tier-2", name: "IB ACIO Tier-II Test Series", terms: ["acio", "tier 2"] }],
-  "UP Police": [{ id: "up-constable", name: "UP Police Constable Test Series", terms: ["up police", "constable"] }, { id: "up-si", name: "UP Police SI Test Series", terms: ["up police", "si"] }],
-  RPF: [{ id: "rpf-constable", name: "RPF Constable Test Series", terms: ["rpf", "constable"] }, { id: "rpf-si", name: "RPF SI Test Series", terms: ["rpf", "si"] }],
-  "Delhi Police": [{ id: "delhi-constable", name: "Delhi Police Constable Test Series", terms: ["delhi police", "constable"] }, { id: "delhi-si", name: "Delhi Police SI Test Series", terms: ["delhi police", "si"] }],
-  "MP Police": [{ id: "mp-constable", name: "MP Police Constable Test Series", terms: ["mp police", "constable"] }, { id: "mp-si", name: "MP Police SI Test Series", terms: ["mp police", "si"] }],
-  "Bihar Police": [{ id: "bihar-constable", name: "Bihar Police Constable Test Series", terms: ["bihar police", "constable"] }, { id: "bihar-si", name: "Bihar Police SI Test Series", terms: ["bihar police", "si"] }],
-  "Rajasthan Police": [{ id: "rajasthan-constable", name: "Rajasthan Police Constable Test Series", terms: ["rajasthan police", "constable"] }, { id: "rajasthan-si", name: "Rajasthan Police SI Test Series", terms: ["rajasthan police", "si"] }],
-  Defence: [{ id: "nda", name: "NDA Test Series", terms: ["nda"] }, { id: "cds", name: "CDS Test Series", terms: ["cds"] }, { id: "afcat", name: "AFCAT Test Series", terms: ["afcat"] }]
-};
-const cleanTestSearch = (value) => String(value || "").toLowerCase().replace(/[_-]+/g, " ").replace(/\btier\s+ii\b/g, "tier 2").replace(/\btier\s+i\b/g, "tier 1").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
-const matchesSeries = (test, series) => {
-  const text = cleanTestSearch(`${test.title} ${test.examSearchText} ${test.type} ${test.subject} ${test.bucket}`);
-  return series.terms.every((term) => text.includes(cleanTestSearch(term))) && !(series.exclude || []).some((term) => text.includes(cleanTestSearch(term)));
-};
 const subExamIconName = (name, exam) => {
   const value = `${name} ${exam}`.toLowerCase();
   if (/railway|rrb/.test(value)) return "train";
@@ -321,10 +300,6 @@ export default function TestRankPage() {
   const [selectedFormat, setSelectedFormat] = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [heroBannerIndex, setHeroBannerIndex] = useState(0);
-  const [activeDashboardCategory, setActiveDashboardCategory] = useState("");
-  const [activeDashboardSeries, setActiveDashboardSeries] = useState("");
-  const [dashboardTab, setDashboardTab] = useState("Mock Tests");
-  const [dashboardFilter, setDashboardFilter] = useState("All");
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
     const intervalId = window.setInterval(() => {
@@ -358,36 +333,7 @@ export default function TestRankPage() {
     const selectedExam = subExam || (exam === "All exams" ? "Competitive Exam" : exam);
     document.title = `${selectedExam} Mock Tests | Badam TestRank`;
   }, [exam, subExam]);
-  const chooseExamCategory = (categoryId) => {
-    const category = examDashboardCategories.find((item) => item.id === categoryId);
-    if (!category) return;
-    setActiveDashboardCategory(category.id);
-    setActiveDashboardSeries(testSeriesByCategory[category.id]?.[0]?.id || "");
-    setExam(category.parent);
-    setSubExam(category.id === category.parent ? "" : category.label);
-    setTab("All Tests");
-    setMockMode("all");
-    setSubject("All subjects");
-    setDifficulty("All levels");
-    setLanguage("All languages");
-    setSearch("");
-    setDashboardTab("Mock Tests");
-    setDashboardFilter("All");
-    setExpandedExam(category.label);
-    setSelectedFormat("full");
-    setPageSize(5);
-    const params = new URLSearchParams({ exam: category.parent });
-    if (category.id !== category.parent) params.set("subExam", category.label);
-    window.history.pushState(null, "", `/test-rank?${params.toString()}#category-dashboard`);
-    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-    window.setTimeout(() => document.getElementById("category-dashboard")?.scrollIntoView({ behavior, block: "start" }), 0);
-  };
   const openCategoryMocks = (category, selectedSubExam = "") => {
-    const targetCategory = examDashboardCategories.find((item) => item.id === (selectedSubExam || category) || item.label === (selectedSubExam || category));
-    if (targetCategory) {
-      chooseExamCategory(targetCategory.id);
-      return;
-    }
     setExam(category);
     setSubExam(selectedSubExam);
     setTab("All Tests");
@@ -396,22 +342,15 @@ export default function TestRankPage() {
     setDifficulty("All levels");
     setLanguage("All languages");
     setSearch("");
-    setDashboardTab("Mock Tests");
-    setDashboardFilter("All");
-    const params = new URLSearchParams({ exam: targetCategory?.parent || category });
-    if (targetCategory && targetCategory.id !== targetCategory.parent) params.set("subExam", targetCategory.label);
-    else if (selectedSubExam) params.set("subExam", selectedSubExam);
-    window.history.pushState(null, "", `/test-rank?${params.toString()}#category-dashboard`);
-    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-    window.setTimeout(() => document.getElementById("category-dashboard")?.scrollIntoView({ behavior, block: "start" }), 0);
-  };
-  const chooseTestSeries = (seriesId) => {
-    setActiveDashboardSeries(seriesId);
-    setDashboardTab("Mock Tests");
-    setDashboardFilter("All");
-    setPageSize(5);
-    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-    window.setTimeout(() => document.getElementById("category-test-list")?.scrollIntoView({ behavior, block: "nearest" }), 0);
+    // Keep the selected exam's results inside its category card so the page
+    // expands in place instead of opening a second library elsewhere.
+    const selectedPanel = selectedSubExam || category;
+    setExpandedExam(selectedPanel);
+    setSelectedFormat("");
+    setPageSize(12);
+    const params = new URLSearchParams({ exam: category });
+    if (selectedSubExam) params.set("subExam", selectedSubExam);
+    window.history.pushState(null, "", `/test-rank?${params.toString()}#popular-exams`);
   };
   const selectFormat = (format) => {
     setSelectedFormat((current) => current === format ? "" : format);
@@ -420,21 +359,6 @@ export default function TestRankPage() {
     else { setTab("All Tests"); setMockMode(format); }
     const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
     window.setTimeout(() => document.getElementById("choose-format")?.scrollIntoView({ block: "start", behavior }), 0);
-  };
-  const scrollToMockTests = (event, freeOnly = false) => {
-    event.preventDefault();
-    setTab(freeOnly ? "Free Tests" : "All Tests");
-    setExam("All exams");
-    setSubExam("");
-    setMockMode("all");
-    setSearch("");
-    setSelectedFormat("full");
-    setPageSize(5);
-    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-    const targetUrl = new URL(window.location.href);
-    targetUrl.hash = "mock-tests";
-    window.history.replaceState(null, "", targetUrl);
-    document.getElementById("mock-tests")?.scrollIntoView({ behavior, block: "start" });
   };
 
   const loadTests = async () => {
@@ -494,15 +418,10 @@ export default function TestRankPage() {
         window.history.replaceState(null, "", `/test-rank${window.location.search}#choose-format`);
       }
       const matchedCategory = mockExamCategories.find((category) => category.exam === requestedExam || category.subExams?.some((item) => item.name === requestedSubExam));
-      const dashboardCategory = examDashboardCategories.find((category) => category.id === requestedSubExam || category.id === requestedExam);
-      const validExam = requestedExam && (requestedExam === "All exams" || mockExamCategories.some((category) => category.exam === requestedExam) || dashboardCategory);
+      const validExam = requestedExam && (requestedExam === "All exams" || mockExamCategories.some((category) => category.exam === requestedExam));
       const inlineCategoryView = window.location.hash === "#popular-exams" && Boolean(matchedCategory);
-      setActiveDashboardCategory(dashboardCategory?.id || "");
-      setActiveDashboardSeries(dashboardCategory ? (testSeriesByCategory[dashboardCategory.id]?.[0]?.id || "") : "");
-      setDashboardTab(requestedTab === "Previous Year Papers" ? "Previous Year Papers" : "Mock Tests");
-      setDashboardFilter("All");
-      setExam(dashboardCategory ? dashboardCategory.parent : inlineCategoryView ? matchedCategory.exam : validExam ? requestedExam : "All exams");
-      setSubExam(dashboardCategory && dashboardCategory.id !== dashboardCategory.parent ? dashboardCategory.label : matchedCategory?.subExams?.some((item) => item.name === requestedSubExam) ? requestedSubExam : "");
+      setExam(inlineCategoryView ? matchedCategory.exam : validExam ? requestedExam : "All exams");
+      setSubExam(matchedCategory?.subExams?.some((item) => item.name === requestedSubExam) ? requestedSubExam : "");
       setExpandedExam(inlineCategoryView ? requestedSubExam || matchedCategory.exam : "");
       setMockMode(mockModes.some((mode) => mode.id === requestedMode) ? requestedMode : "all");
       setTab(tabs.includes(requestedTab) ? requestedTab : "All Tests");
@@ -566,33 +485,6 @@ export default function TestRankPage() {
       return 0;
     });
   }, [filteredTests, sortBy]);
-  const activeExamCategory = examDashboardCategories.find((category) => category.id === activeDashboardCategory) || null;
-  const dashboardSeries = activeExamCategory ? (testSeriesByCategory[activeExamCategory.id] || [{ id: `${activeExamCategory.id}-all`, name: `${activeExamCategory.label} Test Series`, terms: activeExamCategory.terms }]) : [];
-  const dashboardCategoryTests = useMemo(() => {
-    if (!activeExamCategory) return [];
-    return tests.filter((test) => {
-      const text = cleanTestSearch(`${test.title} ${test.examSearchText} ${test.type} ${test.subject}`);
-      return activeExamCategory.terms.some((term) => text.includes(cleanTestSearch(term)));
-    });
-  }, [tests, activeExamCategory]);
-  const dashboardSeriesCounts = useMemo(() => dashboardSeries.map((series) => {
-    const seriesTests = dashboardCategoryTests.filter((test) => matchesSeries(test, series));
-    return { ...series, tests: seriesTests, total: seriesTests.length, free: seriesTests.filter((test) => test.access === "Free").length, paid: seriesTests.filter((test) => test.access === "Premium").length };
-  }), [dashboardSeries, dashboardCategoryTests]);
-  const selectedDashboardSeries = dashboardSeriesCounts.find((series) => series.id === activeDashboardSeries) || dashboardSeriesCounts[0] || null;
-  const previousYearTest = (test) => test.type === "Previous Year Papers" || /pyq|previous year|past paper/i.test(`${test.title} ${test.type} ${test.source}`);
-  const currentSeriesTests = selectedDashboardSeries?.tests || dashboardCategoryTests;
-  const mockDashboardTests = currentSeriesTests.filter((test) => !previousYearTest(test));
-  const previousYearDashboardTests = currentSeriesTests.filter(previousYearTest);
-  const dashboardTabTests = dashboardTab === "Previous Year Papers" ? previousYearDashboardTests : mockDashboardTests;
-  const dashboardVisibleTests = useMemo(() => {
-    let results = dashboardTabTests;
-    if (dashboardFilter === "Free") results = results.filter((test) => test.access === "Free");
-    if (dashboardFilter === "Test Bucket") results = results.filter((test) => Boolean(test.bucket));
-    if (dashboardFilter === "Topper's Guidance Program") results = results.filter((test) => test.guidance);
-    if (dashboardFilter === "Latest Tests") results = [...results].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-    return results;
-  }, [dashboardTabTests, dashboardFilter]);
   const average = history.length ? Math.round(history.reduce((sum, item) => sum + Number(item.percent || 0), 0) / history.length) : null;
   const completionProgress = tests.length ? Math.min(100, Math.round((history.length / tests.length) * 100)) : 0;
   const best = history.length ? Math.max(...history.map((item) => Number(item.scorePercent || 0))) : null;
@@ -660,179 +552,50 @@ export default function TestRankPage() {
 
         <main className="tr-mobile-main mx-auto max-w-[1600px] p-4 pb-24 text-slate-100 sm:p-6 lg:p-7">
           <p className="mb-4 hidden text-xs font-medium text-slate-400 sm:block"><Link href="https://www.badamclasses.in" className="transition hover:text-white">Home</Link><span className="mx-2 text-slate-600">/</span><span className="text-sky-200">Badam TestRank</span></p>
-          <section aria-labelledby="testrank-hero-title" className="relative isolate grid min-w-0 gap-5 overflow-hidden rounded-[28px] border border-violet-100 bg-[radial-gradient(ellipse_at_84%_22%,rgba(145,115,255,.18),transparent_37%),radial-gradient(ellipse_at_15%_100%,rgba(87,164,255,.14),transparent_38%),linear-gradient(135deg,#fff 0%,#f8f6ff 48%,#eef5ff 100%)] p-5 text-slate-900 shadow-[0_24px_70px_rgba(25,37,80,.16)] sm:gap-8 sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,.95fr)] lg:items-center lg:p-12">
-            <div className="relative z-10 min-w-0 py-1 sm:py-3">
-              <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white/80 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[.13em] text-violet-700 shadow-sm sm:text-xs"><span className="grid h-5 w-5 place-items-center rounded-full bg-gradient-to-br from-blue-600 to-violet-600 text-[10px] text-white">B</span> Badam TestRank · Practice smart. Rank higher.</p>
-              <h1 id="testrank-hero-title" className="max-w-[15ch] text-[clamp(2.25rem,7vw,4.4rem)] font-extrabold leading-[1.04] tracking-[-.045em] text-[#17172b]">Preparation se <span className="bg-gradient-to-r from-blue-700 via-violet-600 to-fuchsia-500 bg-clip-text text-transparent">Selection</span> Tak</h1>
-              <p className="mt-4 max-w-xl text-sm leading-6 text-slate-600 sm:mt-5 sm:text-base sm:leading-7">Practice with real exam-pattern mock tests, daily quizzes and smart performance analysis to achieve your selection.</p>
-              <div className="mt-6 flex flex-col gap-3 min-[420px]:flex-row sm:mt-7">
-                <a href="#mock-tests" onClick={(event) => scrollToMockTests(event, true)} className="inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-violet-700 to-blue-600 px-5 py-3 text-sm font-extrabold text-white shadow-[0_12px_28px_rgba(79,70,229,.27)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(79,70,229,.34)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-300 motion-reduce:transform-none">Start Free <span aria-hidden="true" className="text-lg">→</span></a>
-                <a href="#mock-tests" onClick={(event) => scrollToMockTests(event)} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-violet-200 bg-white/85 px-5 py-3 text-sm font-bold text-violet-800 shadow-sm transition hover:border-violet-300 hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-200">Explore Mock Tests</a>
-              </div>
-              <div className="mt-7 grid max-w-lg grid-cols-3 gap-2 border-y border-violet-100 py-4 sm:mt-8 sm:gap-5 sm:py-5">
-                {[{ value: "5M+", label: "aspirants" }, { value: loading ? "…" : tests.length.toLocaleString("en-IN"), label: "mock tests" }, { value: "6", label: "exam categories" }].map((item) => <div key={item.label} className="min-w-0"><p className="truncate text-lg font-extrabold tracking-tight text-[#1d2250] sm:text-2xl">{item.value}</p><p className="mt-0.5 text-[10px] font-medium text-slate-500 sm:text-xs">{item.label}</p></div>)}
-              </div>
-              <div className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-2 sm:mt-5 sm:gap-3" aria-label="Popular exam categories">
-                {["Railway", "SSC", "Banking", "Police", "Teaching", "State Exams"].map((name) => <button key={name} type="button" onClick={() => openCategoryMocks(name)} aria-label={`Browse ${name} mock tests`} className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-white bg-white/85 px-2.5 text-[10px] font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:text-violet-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 sm:px-3 sm:text-xs"><Icon name={categoryIconNames[name]} className="h-4 w-4 text-violet-600" />{name}</button>)}
-              </div>
-            </div>
-
-            <div aria-hidden="true" className="relative mx-auto min-h-[265px] w-full max-w-[540px] min-w-0 sm:min-h-[340px] lg:min-h-[400px]">
-              <div className="absolute inset-x-3 bottom-3 top-5 rounded-[32px] bg-gradient-to-br from-blue-200/60 via-violet-200/60 to-fuchsia-100/70 blur-2xl sm:inset-x-8 sm:bottom-5 sm:top-8" />
-              <div className="absolute inset-x-2 top-3 rounded-2xl border border-white/80 bg-white/95 p-3 shadow-[0_20px_55px_rgba(37,45,90,.16)] sm:inset-x-7 sm:top-6 sm:rounded-[24px] sm:p-5">
-                <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3 sm:pb-4"><div className="flex min-w-0 items-center gap-2.5"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-700"><Icon name="test" className="h-5 w-5" /></span><span><b className="block text-xs font-extrabold text-slate-800 sm:text-sm">Mock Test Preview</b><small className="text-[10px] text-slate-500">SSC CGL · Full length</small></span></div><span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[9px] font-extrabold text-emerald-700 sm:text-[10px]">FREE TEST</span></div>
-                <div className="mt-3 flex items-center justify-between gap-3 text-[10px] font-semibold text-slate-500 sm:mt-4 sm:text-xs"><span>Question 12 of 100</span><span>⏱ 01:24:36</span></div>
-                <p className="mt-2 text-xs font-bold leading-5 text-slate-800 sm:mt-3 sm:text-sm">If 3x + 7 = 25, what is the value of x?</p>
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:gap-2.5">{["A · 4", "B · 6", "C · 8", "D · 9"].map((option, index) => <span key={option} className={`rounded-lg border px-2.5 py-2 text-[10px] font-semibold sm:px-3 sm:py-2.5 sm:text-xs ${index === 1 ? "border-violet-300 bg-violet-50 text-violet-800" : "border-slate-100 bg-slate-50 text-slate-600"}`}>{option}</span>)}</div>
-                <div className="mt-3 flex items-center justify-between sm:mt-4"><span className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100"><span className="block h-full w-[42%] rounded-full bg-gradient-to-r from-blue-600 to-violet-500" /></span><span className="ml-3 text-[9px] font-bold text-slate-500">42%</span></div>
-              </div>
-              <div className="absolute bottom-0 right-0 w-[54%] rounded-2xl border border-white/90 bg-white p-3 shadow-[0_18px_40px_rgba(37,45,90,.18)] sm:bottom-1 sm:right-0 sm:rounded-[22px] sm:p-4">
-                <div className="flex items-center justify-between gap-2"><span className="text-[10px] font-extrabold text-slate-700 sm:text-xs">Performance</span><span className="rounded-full bg-emerald-50 px-2 py-1 text-[8px] font-bold text-emerald-700 sm:text-[9px]">+18.6%</span></div>
-                <div className="mt-3 flex h-14 items-end gap-1 sm:mt-4 sm:h-[74px] sm:gap-1.5">{[32, 48, 40, 61, 51, 78, 68, 94].map((height, index) => <span key={index} className={`flex-1 rounded-t-sm ${index === 7 ? "bg-gradient-to-t from-violet-700 to-blue-500" : "bg-violet-100"}`} style={{ height: `${height}%` }} />)}</div>
-                <div className="mt-2 flex items-center justify-between text-[8px] font-medium text-slate-400 sm:text-[9px]"><span>Last 8 attempts</span><span className="font-bold text-violet-700">Track your progress</span></div>
-              </div>
-              <div className="absolute bottom-[35%] left-0 flex items-center gap-2 rounded-xl border border-white/90 bg-white px-2.5 py-2 shadow-[0_12px_32px_rgba(37,45,90,.14)] sm:bottom-[32%] sm:left-0 sm:gap-2.5 sm:rounded-2xl sm:px-3.5 sm:py-3"><span className="grid h-8 w-8 place-items-center rounded-lg bg-blue-50 text-blue-700 sm:h-10 sm:w-10 sm:rounded-xl"><Icon name="crown" className="h-4 w-4 sm:h-5 sm:w-5" /></span><span><b className="block text-[10px] text-slate-800 sm:text-xs">Smart analysis</b><small className="text-[8px] text-slate-500 sm:text-[9px]">Know your next step</small></span></div>
-            </div>
-          </section>
-
-          <section aria-label="Badam TestRank exam banners" className="mt-5 overflow-hidden rounded-2xl border border-blue-200/20 bg-[#061a39] shadow-[0_22px_60px_rgba(0,0,0,.32)] sm:mt-6">
-            <Link href={testRankHeroBanners[heroBannerIndex].href || "#choose-format"} aria-label={`Explore mock tests — ${testRankHeroBanners[heroBannerIndex].label} banner`} className="group block overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-200">
-              <Image src={testRankHeroBanners[heroBannerIndex].src} alt={testRankHeroBanners[heroBannerIndex].alt} width={testRankHeroBanners[heroBannerIndex].width} height={testRankHeroBanners[heroBannerIndex].height} priority sizes="(max-width: 768px) 100vw, 1600px" className="h-[150px] max-h-none w-full object-cover object-left transition-transform duration-500 group-hover:scale-[1.005] sm:h-auto sm:max-h-[560px] sm:object-center" />
-            </Link>
-            <div className="flex items-center justify-center border-t border-white/10 bg-[#061a39] px-3 py-2">
-              <div role="group" aria-label="Choose banner slide" className="flex items-center justify-center gap-2">
-                {testRankHeroBanners.map((banner, index) => <button key={banner.src} type="button" aria-label={`Show ${banner.label} banner`} aria-pressed={heroBannerIndex === index} onClick={() => setHeroBannerIndex(index)} className={`h-2.5 w-2.5 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061a39] ${heroBannerIndex === index ? "bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,.8)]" : "bg-slate-500 hover:bg-slate-300"}`} />)}
-              </div>
-            </div>
-          </section>
-
-          <section id="exam-categories" aria-labelledby="exam-categories-title" className="relative mt-6 overflow-hidden rounded-[24px] border border-blue-400/20 bg-[#020c22] p-4 text-white shadow-[0_24px_64px_rgba(1,8,28,.36)] sm:p-5 lg:p-6">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_8%_0%,rgba(37,99,235,.24),transparent_38%),radial-gradient(ellipse_at_95%_90%,rgba(79,70,229,.2),transparent_40%)]" />
-            <div className="relative mb-4 flex flex-wrap items-end justify-between gap-3 sm:mb-5">
-              <div><p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-cyan-300">Find your exam</p><h2 id="exam-categories-title" className="mt-1 text-xl font-extrabold tracking-tight text-white sm:text-2xl">Popular Exam Categories</h2></div>
-              <span className="text-xs text-blue-100/65">Choose a category to explore its test series</span>
-            </div>
-            <div className="relative grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 sm:gap-4">
-              {examDashboardCategories.map((category, index) => {
-                const parentInfo = mockExamCategories.find((item) => item.exam === category.parent) || mockExamCategories.find((item) => item.exam === category.label);
-                const categoryTests = tests.filter((test) => category.terms.some((term) => cleanTestSearch(`${test.title} ${test.examSearchText}`).includes(cleanTestSearch(term))));
-                const freeCount = categoryTests.filter((test) => test.access === "Free").length;
-                const paidCount = categoryTests.filter((test) => test.access === "Premium").length;
-                const tone = examCategoryCardTones[index % examCategoryCardTones.length];
-                const active = activeDashboardCategory === category.id;
-                return <button key={category.id} type="button" onClick={() => openCategoryMocks(category.id)} aria-pressed={active} className={`group relative isolate flex min-h-[220px] min-w-0 flex-col overflow-hidden rounded-[20px] border bg-gradient-to-br from-[#111833] via-[#0a1736] to-[#06142d] p-4 text-left shadow-[0_16px_36px_rgba(0,0,0,.25)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_42px_rgba(0,0,0,.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020c22] sm:p-5 ${tone.border} ${active ? "ring-2 ring-cyan-300/75" : ""}`}>
-                  <span aria-hidden="true" className={`pointer-events-none absolute inset-0 z-0 bg-gradient-to-br ${tone.glow} via-transparent to-transparent opacity-80`} />
-                  {parentInfo?.logoImage ? <Image src={parentInfo.logoImage} alt="" aria-hidden="true" width={150} height={150} className="pointer-events-none absolute bottom-8 right-0 z-0 h-32 w-32 object-contain opacity-[.16] transition duration-300 group-hover:scale-105 group-hover:opacity-25 sm:h-36 sm:w-36" /> : null}
-                  <span className="relative z-10 flex w-full items-start justify-between gap-3">
-                    <span className="flex min-w-0 items-center gap-3">
-                      <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full border border-white/30 bg-white p-1.5 shadow-[0_8px_24px_rgba(0,0,0,.25)] sm:h-16 sm:w-16">
-                        {parentInfo?.logoImage ? <Image src={parentInfo.logoImage} alt="" aria-hidden="true" width={52} height={52} className="h-full w-full object-contain" /> : <Icon name={category.icon} className="h-7 w-7 text-blue-700" />}
-                      </span>
-                      <span className="min-w-0"><span className="block truncate text-lg font-extrabold tracking-tight text-white sm:text-xl">{category.label}</span><span className="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-blue-100/80"><Icon name="test" className="h-3.5 w-3.5 shrink-0" />{loading ? "Loading tests…" : `${categoryTests.length} available tests`}</span></span>
-                    </span>
-                    <span className={`shrink-0 rounded-full border px-2.5 py-1.5 text-[9px] font-extrabold sm:text-[10px] ${tone.pill}`}>{parentInfo?.difficulty || "Exam Level"}</span>
-                  </span>
-                  <span className="relative z-10 mt-4 flex flex-wrap gap-2">
-                    {[{ label: "Free", value: freeCount, icon: "gift" }, { label: "Paid", value: paidCount, icon: "payment" }, { label: parentInfo?.duration || "Exam", value: parentInfo?.pattern || "Exam pattern", icon: "clock" }].map((item) => <span key={item.label} className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/15 bg-black/15 px-2.5 py-1.5 text-[10px] text-white/75"><Icon name={item.icon} className="h-4 w-4 shrink-0 text-white/85" /><span><span className="block font-semibold">{item.label}</span><b className="text-xs text-white">{item.value}</b></span></span>)}
-                  </span>
-                  <span className="relative z-10 mt-3 line-clamp-1 text-[10px] font-medium text-blue-100/75 sm:text-[11px]">{parentInfo?.sections || "Explore available exam mock tests"}</span>
-                  <span className={`relative z-10 mt-auto inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r px-4 py-2.5 text-xs font-extrabold text-white shadow-lg transition group-hover:brightness-110 sm:text-sm ${tone.accent}`}>Explore mocks <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-1" /></span>
-                </button>;
-              })}
-            </div>
-          </section>
-
-          {activeExamCategory ? <section id="category-dashboard" aria-labelledby="category-dashboard-title" className="mt-5 scroll-mt-24 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3 text-slate-900 shadow-[0_18px_48px_rgba(15,23,42,.08)] sm:p-4 md:scroll-mt-28">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-              <div><p className="text-[10px] font-extrabold uppercase tracking-[.14em] text-violet-700">Selected exam</p><h2 id="category-dashboard-title" className="mt-0.5 text-lg font-extrabold text-slate-900">{activeExamCategory.label} Test Series</h2></div>
-              <span className="rounded-full bg-violet-50 px-3 py-1.5 text-xs font-bold text-violet-800">{dashboardCategoryTests.length} published tests</span>
-            </div>
-            <div className="mb-4 grid gap-3 lg:hidden sm:grid-cols-2">
-              <label className="grid gap-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">Exam category<select value={activeDashboardCategory} onChange={(event) => openCategoryMocks(event.target.value)} className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-slate-800 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100">{examDashboardCategories.map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}</select></label>
-              <label className="grid gap-1 text-[10px] font-bold uppercase tracking-wide text-slate-500 xl:hidden">Test series<select value={selectedDashboardSeries?.id || ""} onChange={(event) => chooseTestSeries(event.target.value)} className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold normal-case tracking-normal text-slate-800 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100">{dashboardSeries.map((series) => <option key={series.id} value={series.id}>{series.name}</option>)}</select></label>
-            </div>
-
-            <div className="grid min-w-0 gap-3 lg:grid-cols-[190px_minmax(0,1fr)] xl:grid-cols-[190px_235px_minmax(0,1fr)]">
-              <aside aria-label="Exam categories" className="hidden min-w-0 rounded-xl border border-slate-200 bg-white p-3 lg:block">
-                <h3 className="mb-2 px-1 text-xs font-extrabold text-slate-800">Exam Categories</h3>
-                <nav className="max-h-[560px] space-y-1 overflow-y-auto pr-1">
-                  {examDashboardCategories.map((category) => <button key={category.id} type="button" onClick={() => openCategoryMocks(category.id)} aria-current={activeDashboardCategory === category.id ? "page" : undefined} className={`flex min-h-10 w-full items-center gap-2 rounded-lg px-2.5 text-left text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${activeDashboardCategory === category.id ? "bg-violet-50 text-violet-800" : "text-slate-600 hover:bg-slate-50 hover:text-violet-800"}`}><Icon name={category.icon} className="h-4 w-4 shrink-0" /><span className="min-w-0 flex-1 truncate">{category.label}</span><span className="text-[10px] text-slate-400">{tests.filter((test) => category.terms.some((term) => cleanTestSearch(`${test.title} ${test.examSearchText}`).includes(cleanTestSearch(term)))).length}</span></button>)}
-                </nav>
-              </aside>
-
-              <aside aria-label="Test series" className="hidden min-w-0 rounded-xl border border-slate-200 bg-white p-3 xl:block">
-                <h3 className="mb-2 px-1 text-xs font-extrabold text-slate-800">Test Series</h3>
-                <div className="max-h-[560px] space-y-2 overflow-y-auto pr-1">
-                  {dashboardSeriesCounts.map((series) => <button key={series.id} type="button" onClick={() => chooseTestSeries(series.id)} aria-pressed={selectedDashboardSeries?.id === series.id} className={`w-full rounded-xl border p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ${selectedDashboardSeries?.id === series.id ? "border-violet-300 bg-violet-50 shadow-sm" : "border-slate-200 bg-white hover:border-violet-200 hover:bg-slate-50"}`}><span className="block text-[11px] font-bold leading-4 text-slate-800">{series.name}</span><span className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-[9px] font-semibold text-slate-500"><span>{series.total} tests</span><span className="text-emerald-700">{series.free} free</span><span className="text-violet-700">{series.paid} paid</span></span></button>)}
-                </div>
-              </aside>
-
-              <div id="category-test-list" className="min-w-0 rounded-xl border border-slate-200 bg-white p-3 sm:p-4">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <div><h3 className="text-sm font-extrabold text-slate-900">{selectedDashboardSeries?.name || `${activeExamCategory.label} Tests`}</h3><p className="mt-1 text-[11px] text-slate-500">{selectedDashboardSeries?.total || 0} tests · {selectedDashboardSeries?.free || 0} free · {selectedDashboardSeries?.paid || 0} paid</p></div>
-                  <label className="hidden min-w-[230px] items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 xl:flex"><Icon name="grid" className="h-4 w-4 text-violet-600" /><select value={selectedDashboardSeries?.id || ""} onChange={(event) => chooseTestSeries(event.target.value)} aria-label="Select test series" className="w-full bg-transparent text-xs font-semibold text-slate-700 outline-none">{dashboardSeries.map((series) => <option key={series.id} value={series.id}>{series.name}</option>)}</select></label>
-                </div>
-                <div role="tablist" aria-label="Test type" className="grid grid-cols-2 gap-2 border-b border-slate-200 pb-3">
-                  {[{ name: "Mock Tests", count: mockDashboardTests.length }, { name: "Previous Year Papers", count: previousYearDashboardTests.length }].map((item) => <button key={item.name} type="button" role="tab" aria-selected={dashboardTab === item.name} onClick={() => { setDashboardTab(item.name); setDashboardFilter("All"); }} className={`min-h-11 rounded-lg border px-2.5 py-2 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 sm:text-sm ${dashboardTab === item.name ? "border-violet-200 bg-violet-50 text-violet-800" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>{item.name} <span className="ml-1 text-[10px] opacity-70">({item.count})</span></button>)}
-                </div>
-                <div role="group" aria-label="Filter tests" className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                  {["All", "Free", "Latest Tests", "Test Bucket", "Topper's Guidance Program"].map((filter) => <button key={filter} type="button" aria-pressed={dashboardFilter === filter} onClick={() => setDashboardFilter(filter)} className={`min-h-9 shrink-0 rounded-full border px-3 text-[10px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 sm:text-xs ${dashboardFilter === filter ? "border-violet-700 bg-violet-700 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800"}`}>{filter}</button>)}
-                </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2" aria-live="polite">
-                  {loading ? <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">Loading published tests…</p> : dashboardVisibleTests.length ? dashboardVisibleTests.slice(0, pageSize).map((test) => {
-                    const startHref = test.href.includes("/mock-tests/free-practice") ? `${test.href}${test.href.includes("?") ? "&" : "?"}start=1` : test.href;
-                    const unlockHref = test.courseId ? `/checkout?course=${encodeURIComponent(test.courseId)}` : "/courses";
-                    const isLiveTest = test.source === "Verified online test";
-                    return <article key={`${test.id}-${test.title}`} className="overflow-hidden rounded-[18px] border border-violet-200/80 bg-[linear-gradient(160deg,#5b45ec_0%,#7869eb_46%,#f4f1ff_100%)] p-3.5 text-white shadow-[0_10px_26px_rgba(75,55,190,.14)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(75,55,190,.2)] sm:p-4">
-                      <div className="flex min-h-[68px] items-start gap-3 border-b border-white/45 pb-3">
-                        <span aria-hidden="true" className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white text-violet-700 shadow-sm sm:h-14 sm:w-14"><Icon name="test" className="h-6 w-6" /></span>
-                        <div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-2"><h4 className="line-clamp-2 text-sm font-extrabold leading-5 text-white sm:text-base">{test.title}</h4><span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-[9px] font-extrabold tracking-wide text-rose-600">{isLiveTest ? <><span className="h-1.5 w-1.5 rounded-full bg-rose-500" />LIVE TEST</> : test.access === "Free" ? "FREE TEST" : test.access === "Premium" ? "PAID TEST" : "MOCK TEST"}</span></div><p className="mt-1 truncate text-[10px] font-semibold text-violet-950/75">{test.exam}{test.subject ? ` · ${test.subject}` : ""}</p></div>
-                      </div>
-                      <div className="flex items-center gap-2 border-b border-dashed border-violet-300/70 py-3 text-violet-950"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-violet-700"><Icon name="clock" className="h-4 w-4" /></span><div className="min-w-0"><p className="text-[10px] font-bold text-violet-900/75">Test Duration</p><p className="truncate text-xs font-extrabold">{test.duration || "—"}</p></div></div>
-                      <div className="grid grid-cols-2 gap-2 py-3 text-violet-950"><div className="flex items-center gap-2"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-violet-700"><Icon name="chart" className="h-4 w-4" /></span><div><p className="text-[10px] font-bold text-violet-900/75">Total Marks</p><p className="text-xs font-extrabold">{test.marks || "—"} Marks</p></div></div><div className="flex items-center gap-2 border-l border-violet-300/70 pl-2"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-violet-700"><Icon name="help" className="h-4 w-4" /></span><div><p className="text-[10px] font-bold text-violet-900/75">Total Questions</p><p className="text-xs font-extrabold">{test.questionCount || "—"} Ques</p></div></div></div>
-                      {test.access === "Premium" ? <Link href={unlockHref} aria-label={`Unlock ${test.title}`} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-violet-800 px-4 py-2 text-sm font-extrabold text-white transition hover:bg-violet-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Unlock Test <Icon name="arrow" className="h-4 w-4" /></Link> : <Link href={startHref} aria-label={`Attempt ${test.title} now`} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-violet-800 px-4 py-2 text-sm font-extrabold text-white transition hover:bg-violet-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Attempt Now <Icon name="arrow" className="h-4 w-4" /></Link>}
-                    </article>;
-                  }) : <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center"><p className="text-sm font-bold text-slate-700">{dashboardFilter === "All" ? `No published ${dashboardTab.toLowerCase()} found for this series yet.` : `No ${dashboardFilter.toLowerCase()} match this series.`}</p><p className="mt-1 text-xs text-slate-500">New published tests for {activeExamCategory.label} will appear here.</p></div>}
-                  {!loading && dashboardVisibleTests.length > pageSize ? <button type="button" onClick={() => setPageSize((size) => size + 10)} className="w-full rounded-lg border border-slate-200 py-2.5 text-xs font-bold text-violet-700 transition hover:bg-violet-50">Show more tests</button> : null}
-                </div>
-              </div>
-            </div>
-          </section> : null}
-
           <div className="tr-mobile-dashboard grid gap-4">
+            <section aria-label="Badam TestRank banner slider" className="tr-mobile-banner overflow-hidden rounded-2xl border border-blue-200/20 bg-[#061a39] shadow-[0_22px_60px_rgba(0,0,0,.32)]">
+              <Link href={testRankHeroBanners[heroBannerIndex].href || "#choose-format"} aria-label={`Explore mock tests — ${testRankHeroBanners[heroBannerIndex].label} banner`} className="group block overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-200">
+                <Image src={testRankHeroBanners[heroBannerIndex].src} alt={testRankHeroBanners[heroBannerIndex].alt} width={testRankHeroBanners[heroBannerIndex].width} height={testRankHeroBanners[heroBannerIndex].height} priority sizes="(max-width: 768px) 100vw, (max-width: 1600px) 100vw, 1600px" className="h-[150px] max-h-none w-full object-cover object-left transition-transform duration-500 group-hover:scale-[1.005] sm:h-auto sm:max-h-[560px] sm:object-center" />
+              </Link>
+              <div className="flex items-center justify-center border-t border-white/10 bg-[#061a39] px-3 py-2">
+                <div role="group" aria-label="Choose banner slide" className="flex items-center justify-center gap-2">
+                  {testRankHeroBanners.map((banner, index) => <button key={banner.src} type="button" aria-label={`Show ${banner.label} banner`} aria-pressed={heroBannerIndex === index} onClick={() => setHeroBannerIndex(index)} className={`h-2.5 w-2.5 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061a39] ${heroBannerIndex === index ? "bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,.8)]" : "bg-slate-500 hover:bg-slate-300"}`} />)}
+                </div>
+              </div>
+            </section>
             <section className="grid gap-3 rounded-2xl border border-blue-500/35 bg-[radial-gradient(ellipse_at_12%_20%,rgba(16,102,234,.18),transparent_42%),linear-gradient(120deg,#031a43,#05245a_58%,#031633)] p-3 shadow-[0_24px_65px_rgba(0,0,0,.2)] sm:grid-cols-[minmax(0,1.2fr)_minmax(250px,.8fr)] sm:items-center sm:gap-5 sm:p-6"><div className="flex min-w-0 items-center gap-3 sm:gap-6"><div className="grid h-16 w-16 shrink-0 place-items-center rounded-full p-[5px] sm:h-28 sm:w-28 sm:p-[6px]" style={{ background: `conic-gradient(#1687ff ${completionProgress}%,#0c3978 0)` }}><div className="grid h-full w-full place-items-center rounded-full bg-[#06204a] text-lg font-bold text-white sm:text-2xl">{historyLoading ? "…" : `${completionProgress}%`}</div></div><div className="hidden h-20 w-px shrink-0 bg-blue-400/25 sm:block" /><div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-[.12em] text-blue-200 sm:text-xs sm:tracking-[.15em]">Overall Progress</p><h2 className="mt-1 text-base font-bold text-white sm:mt-2 sm:text-2xl">Completed practice</h2><p className="mt-0.5 text-xl font-bold text-cyan-300 sm:mt-1.5 sm:text-2xl">{historyLoading ? "…" : history.length}<span className="ml-2 text-sm font-semibold text-white sm:text-base">attempts</span></p><p className="mt-0.5 text-[10px] leading-4 text-blue-200 sm:mt-1 sm:text-xs sm:leading-5">{loading ? "Loading available tests…" : `Out of ${tests.length} available tests`} · Keep practicing to improve your performance.</p></div></div><div className="flex min-h-0 items-center gap-3 rounded-xl border border-blue-400/25 bg-blue-900/25 p-3 sm:min-h-28 sm:gap-4 sm:p-5"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-500/20 text-cyan-300 sm:h-12 sm:w-12"><svg viewBox="0 0 24 24" className="h-6 w-6 sm:h-7 sm:w-7" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 21h8m-4-4v4M7 4H4v2a5 5 0 0 0 4.3 5M17 4h3v2a5 5 0 0 1-4.3 5M7 3h10v7a5 5 0 0 1-10 0z"/><path d="m12 5 1 2 2 .3-1.5 1.5.4 2.2-1.9-1-1.9 1 .4-2.2L9 7.3 11 7z"/></svg></span><div><p className="text-[10px] font-semibold uppercase tracking-[.12em] text-blue-200 sm:text-xs sm:tracking-[.15em]">Best saved score</p><p className="mt-1 text-xl font-bold text-white sm:mt-1.5 sm:text-2xl">{historyLoading ? "…" : best === null ? "—" : `${best}%`}</p><p className="mt-1 text-[10px] text-blue-200 sm:text-[11px]">Highest score across submitted tests</p></div></div></section>
           </div>
 
-          <section aria-label="Choose a test format" className="tr-mobile-quick tr-mobile-dashboard-quick mt-5">
+          <section aria-label="Choose a test format" className="tr-mobile-quick tr-mobile-dashboard-quick mt-5 md:hidden">
             <div className="mb-3 flex items-end justify-between gap-2">
               <div><p className="text-[9px] font-bold uppercase tracking-[.18em] text-sky-300">Quick access</p><h2 className="mt-1 text-base font-bold text-white">Choose your test</h2></div>
               <span className="pb-0.5 text-[10px] font-medium text-slate-400">Pick a format <span aria-hidden="true">→</span></span>
             </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {[
-                { title: "Live Mock", detail: `${tests.filter((item) => item.source === "Verified online test").length} timed tests`, label: "REAL-TIME PRACTICE", action: "Explore tests", icon: "live", tone: "border-blue-500/70 from-[#08245e] via-[#061942] to-[#020d2a] text-sky-300", iconTone: "bg-blue-400/15 text-blue-300", href: "/test-rank?mode=timed#choose-format" },
-                { title: "AI Mock", detail: "Create a mock for your exam and topics", label: "PERSONALIZED AI", action: "Create mock", icon: "spark", tone: "border-cyan-400/60 from-[#063c50] via-[#042b3d] to-[#031a31] text-cyan-300", iconTone: "bg-cyan-400/15 text-cyan-300", href: "/test-rank?mode=topic#choose-format" },
-                { title: "Premium Mock", detail: "Exam-length premium practice", label: "EXCLUSIVE SERIES", action: "View series", icon: "crown", tone: "border-amber-400/60 from-[#493313] via-[#292018] to-[#151522] text-amber-300", iconTone: "bg-amber-400/15 text-amber-300", href: "/test-rank?mode=full#choose-format" },
-                { title: "PYQ Mock", detail: "Previous year question papers", label: "PAST EXAM PAPERS", action: "Practice PYQs", icon: "paper", tone: "border-violet-500/65 from-[#302078] via-[#21184e] to-[#110e31] text-fuchsia-300", iconTone: "bg-violet-400/15 text-violet-300", href: "/test-rank?tab=Previous%20Year%20Papers#choose-format" },
-                { title: "Paid Mock", detail: `${tests.filter((item) => item.access === "Premium").length} paid tests · unlock test series`, label: "PREMIUM ACCESS", action: "View tests", icon: "payment", tone: "border-teal-400/60 from-[#063c50] via-[#062b3c] to-[#03182c] text-teal-300", iconTone: "bg-teal-400/15 text-teal-300", href: "/test-rank?tab=Premium%20Tests#choose-format" }
-              ].map((item) => <Link key={item.title} href={item.href} aria-label={`${item.title}: ${item.detail}. ${item.action}`} className={`rank-format-card group relative isolate flex min-h-[190px] min-w-0 flex-col justify-between overflow-hidden rounded-[22px] border bg-gradient-to-br p-3 shadow-[0_14px_30px_rgba(0,0,0,.3)] ring-1 ring-white/[.04] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_42px_rgba(0,0,0,.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#030d1b] motion-reduce:transform-none motion-reduce:transition-none ${item.title === "Live Mock" ? "live-mock-card" : ""} ${item.tone}`}>
+                { title: "Live Mock", detail: `${tests.filter((item) => item.source === "Verified online test").length} timed tests`, label: "LIVE", action: "Start", icon: "live", tone: "border-sky-300/40 from-[#102b58] via-[#111e43] to-[#0c1930] text-sky-100", iconTone: "bg-sky-400/15 text-sky-200", href: "/test-rank?mode=timed#choose-format" },
+                { title: "Premium Mock", detail: "Exam-length premium practice", label: "PREMIUM", action: "Explore", icon: "crown", tone: "border-amber-300/35 from-[#38290e] via-[#292018] to-[#11182a] text-amber-100", iconTone: "bg-amber-400/15 text-amber-200", href: "/test-rank?mode=full#choose-format" },
+                { title: "PYQ Mock", detail: "Practice previous year papers", label: "PYQ", action: "Practice", icon: "paper", tone: "border-cyan-300/35 from-[#103144] via-[#10283a] to-[#0b1930] text-cyan-100", iconTone: "bg-cyan-400/15 text-cyan-200", href: "/test-rank?tab=Previous%20Year%20Papers#choose-format" },
+                { title: "Paid Mock", detail: `${tests.filter((item) => item.access === "Premium").length} paid tests`, label: "PAID", action: "Browse", icon: "payment", tone: "border-violet-300/35 from-[#29204a] via-[#211b3d] to-[#10182d] text-violet-100", iconTone: "bg-violet-400/15 text-violet-200", href: "/test-rank?tab=Premium%20Tests#choose-format" }
+              ].map((item) => <Link key={item.title} href={item.href} aria-label={`${item.title}: ${item.detail}. ${item.action} now`} className={`rank-format-card group relative isolate flex min-h-[160px] min-w-0 flex-col justify-between overflow-hidden rounded-2xl border bg-gradient-to-br p-2.5 shadow-[0_14px_30px_rgba(0,0,0,.3)] ring-1 ring-white/[.04] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_42px_rgba(0,0,0,.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#030d1b] motion-reduce:transform-none motion-reduce:transition-none ${item.title === "Live Mock" ? "live-mock-card" : ""} ${item.tone}`}>
                 <span aria-hidden="true" className="pointer-events-none absolute -right-7 -top-8 h-24 w-24 rounded-full bg-white/[.11] blur-2xl transition-opacity group-hover:opacity-90" />
                 <span aria-hidden="true" className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-70" />
-                <span className="relative flex items-start justify-between gap-2"><span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/15 ${item.iconTone} shadow-[0_10px_28px_rgba(0,0,0,.2)]`}>{item.title === "Live Mock" ? <LiveTestArtwork idPrefix="unified" /> : <FormatIcon kind={item.title} />}</span><span className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-white/[.08] text-xl text-white transition group-hover:translate-x-0.5 group-hover:bg-white/[.16]">→</span></span>
-                <span className="relative block min-w-0"><small className="block text-[9px] font-extrabold tracking-[.14em] text-white/65"><span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current align-middle" />{item.label}</small><b className="mt-2 block text-lg font-extrabold leading-tight tracking-tight text-white sm:text-xl">{item.title}</b><small className="mt-2 block min-h-10 text-xs leading-5 text-slate-200/85 sm:text-sm">{item.detail}</small><span className="mt-2.5 block border-t border-white/15 pt-2.5 text-xs font-extrabold sm:text-sm">{item.action}</span></span>
+                <span className="relative flex items-start justify-between gap-1"><span className="grid h-[58px] w-[72px] shrink-0 place-items-center">{item.title === "Live Mock" ? <LiveTestArtwork idPrefix="mobile" /> : <FormatIcon kind={item.title} />}</span><span className={`inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/20 px-2 py-1 text-[7px] font-extrabold tracking-[.12em] text-white/90 shadow-inner ${item.label === "LIVE" ? "live-mock-badge" : ""}`}>{item.label === "LIVE" ? <span aria-hidden="true" className="relative flex h-1.5 w-1.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-75 motion-reduce:animate-none" /><span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-cyan-200" /></span> : null}{item.label}</span></span>
+                <span className="relative block min-w-0"><b className={`block text-[12px] font-bold leading-4 tracking-wide text-white ${item.title === "Live Mock" ? "live-test-title" : ""}`}>{item.title}</b><small className="mt-1 flex items-center gap-1 text-[9px] leading-3 text-slate-200/80">{item.title === "Live Mock" ? <Icon name="clock" className="h-3 w-3 shrink-0 text-cyan-200" /> : null}{item.detail}</small><span className="mt-2.5 flex items-center justify-between border-t border-white/15 pt-2 text-[9px] font-bold text-white/90"><span>{item.action}</span><span aria-hidden="true" className="grid h-5 w-5 place-items-center rounded-full border border-white/15 bg-white/[.08] text-sm transition group-hover:translate-x-0.5 group-hover:bg-white/[.16]">→</span></span></span>
               </Link>)}
             </div>
           </section>
+          <div className="mt-5 hidden grid-cols-1 gap-3 sm:grid-cols-2 md:grid 2xl:grid-cols-4">{[{ title: "Live Mock", subtitle: "Timed exam simulations", href: "/test-rank?mode=timed#choose-format", icon: "live", tone: "blue", label: "REAL-TIME PRACTICE" }, { title: "Premium Mock", subtitle: "Exam-length premium practice", href: "/test-rank?mode=full#choose-format", icon: "crown", tone: "amber", label: "EXCLUSIVE SERIES" }, { title: "PYQ Mock", subtitle: "Previous year question papers", href: "/test-rank?tab=Previous%20Year%20Papers#choose-format", icon: "paper", tone: "violet", label: "PAST EXAM PAPERS" }, { title: "Paid Mock", subtitle: "Unlock paid test series", href: "/test-rank?tab=Premium%20Tests#choose-format", icon: "payment", tone: "green", label: "PREMIUM ACCESS" }].map((item) => <Link key={item.title} href={item.href} className={`rank-format-card group relative isolate flex min-h-[145px] flex-col justify-between overflow-hidden rounded-2xl border bg-gradient-to-br p-4 shadow-[0_18px_40px_rgba(0,0,0,.28)] ring-1 ring-white/[.05] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_52px_rgba(0,0,0,.42)] sm:min-h-[160px] sm:p-5 ${item.title === "Live Mock" ? "live-mock-card" : ""} ${item.tone === "blue" ? "border-blue-400/70 bg-[linear-gradient(145deg,rgba(7,48,112,.82),rgba(5,27,67,.98))] text-blue-300 hover:border-blue-300" : item.tone === "green" ? "border-teal-400/65 bg-[linear-gradient(145deg,rgba(0,75,79,.76),rgba(3,35,48,.98))] text-teal-300 hover:border-teal-300" : item.tone === "violet" ? "border-violet-400/65 bg-[linear-gradient(145deg,rgba(49,35,123,.78),rgba(24,20,71,.98))] text-violet-300 hover:border-violet-300" : "border-amber-400/65 bg-[linear-gradient(145deg,rgba(91,57,20,.74),rgba(30,31,40,.98))] text-amber-300 hover:border-amber-300"}`}><span aria-hidden="true" className={`pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full opacity-20 blur-3xl transition duration-300 group-hover:opacity-45 ${item.tone === "blue" ? "bg-sky-300" : item.tone === "green" ? "bg-teal-300" : item.tone === "violet" ? "bg-violet-300" : "bg-amber-200"}`} /><span className={`pointer-events-none absolute -bottom-16 -right-8 h-32 w-2/3 rotate-[-32deg] opacity-25 transition group-hover:opacity-45 ${item.tone === "blue" ? "bg-blue-500" : item.tone === "green" ? "bg-teal-400" : item.tone === "violet" ? "bg-violet-500" : "bg-amber-400"}`} /><span className="relative z-10 flex w-full items-start justify-between"><span className={`grid h-12 w-12 place-items-center rounded-xl border border-white/15 bg-white/[.1] text-white shadow-[0_0_28px_rgba(255,255,255,.1)] backdrop-blur sm:h-14 sm:w-14 h-16 w-16 border-0 bg-transparent shadow-none backdrop-blur-none sm:h-16 sm:w-16 ${item.tone === "blue" ? "shadow-blue-400/20" : item.tone === "green" ? "shadow-teal-400/20" : item.tone === "violet" ? "shadow-violet-400/20" : "shadow-amber-300/20"}`}>{item.title === "Live Mock" ? <LiveTestArtwork idPrefix="desktop" /> : <FormatIcon kind={item.title} />}</span><span className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-black/20 text-xl text-white/90 transition group-hover:translate-x-1 group-hover:bg-white/10">→</span></span><span className="relative z-10"><small className={`block text-[9px] font-extrabold uppercase tracking-[.2em] text-white/65 ${item.title === "Live Mock" ? "live-mock-badge" : ""}`}>{item.title === "Live Mock" ? <span aria-hidden="true" className="mr-1.5 inline-block h-1.5 w-1.5 animate-ping rounded-full bg-cyan-300 align-middle motion-reduce:animate-none" /> : null}{item.label}</small><b className={`mt-1 block text-lg font-bold tracking-tight text-white sm:text-xl ${item.title === "Live Mock" ? "live-test-title" : ""}`}>{item.title}</b><small className="mt-1 flex items-center gap-1 text-sm text-slate-200/80">{item.title === "Live Mock" ? <Icon name="clock" className="h-3.5 w-3.5 shrink-0 text-cyan-200" /> : null}{item.subtitle}</small></span></Link>)}</div>
 
           <section className="tr-mobile-target tr-mobile-dashboard-target relative mt-3 overflow-hidden rounded-2xl border border-blue-300/20 bg-[linear-gradient(115deg,#102f85,#143caa_62%,#0b245f)] p-3 text-white shadow-[0_18px_45px_rgba(7,25,83,.28)] sm:mt-4 sm:p-5 md:hidden">
             <div className="pointer-events-none absolute -right-8 -top-10 h-36 w-36 rounded-full bg-cyan-300/15 blur-2xl" />
             <div className="relative flex items-start gap-2.5 sm:gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/20 bg-white/10 text-amber-200 sm:h-11 sm:w-11 sm:rounded-xl"><Icon name="school" className="h-5 w-5 sm:h-6 sm:w-6" /></span><div className="min-w-0"><p className="text-[9px] font-bold uppercase tracking-[.16em] text-blue-200 sm:text-[10px] sm:tracking-[.18em]">Your preparation plan</p><h2 className="mt-0.5 text-base font-bold sm:mt-1 sm:text-lg">Build a stronger daily routine</h2><p className="mt-1 text-[11px] leading-4 text-blue-100/80 sm:text-xs sm:leading-5">Practice topic-wise, follow current affairs and keep your exam goals on track.</p></div></div>
             <div className="relative mt-3 flex flex-wrap gap-1.5 sm:mt-4 sm:gap-2"><Link href="/mock-tests" className="rounded-full border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/15 sm:px-3 sm:py-2 sm:text-xs">Daily Quiz</Link><Link href="/current-affairs" className="rounded-full border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/15 sm:px-3 sm:py-2 sm:text-xs">Current Affairs</Link><Link href="/courses" className="ml-auto rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-blue-950 transition hover:bg-blue-50 sm:px-3.5 sm:py-2 sm:text-xs">Explore courses →</Link></div>
           </section>
-          <section id="mock-tests" aria-label="Mock tests" className="tr-mobile-series tr-mobile-dashboard-series mt-7 scroll-mt-24 overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(110deg,rgba(9,24,47,.94),rgba(5,14,29,.92))] p-3 shadow-[0_22px_55px_rgba(0,0,0,.24)] sm:p-4 md:scroll-mt-28">
-            <div id="choose-format" className="mb-3 flex flex-col gap-3 px-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-              <div><p className="text-[9px] font-extrabold uppercase tracking-[.22em] text-cyan-300">Choose your format</p><h2 className="mt-1 text-lg font-bold tracking-tight text-white sm:text-xl">Start Your Free Mock Test</h2><p className="mt-1 text-[11px] text-slate-400 sm:text-xs">Choose your exam and start practicing today.</p></div>
-              <label className="flex min-h-10 w-full items-center gap-2 rounded-xl border border-white/10 bg-[#07172e] px-3 text-slate-400 sm:max-w-[280px]"><Icon name="search" className="h-4 w-4 shrink-0 text-cyan-300" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search mock tests" aria-label="Search mock tests" className="min-w-0 flex-1 bg-transparent py-2 text-xs text-white outline-none placeholder:text-slate-500" /></label>
+          <section id="choose-format" aria-label="Mock test formats" className="tr-mobile-series tr-mobile-dashboard-series mt-7 scroll-mt-24 overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(110deg,rgba(9,24,47,.94),rgba(5,14,29,.92))] p-3 shadow-[0_22px_55px_rgba(0,0,0,.24)] sm:p-4">
+            <div className="mb-3 flex items-end justify-between gap-3 px-1">
+              <div><p className="text-[9px] font-extrabold uppercase tracking-[.22em] text-cyan-300">Choose your format</p><h2 className="mt-1 text-lg font-bold tracking-tight text-white sm:text-xl">Practice that moves your rank</h2></div>
+              <span className="hidden text-[10px] font-medium text-slate-400 sm:block">Swipe to explore <span aria-hidden="true" className="text-cyan-300">→</span></span>
             </div>
             <div className="grid grid-cols-3 gap-2.5 pb-2 md:flex md:snap-x md:snap-mandatory md:gap-3 md:overflow-x-auto md:pb-2 md:[scrollbar-color:rgba(125,211,252,.28)_transparent] md:[scrollbar-width:thin]">
               {practiceFormats.map((item) => {
@@ -852,7 +615,7 @@ export default function TestRankPage() {
                   <span className="relative flex items-start justify-between gap-1 sm:gap-2"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/15 bg-white/[.09] shadow-[0_0_24px_rgba(255,255,255,.08)] sm:h-11 sm:w-11 sm:rounded-xl ${item.tone === "blue" ? "text-sky-200" : item.tone === "emerald" ? "text-emerald-200" : item.tone === "violet" ? "text-violet-200" : item.tone === "amber" ? "text-amber-200" : item.tone === "cyan" ? "text-cyan-200" : "text-rose-200"}`}><Icon name={item.icon} className="h-4 w-4 sm:h-5 sm:w-5" /></span><span className={`max-w-[60%] truncate rounded-full border border-white/10 bg-black/20 px-1.5 py-1 text-[7px] font-extrabold tracking-normal sm:max-w-none sm:px-2 sm:text-[8px] sm:tracking-[.12em] ${item.tone === "blue" ? "text-sky-200" : item.tone === "emerald" ? "text-emerald-200" : item.tone === "violet" ? "text-violet-200" : item.tone === "amber" ? "text-amber-200" : item.tone === "cyan" ? "text-cyan-200" : "text-rose-200"}`}>{item.badge}</span></span>
                   <span className="relative"><b className="block text-xs font-extrabold leading-tight tracking-tight text-white sm:text-sm">{titleLead ? <>{titleLead} </> : null}<span className={toneAccent}>{titleAccent}</span></b><small className="mt-1 hidden text-[9px] leading-[1.35] text-slate-300 sm:mt-1.5 sm:block sm:text-[11px] sm:leading-[1.45]">{item.detail}</small><span className={`mt-2 flex items-center justify-between rounded-full border bg-gradient-to-r px-2 py-1 text-[9px] font-extrabold shadow-inner sm:mt-3 sm:px-3 sm:py-1.5 sm:text-[10px] ${toneAction}`}><span>{isSelected ? "Close tests" : "Explore"}</span><span aria-hidden="true" className="grid h-5 w-5 place-items-center rounded-full border border-white/25 bg-black/20 text-sm transition group-hover:translate-x-0.5 sm:h-6 sm:w-6">{isSelected ? "−" : "→"}</span></span></span>
                 </button>
-                {isSelected ? <div className="relative mt-3 border-t border-white/15 pt-3" aria-live="polite"><div className="mb-2 flex items-center justify-between gap-2"><p className="text-[9px] font-extrabold uppercase tracking-[.15em] text-white/75">{loading ? "Loading tests" : `${filteredTests.length} tests`}</p><span className="text-[9px] text-white/55">Tap a test to start</span></div>{loading ? <div className="space-y-2">{[1, 2, 3].map((index) => <div key={index} className="h-10 animate-pulse rounded-lg bg-black/20" />)}</div> : formatTests.length ? <div className="max-h-64 space-y-2 overflow-y-auto pr-1">{formatTests.slice(0, pageSize).map((test) => <Link key={test.id} href={test.href.includes("/mock-tests/free-practice") ? `${test.href}${test.href.includes("?") ? "&" : "?"}start=1` : test.href} className="block rounded-lg border border-white/10 bg-black/20 px-2.5 py-2 transition hover:border-white/25 hover:bg-white/[.08]"><span className="block truncate text-[11px] font-bold text-white">{test.title}</span><span className="mt-1 flex items-center justify-between gap-2 text-[9px] text-white/65"><span className="truncate">{test.exam}</span><span className="shrink-0">{test.questionCount || "—"} Q · {test.duration}</span></span><span className="mt-2 flex items-center justify-between border-t border-white/10 pt-2 text-[9px] font-extrabold text-cyan-200"><span>Start Test</span><span aria-hidden="true">→</span></span></Link>)}</div> : <p className="rounded-lg border border-white/10 bg-black/20 px-3 py-3 text-[11px] leading-5 text-white/70">{error || `No ${item.title.toLowerCase()} are published yet.`}</p>}{!loading && formatTests.length > pageSize ? <button type="button" onClick={() => setPageSize((size) => size + 5)} className="mt-2 w-full rounded-lg border border-white/15 px-3 py-2 text-[10px] font-bold text-white/80 transition hover:bg-white/[.08]">Show more tests</button> : null}</div> : null}
+                {isSelected ? <div className="relative mt-3 border-t border-white/15 pt-3" aria-live="polite"><div className="mb-2 flex items-center justify-between gap-2"><p className="text-[9px] font-extrabold uppercase tracking-[.15em] text-white/75">{loading ? "Loading tests" : `${filteredTests.length} tests`}</p><span className="text-[9px] text-white/55">Tap a test to start</span></div>{loading ? <div className="space-y-2">{[1, 2, 3].map((index) => <div key={index} className="h-10 animate-pulse rounded-lg bg-black/20" />)}</div> : formatTests.length ? <div className="max-h-64 space-y-2 overflow-y-auto pr-1">{formatTests.slice(0, pageSize).map((test) => <Link key={test.id} href={test.href.includes("/mock-tests/free-practice") ? `${test.href}${test.href.includes("?") ? "&" : "?"}start=1` : test.href} className="block rounded-lg border border-white/10 bg-black/20 px-2.5 py-2 transition hover:border-white/25 hover:bg-white/[.08]"><span className="block truncate text-[11px] font-bold text-white">{test.title}</span><span className="mt-1 flex items-center justify-between gap-2 text-[9px] text-white/65"><span className="truncate">{test.exam}</span><span className="shrink-0">{test.questionCount || "—"} Q · {test.duration}</span></span></Link>)}</div> : <p className="rounded-lg border border-white/10 bg-black/20 px-3 py-3 text-[11px] leading-5 text-white/70">{error || `No ${item.title.toLowerCase()} are published yet.`}</p>}{!loading && formatTests.length > pageSize ? <button type="button" onClick={() => setPageSize((size) => size + 5)} className="mt-2 w-full rounded-lg border border-white/15 px-3 py-2 text-[10px] font-bold text-white/80 transition hover:bg-white/[.08]">Show more tests</button> : null}</div> : null}
               </article>;
               })}
             </div>
@@ -867,7 +630,6 @@ export default function TestRankPage() {
   );
 }
 
-function TestMetaSmall({ label, value }) { return <div className="min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2"><p className="text-[9px] font-semibold uppercase tracking-wide text-slate-500">{label}</p><p className="mt-1 truncate text-[11px] font-bold text-slate-800">{value || "—"}</p></div>; }
 function FilterSelect({ label, value, onChange, options }) {
   return <label className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#07172e] px-3 py-2 text-[10px] text-slate-400">{label}<select value={value} onChange={(event) => onChange(event.target.value)} aria-label={`Filter by ${label}`} className="min-w-0 bg-transparent text-xs font-medium text-slate-100 outline-none">{options.map((option) => <option className="bg-[#07172e]" key={option}>{option}</option>)}</select></label>;
 }
