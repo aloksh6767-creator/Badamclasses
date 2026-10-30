@@ -214,9 +214,13 @@ img, svg, video, canvas { max-width: 100%; }
   .tr-mobile-main > section[aria-label="Badam TestRank banner slider"] img { height: auto; max-height: 235px; aspect-ratio: 1.48; object-fit: cover; object-position: center; }
   .tr-mobile-main > section[aria-label="Badam TestRank banner slider"] > div { display: none; }
   .tr-mobile-main > .grid > section:nth-child(2) { display: none; }
-  .tr-mobile-dashboard-quick > div:last-child { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
-  .tr-mobile-dashboard-quick > div:last-child > a { min-height: 126px; width: auto; }
+  .tr-mobile-dashboard-quick > div:last-child { display: grid; grid-template-columns: minmax(0, 1fr); overflow: visible; margin: 0; padding: 0; }
+  .tr-mobile-dashboard-quick > div:last-child > a { min-height: 190px; width: auto; }
   html { scroll-behavior: smooth; }
+}
+
+@media (min-width: 460px) and (max-width: 767px) {
+  .tr-mobile-dashboard-quick > div:last-child { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 767px) {
