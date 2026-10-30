@@ -10,6 +10,14 @@ import { mockExamCategories, topicWiseAiMocks } from "@/lib/mockTestCatalog";
 import { enrichMockTests } from "@/lib/mockQuestionFilters";
 
 const tabs = ["All Tests", "Free Tests", "Premium Tests", "Previous Year Papers", "Practice Sets"];
+const examCategoryCardThemes = [
+  { card: "border-pink-500/60 bg-[linear-gradient(135deg,#3a0d36,#211039_58%,#071b3d)] hover:border-pink-300", badge: "border-pink-400/40 bg-pink-500/15 text-pink-100", button: "from-pink-500 to-rose-600" },
+  { card: "border-violet-500/60 bg-[linear-gradient(135deg,#301875,#20104c_58%,#0b1742)] hover:border-violet-300", badge: "border-violet-400/40 bg-violet-500/15 text-violet-100", button: "from-violet-500 to-indigo-600" },
+  { card: "border-teal-400/60 bg-[linear-gradient(135deg,#063b4b,#073047_58%,#071c39)] hover:border-teal-200", badge: "border-teal-300/40 bg-teal-500/15 text-teal-100", button: "from-teal-400 to-cyan-600" },
+  { card: "border-cyan-500/60 bg-[linear-gradient(135deg,#073d75,#082e60_58%,#071839)] hover:border-cyan-300", badge: "border-cyan-400/40 bg-cyan-500/15 text-cyan-100", button: "from-cyan-400 to-blue-600" },
+  { card: "border-amber-400/60 bg-[linear-gradient(135deg,#55300b,#38220b_58%,#1b1930)] hover:border-amber-200", badge: "border-amber-300/40 bg-amber-500/15 text-amber-100", button: "from-amber-400 to-orange-600" },
+  { card: "border-fuchsia-500/60 bg-[linear-gradient(135deg,#351276,#24104e_58%,#100d39)] hover:border-fuchsia-300", badge: "border-fuchsia-400/40 bg-fuchsia-500/15 text-fuchsia-100", button: "from-violet-400 to-fuchsia-600" }
+];
 const testRankHeroBanners = [
   {
     src: "/badam-testranker-hero.png",
@@ -621,6 +629,37 @@ export default function TestRankPage() {
             </div>
           </section>
           <aside className="tr-mobile-performance mt-4 grid content-start gap-4 md:grid-cols-2 2xl:grid-cols-3"><section className="rounded-xl border border-sky-400/20 bg-[#041326] p-4"><div className="flex items-center justify-between"><h2 className="font-bold text-white">Upcoming Tests</h2><a href="#choose-format" className="text-xs text-sky-300">View all →</a></div><div className="mt-3 rounded-lg border border-white/10 bg-white/[.025] p-4 text-center"><p className="text-sm font-medium text-slate-200">No scheduled tests available</p><p className="mt-1 text-xs text-slate-500">Choose a format above to browse published practice sets.</p></div></section><section id="my-performance" className="rounded-xl border border-sky-400/20 bg-[#041326] p-4"><div className="flex items-center justify-between"><h2 className="font-bold text-white">Performance Overview</h2><span className="text-[10px] text-slate-500">Verified submissions</span></div>{history.length ? <><div className="mt-5 flex h-32 items-end gap-2 border-b border-l border-white/10 px-2">{history.slice(-8).map((item, index) => <div key={item.id || index} className="flex-1 rounded-t bg-gradient-to-t from-blue-700 to-cyan-400" style={{ height: `${Math.max(8, Math.min(100, Number(item.percent) || 0))}%` }} title={`${item.percent}% accuracy`} />)}</div><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4"><SmallStat label="Attempts" value={history.length} /><SmallStat label="Average accuracy" value={`${average}%`} /><SmallStat label="Best score" value={`${best}%`} /><SmallStat label="Avg seconds / question" value={`${averageTimePerQuestion ?? "—"}s`} /></div></> : <div className="mt-4 rounded-lg border border-dashed border-white/10 p-5 text-center"><p className="text-sm text-slate-300">Your verified performance appears here</p><p className="mt-1 text-xs text-slate-500">Complete a published online test while logged in.</p></div>}</section><section className="rounded-xl border border-amber-300/20 bg-[linear-gradient(115deg,#211a0a,#11192b_65%,#0b2343)] p-5"><p className="text-xs font-bold uppercase tracking-wide text-amber-300">♛ Badam Classes</p><h2 className="mt-2 text-xl font-bold text-white">Build your exam plan</h2><p className="mt-2 text-xs leading-5 text-slate-300">Explore structured lessons, practice materials and live classes.</p><Link href="/courses" className="mt-4 inline-flex rounded-lg bg-amber-400 px-4 py-2 text-xs font-bold text-slate-950">Explore Courses →</Link></section></aside>
+
+          <section aria-labelledby="popular-exam-categories-title" className="relative mt-8 overflow-hidden rounded-[24px] border border-blue-400/20 bg-[#020c22] p-4 shadow-[0_24px_64px_rgba(1,8,28,.36)] sm:p-5 lg:p-6">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_8%_0%,rgba(37,99,235,.22),transparent_38%),radial-gradient(ellipse_at_95%_90%,rgba(79,70,229,.18),transparent_40%)]" />
+            <div className="relative mb-4 flex flex-wrap items-end justify-between gap-3 sm:mb-5">
+              <div><p className="text-[10px] font-extrabold uppercase tracking-[.18em] text-cyan-300">Choose your next exam</p><h2 id="popular-exam-categories-title" className="mt-1 text-xl font-extrabold tracking-tight text-white sm:text-2xl">Popular Exam Categories</h2></div>
+              <span className="text-xs text-blue-100/65">Browse mock tests and exam practice</span>
+            </div>
+            <div className="relative grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 sm:gap-4">
+              {mockExamCategories.map((category, index) => {
+                const categoryTests = tests.filter((test) => matchesExam(test, category.exam));
+                const freeCount = categoryTests.filter((test) => test.access === "Free").length;
+                const paidCount = categoryTests.filter((test) => test.access === "Premium").length;
+                const theme = examCategoryCardThemes[index % examCategoryCardThemes.length];
+                return <Link key={category.exam} href={`/test-rank?exam=${encodeURIComponent(category.exam)}#popular-exams`} aria-label={`Explore ${category.exam} mocks, ${categoryTests.length} available tests`} className={`group relative isolate flex min-h-[222px] min-w-0 flex-col overflow-hidden rounded-[20px] border p-4 shadow-[0_16px_36px_rgba(0,0,0,.25)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_42px_rgba(0,0,0,.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020c22] sm:p-5 ${theme.card}`}>
+                  {category.logoImage ? <Image src={category.logoImage} alt="" aria-hidden="true" width={150} height={150} className="pointer-events-none absolute bottom-9 right-0 z-0 h-32 w-32 object-contain opacity-[.16] transition duration-300 group-hover:scale-105 group-hover:opacity-25 sm:h-36 sm:w-36" /> : null}
+                  <span className="relative z-10 flex w-full items-start justify-between gap-3">
+                    <span className="flex min-w-0 items-center gap-3">
+                      <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full border border-white/30 bg-white p-1.5 shadow-[0_8px_24px_rgba(0,0,0,.25)] sm:h-16 sm:w-16">{category.logoImage ? <Image src={category.logoImage} alt="" aria-hidden="true" width={52} height={52} className="h-full w-full object-contain" /> : <span className="text-2xl" aria-hidden="true">{category.logo || "🎓"}</span>}</span>
+                      <span className="min-w-0"><span className="block truncate text-lg font-extrabold tracking-tight text-white sm:text-xl">{category.exam}</span><span className="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-blue-100/80"><Icon name="test" className="h-3.5 w-3.5 shrink-0" />{loading ? "Loading tests…" : `${categoryTests.length} available tests`}</span></span>
+                    </span>
+                    <span className={`shrink-0 rounded-full border px-2.5 py-1.5 text-[9px] font-extrabold sm:text-[10px] ${theme.badge}`}>{category.difficulty}</span>
+                  </span>
+                  <span className="relative z-10 mt-4 flex flex-wrap gap-2">
+                    {[{ label: "Free", value: freeCount, icon: "gift" }, { label: "Paid", value: paidCount, icon: "payment" }, { label: category.duration, value: category.pattern, icon: "clock" }].map((item) => <span key={item.label} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/15 bg-black/15 px-2.5 py-1.5 text-[10px] text-white/75"><Icon name={item.icon} className="h-4 w-4 shrink-0 text-white/85" /><span><span className="block font-semibold">{item.label}</span><b className="text-xs text-white">{item.value}</b></span></span>)}
+                  </span>
+                  <span className="relative z-10 mt-3 line-clamp-1 text-[10px] font-medium text-blue-100/75 sm:text-[11px]">{category.sections}</span>
+                  <span className={`relative z-10 mt-auto inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r px-4 py-2.5 text-xs font-extrabold text-white shadow-lg transition group-hover:brightness-110 sm:text-sm ${theme.button}`}>Explore mocks <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                </Link>;
+              })}
+            </div>
+          </section>
 
           <footer className="mt-8 border-t border-white/10 py-5 text-center text-xs text-slate-500">BADAM TESTRANK — Powered by Badam Classes</footer>
         </main>
