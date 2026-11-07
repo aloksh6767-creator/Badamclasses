@@ -110,16 +110,19 @@ export default function Navbar() {
           <span className="logo-light-orbit">
             <span className="logo-light-dot" />
           </span>
-          <Image
-            src="/new-logo.webp"
-            alt="Badam Singh Classes Logo"
-            width={1536}
-            height={1024}
-            sizes="100px"
-            priority
-            fetchPriority="high"
-            className="relative z-10 h-14 w-auto max-w-[260px] rounded-md border border-white/15 object-contain"
-          />
+          <span className="logo-image-frame relative z-10 rounded-md">
+            <Image
+              src="/new-logo.webp"
+              alt="Badam Singh Classes Logo"
+              width={1536}
+              height={1024}
+              sizes="100px"
+              priority
+              fetchPriority="high"
+              className="h-14 w-auto max-w-[260px] rounded-md border border-white/15 object-contain"
+            />
+            <span className="logo-image-sheen" aria-hidden="true" />
+          </span>
         </Link>
 
         <nav className="hidden flex-1 flex-wrap items-center justify-center gap-3 text-sm lg:flex xl:gap-4">

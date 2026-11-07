@@ -203,6 +203,7 @@ img, svg, video, canvas { max-width: 100%; }
   .tr-mobile-main { display: flex; flex-direction: column; }
   .tr-mobile-main > .grid:first-of-type { display: contents; }
   .tr-mobile-dashboard-target { order: 3; }
+  .tr-mobile-dashboard-quick { order: 4; margin-top: 0; }
   .tr-mobile-dashboard-series { order: 5; }
   .tr-mobile-performance { order: 7; }
   .tr-mobile-main > section[aria-label="Badam TestRank banner slider"] { order: 1; }
@@ -210,7 +211,13 @@ img, svg, video, canvas { max-width: 100%; }
   .tr-mobile-main > section[aria-label="Badam TestRank banner slider"] img { height: auto; max-height: 235px; aspect-ratio: 1.48; object-fit: cover; object-position: center; }
   .tr-mobile-main > section[aria-label="Badam TestRank banner slider"] > div { display: none; }
   .tr-mobile-main > .grid > section:nth-child(2) { display: none; }
+  .tr-mobile-dashboard-quick .quick-access-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .tr-mobile-dashboard-quick .quick-access-grid > button { min-height: 160px; }
   html { scroll-behavior: smooth; }
+}
+
+@media (min-width: 460px) and (max-width: 767px) {
+  .tr-mobile-dashboard-quick .quick-access-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 767px) {
@@ -651,6 +658,38 @@ img, svg, video, canvas { max-width: 100%; }
   background-image: linear-gradient(120deg, rgba(99, 102, 241, 0.2), rgba(30, 41, 59, 0.4));
 }
 
+@keyframes logoBrandReveal {
+  from { opacity: 0.35; transform: scale(0.97); }
+  72% { opacity: 1; transform: scale(1.015); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes logoImageSweep {
+  0%, 62% { opacity: 0; transform: translateX(-150%) skewX(-22deg); }
+  68% { opacity: 0.72; }
+  84%, 100% { opacity: 0; transform: translateX(440%) skewX(-22deg); }
+}
+
+.logo-image-frame {
+  position: relative;
+  display: inline-flex;
+  isolation: isolate;
+  overflow: hidden;
+  animation: logoBrandReveal 850ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.logo-image-sheen {
+  position: absolute;
+  z-index: 2;
+  top: -45%;
+  bottom: -45%;
+  left: -24%;
+  width: 30%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), rgba(191, 219, 254, 0.2), transparent);
+  filter: blur(2px);
+  animation: logoImageSweep 5.2s ease-in-out 1s infinite;
+}
 @keyframes logoAuraSpin {
   0% {
     transform: rotate(0deg) scale(1);
@@ -766,6 +805,13 @@ img, svg, video, canvas { max-width: 100%; }
   box-shadow: 0 0 14px rgba(251, 146, 60, 0.9), 0 0 28px rgba(251, 146, 60, 0.5);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .logo-image-frame,
+  .logo-image-sheen,
+  .logo-light-orbit {
+    animation: none !important;
+  }
+}
 .app-logo-splash {
   position: fixed;
   inset: 0;

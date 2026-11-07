@@ -146,8 +146,9 @@ export default function AuthShowcase({ mode = "login", children }) {
           <header className="flex min-h-[5.5rem] items-center justify-center border-b border-blue-300/15 bg-[#03143e]/72 px-6 py-3">
             <div className="flex w-full max-w-[40rem] items-center justify-center gap-5">
               <span className="hidden h-px flex-1 bg-gradient-to-r from-transparent via-orange-400/70 to-orange-400/20 sm:block" />
-              <div className="h-[4.25rem] w-[17rem] shrink-0 overflow-hidden rounded-xl">
+              <div className="logo-image-frame h-[4.25rem] w-[17rem] shrink-0 rounded-xl">
                 <img src="/new-logo.webp" alt="Badam Singh Classes" className="h-full w-full object-cover object-center" />
+                <span className="logo-image-sheen" aria-hidden="true" />
               </div>
               <span className="hidden h-px flex-1 bg-gradient-to-l from-transparent via-orange-400/70 to-orange-400/20 sm:block" />
             </div>

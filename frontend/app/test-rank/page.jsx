@@ -97,6 +97,14 @@ const testRankHeroBanners = [
   }
 ];
 const mockModes = [{ id: "all", label: "All Mocks", icon: "grid" }, { id: "full", label: "Full Mock", icon: "test" }, { id: "sectional", label: "Sectional Mock", icon: "layers" }, { id: "topic", label: "Topic / Chapter Mock", icon: "book" }, { id: "mini", label: "Mini Mocks", icon: "spark" }, { id: "super", label: "Super Sets", icon: "spark" }, { id: "calci", label: "Ultra Calci", icon: "calculator" }, { id: "timed", label: "Timed Online Tests", icon: "clock" }];
+const quickAccessCards = [
+  { id: "live", title: "Live Mock", detail: "Timed exam simulations", label: "REAL-TIME PRACTICE", action: "Explore tests", icon: "live", card: "border-blue-500/70 bg-[linear-gradient(145deg,#08245e,#061942_60%,#020d2a)] hover:border-blue-300", accent: "text-sky-300", button: "from-blue-500 to-cyan-500", matches: (test) => test.source === "Verified online test" },
+  { id: "ai", title: "AI Mock", detail: "Published topic practice", label: "PERSONALIZED AI", action: "Explore AI mocks", icon: "spark", card: "border-cyan-400/60 bg-[linear-gradient(145deg,#063c50,#042b3d_60%,#031a31)] hover:border-cyan-200", accent: "text-cyan-300", button: "from-cyan-500 to-teal-500", matches: (test) => test.source === "Badam Classes practice" && test.type === "Topic / Chapter Mock" && (test.hasQuestionData || test.href.startsWith("/test/")) },
+  { id: "premium", title: "Premium Mock", detail: "Exam-length premium practice", label: "EXCLUSIVE SERIES", action: "View series", icon: "crown", card: "border-amber-400/60 bg-[linear-gradient(145deg,#493313,#292018_60%,#151522)] hover:border-amber-200", accent: "text-amber-300", button: "from-amber-400 to-orange-600", matches: (test) => test.access === "Premium" && test.type === "Full-Length Tests" },
+  { id: "pyq", title: "PYQ Mock", detail: "Previous year question papers", label: "PAST EXAM PAPERS", action: "Practice PYQs", icon: "paper", card: "border-violet-500/65 bg-[linear-gradient(145deg,#302078,#21184e_60%,#110e31)] hover:border-violet-300", accent: "text-fuchsia-300", button: "from-violet-500 to-fuchsia-600", matches: (test) => test.isVerifiedPyq || /pyq|previous year|past paper/i.test([test.title, test.type, test.source].join(" ")) },
+  { id: "paid", title: "Paid Mock", detail: "Premium access test series", label: "PREMIUM ACCESS", action: "View tests", icon: "payment", card: "border-teal-400/60 bg-[linear-gradient(145deg,#063c50,#062b3c_60%,#03182c)] hover:border-teal-200", accent: "text-teal-300", button: "from-teal-400 to-cyan-600", matches: (test) => test.access === "Premium" }
+];
+const quickAccessCardKeys = quickAccessCards.map((card) => card.id);
 const practiceFormats = [
   { id: "full", title: "Full Length Tests", detail: "Attempt realistic exam simulations and see where you stand.", icon: "test", badge: "EXAM MODE", tone: "blue" },
   { id: "pyq", title: "PYQs", detail: "Practice previous exam questions and understand real trends.", icon: "paper", badge: "PAST PAPERS", tone: "emerald" },
@@ -129,7 +137,7 @@ const normalizeTest = (item, sourceLabel) => {
       : /full[-\s]?length|full mock|complete mock|full test/i.test(`${item.examMode || ""} ${item.type || ""} ${item.title || ""}`)
         ? "Full-Length Tests" : "Practice Sets";
   return {
-    id, title: item.title || "Practice set", exam, questionCount,
+    id, title: item.title || "Practice set", exam, questionCount, isVerifiedPyq: item.verifiedPyq === true, hasQuestionData: Array.isArray(item.questions) && item.questions.length > 0,
     examSearchText: [item.examName, item.exam, item.category, item.source, item.sourcePdf, item.title].filter(Boolean).join(" "),
     duration: item.duration || (item.durationMinutes ? `${item.durationMinutes} min` : "—"), marks: item.marks || item.maxMarks || (item.marksPerQuestion != null ? questionCount * Number(item.marksPerQuestion) : "—"), difficulty: item.difficulty || "Not specified",
     language: item.language || "Not specified", access, type: item.testRankType || testType, source: sourceLabel,
@@ -243,6 +251,7 @@ export default function TestRankPage() {
   const [pageSize, setPageSize] = useState(12);
   const [expandedExam, setExpandedExam] = useState("");
   const [selectedFormat, setSelectedFormat] = useState("");
+  const [selectedQuickAccess, setSelectedQuickAccess] = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [heroBannerIndex, setHeroBannerIndex] = useState(0);
   useEffect(() => {
@@ -316,6 +325,16 @@ export default function TestRankPage() {
     window.setTimeout(() => document.getElementById("choose-format")?.scrollIntoView({ block: "start", behavior }), 0);
   };
 
+  const toggleQuickAccess = (key) => {
+    const nextKey = selectedQuickAccess === key ? "" : key;
+    setSelectedQuickAccess(nextKey);
+    const params = new URLSearchParams(window.location.search);
+    if (nextKey) params.set("quick", nextKey);
+    else params.delete("quick");
+    const query = params.toString();
+    window.history.pushState(null, "", `/test-rank${query ? `?${query}` : ""}#quick-access`);
+  };
+
   const loadTests = async () => {
     setLoading(true);
     setError("");
@@ -369,6 +388,7 @@ export default function TestRankPage() {
       const requestedMode = params.get("mode");
       const requestedTab = params.get("tab");
       const requestedSubExam = params.get("subExam");
+      const requestedQuickAccess = params.get("quick");
       if (window.location.hash === "#test-library") {
         window.history.replaceState(null, "", `/test-rank${window.location.search}#choose-format`);
       }
@@ -380,6 +400,7 @@ export default function TestRankPage() {
       setExpandedExam(inlineCategoryView ? requestedSubExam || matchedCategory.exam : "");
       setMockMode(mockModes.some((mode) => mode.id === requestedMode) ? requestedMode : "all");
       setTab(tabs.includes(requestedTab) ? requestedTab : "All Tests");
+      setSelectedQuickAccess(quickAccessCardKeys.includes(requestedQuickAccess) ? requestedQuickAccess : "");
       if (!inlineCategoryView && (requestedExam || requestedSubExam)) {
         setExpandedExam(requestedSubExam || requestedExam);
       }
@@ -429,6 +450,11 @@ export default function TestRankPage() {
       && (language === "All languages" || item.language.includes(language))
       && searchable.includes(search.toLowerCase());
   }), [tests, tab, mockMode, exam, subExam, subject, difficulty, language, search]);
+  const quickAccessTests = useMemo(() => {
+    const card = quickAccessCards.find((item) => item.id === selectedQuickAccess);
+    return card ? tests.filter((test) => card.matches(test) && (test.href.startsWith("/test/") || (test.href.includes("/mock-tests/free-practice") && /[?&]test=/.test(test.href)))) : [];
+  }, [tests, selectedQuickAccess]);
+  const selectedQuickAccessCard = quickAccessCards.find((item) => item.id === selectedQuickAccess);
   const sortedTests = useMemo(() => {
     const durationMinutes = (value) => {
       const exactDuration = /^(\d+(?:\.\d+)?)\s*min$/i.exec(String(value).trim());
@@ -526,6 +552,35 @@ export default function TestRankPage() {
             <div className="relative flex items-start gap-2.5 sm:gap-3"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/20 bg-white/10 text-amber-200 sm:h-11 sm:w-11 sm:rounded-xl"><Icon name="school" className="h-5 w-5 sm:h-6 sm:w-6" /></span><div className="min-w-0"><p className="text-[9px] font-bold uppercase tracking-[.16em] text-blue-200 sm:text-[10px] sm:tracking-[.18em]">Your preparation plan</p><h2 className="mt-0.5 text-base font-bold sm:mt-1 sm:text-lg">Build a stronger daily routine</h2><p className="mt-1 text-[11px] leading-4 text-blue-100/80 sm:text-xs sm:leading-5">Practice topic-wise, follow current affairs and keep your exam goals on track.</p></div></div>
             <div className="relative mt-3 flex flex-wrap gap-1.5 sm:mt-4 sm:gap-2"><Link href="/mock-tests" className="rounded-full border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/15 sm:px-3 sm:py-2 sm:text-xs">Daily Quiz</Link><Link href="/current-affairs" className="rounded-full border border-white/20 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/15 sm:px-3 sm:py-2 sm:text-xs">Current Affairs</Link><Link href="/courses" className="ml-auto rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-blue-950 transition hover:bg-blue-50 sm:px-3.5 sm:py-2 sm:text-xs">Explore courses →</Link></div>
           </section>
+          <section id="quick-access" aria-label="Quick access test formats" className="tr-mobile-quick tr-mobile-dashboard-quick mt-5 scroll-mt-24">
+            <div className="mb-3 flex items-end justify-between gap-2">
+              <div><p className="text-[9px] font-bold uppercase tracking-[.18em] text-sky-300">Quick access</p><h2 className="mt-1 text-base font-bold text-white sm:text-lg">Choose your test</h2></div>
+              <span className="pb-0.5 text-[10px] font-medium text-slate-400">Pick a format <span aria-hidden="true">→</span></span>
+            </div>
+            <div className="quick-access-grid grid grid-cols-1 gap-3 min-[460px]:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+              {quickAccessCards.map((item) => {
+                const isSelected = selectedQuickAccess === item.id;
+                const count = tests.filter(item.matches).length;
+                const detail = item.id === "paid" ? `${count} paid tests · unlock test series` : item.detail;
+                return <button key={item.id} type="button" onClick={() => toggleQuickAccess(item.id)} aria-expanded={isSelected} aria-controls={isSelected ? "quick-access-tests" : undefined} aria-label={`${item.title}: ${detail}. ${isSelected ? "Close tests" : item.action}`} className={`rank-format-card group relative isolate flex min-h-[190px] min-w-0 flex-col justify-between overflow-hidden rounded-[22px] border p-3.5 text-left shadow-[0_14px_30px_rgba(0,0,0,.3)] ring-1 ring-white/[.04] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_42px_rgba(0,0,0,.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#030d1b] motion-reduce:transform-none motion-reduce:transition-none ${item.card} ${isSelected ? "ring-2 ring-white/60 shadow-[0_0_28px_rgba(125,211,252,.22)]" : ""}`}>
+                  <span aria-hidden="true" className="pointer-events-none absolute -right-7 -top-8 h-28 w-28 rounded-full bg-white/[.1] blur-2xl transition-opacity group-hover:opacity-90" />
+                  <span aria-hidden="true" className="pointer-events-none absolute -bottom-14 -right-5 h-24 w-2/3 rotate-[-28deg] bg-gradient-to-r from-transparent via-white/5 to-white/15" />
+                  <span className="relative z-10 flex w-full items-start justify-between gap-2"><span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/[.08] ${item.accent} shadow-[0_10px_28px_rgba(0,0,0,.2)]`}><Icon name={item.icon} className="h-8 w-8" /></span><span className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-white/[.08] text-xl text-white transition group-hover:translate-x-0.5 group-hover:bg-white/[.16]" aria-hidden="true">{isSelected ? "−" : "→"}</span></span>
+                  <span className="relative z-10 block min-w-0"><small className="block text-[9px] font-extrabold tracking-[.14em] text-white/65"><span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current align-middle ${item.accent}`} />{item.label}</small><b className="mt-2 block text-lg font-extrabold leading-tight tracking-tight text-white sm:text-xl">{item.title}</b><small className="mt-2 block min-h-10 text-xs leading-5 text-slate-200/85 sm:text-sm">{detail}</small><span className={`mt-2.5 flex min-h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r px-3 py-2 text-xs font-extrabold text-white shadow-md transition group-hover:brightness-110 sm:text-sm ${item.button}`}>{isSelected ? "Close tests" : item.action}<span aria-hidden="true" className="text-base transition group-hover:translate-x-0.5">→</span></span></span>
+                </button>;
+              })}
+            </div>
+            {selectedQuickAccessCard ? <div id="quick-access-tests" className="mt-3 rounded-2xl border border-white/10 bg-[#07172c] p-3 shadow-[0_16px_36px_rgba(0,0,0,.24)] sm:p-4" aria-live="polite">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><div><p className={`text-[9px] font-extrabold uppercase tracking-[.16em] ${selectedQuickAccessCard.accent}`}>{selectedQuickAccessCard.label}</p><h3 className="mt-1 text-sm font-bold text-white sm:text-base">{selectedQuickAccessCard.title} tests</h3></div><span className="text-[10px] text-slate-400">{loading ? "Loading…" : `${quickAccessTests.length} published ${quickAccessTests.length === 1 ? "test" : "tests"}`}</span></div>
+              {loading ? <div className="grid gap-2 sm:grid-cols-2">{[1, 2, 3, 4].map((index) => <div key={index} className="h-16 animate-pulse rounded-xl bg-white/[.05]" />)}</div> : quickAccessTests.length ? <div className="grid max-h-80 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">{quickAccessTests.map((test) => {
+                const needsStart = test.href.includes("/mock-tests/free-practice") || (test.href.includes("/test/") && !/[?&]start=/.test(test.href));
+                const href = needsStart ? `${test.href}${test.href.includes("?") ? "&" : "?"}start=1` : test.href;
+                return <article key={test.id} className="flex min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-black/20 p-2.5"><span className="min-w-0 flex-1"><span className="block truncate text-[11px] font-bold text-white">{test.title}</span><span className="mt-1 block truncate text-[9px] text-slate-300">{test.exam} · {test.questionCount || "—"} questions · {test.duration} · {test.access === "Premium" ? "Paid" : test.access === "Free" ? "Free" : "Access info"}</span></span><Link href={href} className="shrink-0 rounded-lg bg-white px-3 py-2 text-[10px] font-extrabold text-slate-900 transition hover:bg-slate-100">{test.access === "Premium" ? "View" : "Start"}</Link></article>;
+              })}</div> : <div className="rounded-xl border border-dashed border-white/10 px-4 py-5 text-center"><p className="text-xs font-semibold text-slate-200">No published {selectedQuickAccessCard.title.toLowerCase()} tests are available yet.</p><p className="mt-1 text-[10px] text-slate-400">Only tests present in the published test data appear here.</p></div>}
+              {error ? <div role="status" className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300/20 bg-amber-300/[.06] px-3 py-2 text-[10px] text-amber-100"><span>{error}</span><button type="button" onClick={loadTests} className="shrink-0 font-bold underline">Retry</button></div> : null}
+            </div> : null}
+          </section>
+
           <section id="choose-format" aria-label="Mock test formats" className="tr-mobile-series tr-mobile-dashboard-series mt-7 scroll-mt-24 overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(110deg,rgba(9,24,47,.94),rgba(5,14,29,.92))] p-3 shadow-[0_22px_55px_rgba(0,0,0,.24)] sm:p-4">
             <div className="mb-3 flex items-end justify-between gap-3 px-1">
               <div><p className="text-[9px] font-extrabold uppercase tracking-[.22em] text-cyan-300">Choose your format</p><h2 className="mt-1 text-lg font-bold tracking-tight text-white sm:text-xl">Practice that moves your rank</h2></div>
