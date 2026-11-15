@@ -5,6 +5,7 @@ import { startCurrentAffairsScheduler, warmupCurrentAffairs } from "./utils/curr
 import { notifyErrorAlert } from "./utils/alertNotifier.js";
 import { ensureConfiguredAdminAccount } from "./utils/adminBootstrap.js";
 import { startTelegramPollingService } from "./utils/telegramPollingService.js";
+import { startDailyAiMockScheduler } from "./utils/dailyAiMockScheduler.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -36,8 +37,10 @@ const start = async () => {
       if (dbConnected) {
         await warmupCurrentAffairs();
         startCurrentAffairsScheduler();
+        startDailyAiMockScheduler();
       } else {
         console.warn("[CurrentAffairs] scheduler skipped because MongoDB is offline.");
+        console.warn("[DailyAiMock] scheduler skipped because MongoDB is offline.");
       }
     });
   } catch (error) {

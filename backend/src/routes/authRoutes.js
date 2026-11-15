@@ -1,5 +1,5 @@
 import express from "express";
-import { forgotPassword, login, profile, resetPassword, sendOtp, signup, updateProfile, verifyOtp } from "../controllers/authController.js";
+import { forgotPassword, login, loginWithOtp, profile, resetPassword, sendLoginOtp, sendOtp, signup, updateProfile, verifyOtp } from "../controllers/authController.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { createRateLimit } from "../middleware/rateLimit.js";
@@ -19,9 +19,11 @@ const authLimiter = createRateLimit({
 });
 
 router.post("/send-otp", otpLimiter, asyncHandler(sendOtp));
+router.post("/login/otp/send", authLimiter, otpLimiter, asyncHandler(sendLoginOtp));
 router.post("/verify-otp", otpLimiter, asyncHandler(verifyOtp));
 router.post("/signup", authLimiter, asyncHandler(signup));
 router.post("/login", authLimiter, asyncHandler(login));
+router.post("/login/otp", authLimiter, otpLimiter, asyncHandler(loginWithOtp));
 router.post("/forgot-password", otpLimiter, asyncHandler(forgotPassword));
 router.post("/reset-password", otpLimiter, asyncHandler(resetPassword));
 router.get("/me", protect, asyncHandler(profile));

@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { createHmac, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 import { isDatabaseConnected } from "../config/db.js";
@@ -7,12 +8,21 @@ import { ensureConfiguredAdminAccount } from "../utils/adminBootstrap.js";
 
 const otpStore = new Map();
 const FAST2SMS_URL = "https://www.fast2sms.com/dev/bulkV2";
+const OTP_MAX_ATTEMPTS = 5;
+const OTP_HASH_SECRET = process.env.OTP_HASH_SECRET || process.env.JWT_SECRET || randomBytes(32).toString("hex");
 
 const normalizePhone = (phone = "") => phone.replace(/\s+/g, "").replace(/[^\d+]/g, "");
 const normalizeEmail = (email = "") => String(email || "").trim().toLowerCase();
 const isValidPhone = (phone) => /^\+?\d{10,15}$/.test(phone);
-const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
-const toSmsPhone = (phone = "") => normalizePhone(phone).replace(/[^\d]/g, "");
+const generateOtp = () => String(randomInt(100000, 1000000));
+const hashOtp = (phone, code) => createHmac("sha256", OTP_HASH_SECRET).update(phone + ":" + code).digest();
+const otpCodeMatches = (phone, record, code) => {
+  if (!record?.codeHash) return false;
+  const expected = Buffer.from(record.codeHash, "hex");
+  const actual = hashOtp(phone, String(code || "").trim());
+  return expected.length === actual.length && timingSafeEqual(expected, actual);
+};
+const toSmsPhone = (phone = "") => normalizePhone(phone).replace(/[^0-9]/g, "");
 const maskPhone = (phone = "") => {
   const normalizedPhone = normalizePhone(phone);
   if (normalizedPhone.length <= 4) {
@@ -30,6 +40,26 @@ const findUserByEmail = async (email) => {
   return isDatabaseConnected() ? User.findOne({ email: normalizedEmail }) : findLocalUserByEmail(normalizedEmail);
 };
 
+const findUserByPhone = async (phone) => {
+  const normalizedPhone = normalizePhone(phone);
+  const digits = toSmsPhone(normalizedPhone);
+  const candidates = new Set([normalizedPhone, digits]);
+  if (normalizedPhone.startsWith("+91") && digits.length === 12) {
+    candidates.add(digits.slice(2));
+  }
+  const lookupValues = [...candidates].filter(Boolean);
+
+  if (isDatabaseConnected()) {
+    return User.findOne({ phone: { $in: lookupValues } });
+  }
+
+  for (const candidate of lookupValues) {
+    const user = findLocalUserByPhone(candidate);
+    if (user) return user;
+  }
+  return null;
+};
+
 const getOtpRecord = (phone) => {
   const normalizedPhone = normalizePhone(phone);
   return normalizedPhone ? otpStore.get(normalizedPhone) : null;
@@ -39,10 +69,27 @@ const createOtpRecord = (phone) => {
   const normalizedPhone = normalizePhone(phone);
   const code = generateOtp();
   const expiresAt = Date.now() + 10 * 60 * 1000;
-  otpStore.set(normalizedPhone, { code, expiresAt, verified: false });
-  console.log(`OTP for ${normalizedPhone}: ${code}`);
+  otpStore.set(normalizedPhone, { codeHash: hashOtp(normalizedPhone, code).toString("hex"), expiresAt, verified: false, attempts: 0 });
   return { code, expiresAt, phone: normalizedPhone };
 };
+
+const noteOtpFailure = (phone, record) => {
+  const attempts = Number(record?.attempts || 0) + 1;
+  if (attempts >= OTP_MAX_ATTEMPTS) {
+    otpStore.delete(phone);
+    return 0;
+  }
+  otpStore.set(phone, { ...record, attempts });
+  return OTP_MAX_ATTEMPTS - attempts;
+};
+
+const serializeAuthUser = (user) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  phone: user.phone,
+  role: user.role
+});
 
 const sendOtpViaFast2Sms = async (phone, code) => {
   const apiKey = String(process.env.SMS_API_KEY || "").trim();
@@ -93,7 +140,19 @@ export const sendOtp = async (req, res) => {
   }
 
   const { code } = createOtpRecord(phone);
-  const smsResult = await sendOtpViaFast2Sms(phone, code);
+  let smsResult;
+  try {
+    smsResult = await sendOtpViaFast2Sms(phone, code);
+  } catch (error) {
+    otpStore.delete(phone);
+    console.warn("[Auth] OTP delivery failed.");
+    return res.status(502).json({ message: "Unable to deliver a verification code right now. Please try again." });
+  }
+
+  if (smsResult.skipped && process.env.NODE_ENV === "production") {
+    otpStore.delete(phone);
+    return res.status(503).json({ message: "Phone sign-in is temporarily unavailable. Please use email login." });
+  }
 
   const response = { message: "OTP sent", phone };
   if (process.env.NODE_ENV !== "production") {
@@ -104,6 +163,41 @@ export const sendOtp = async (req, res) => {
     response.smsReason = smsResult.reason;
   }
 
+  res.json(response);
+};
+
+export const sendLoginOtp = async (req, res) => {
+  const phone = normalizePhone(req.body?.phone || "");
+  if (!isValidPhone(phone)) {
+    return res.status(400).json({ message: "Valid phone number is required." });
+  }
+
+  const user = await findUserByPhone(phone);
+  if (!user) {
+    return res.json({ message: "If an account is registered with this number, a verification code will be sent." });
+  }
+
+  const { code } = createOtpRecord(phone);
+  let smsResult;
+  try {
+    smsResult = await sendOtpViaFast2Sms(phone, code);
+  } catch {
+    otpStore.delete(phone);
+    console.warn("[Auth] Login OTP delivery failed.");
+    return res.status(502).json({ message: "Unable to deliver a verification code right now. Please try again." });
+  }
+
+  if (smsResult.skipped && process.env.NODE_ENV === "production") {
+    otpStore.delete(phone);
+    return res.status(503).json({ message: "Phone sign-in is temporarily unavailable. Please use email login." });
+  }
+
+  const response = { message: "OTP sent", phone };
+  if (process.env.NODE_ENV !== "production") response.devCode = code;
+  if (smsResult.skipped && process.env.NODE_ENV !== "production") {
+    response.smsMode = "skipped";
+    response.smsReason = smsResult.reason;
+  }
   res.json(response);
 };
 
@@ -126,8 +220,11 @@ export const verifyOtp = async (req, res) => {
     return res.status(400).json({ message: "OTP expired. Please request again." });
   }
 
-  if (record.code !== code) {
-    return res.status(400).json({ message: "Invalid OTP code" });
+  if (!otpCodeMatches(phone, record, code)) {
+    const attemptsLeft = noteOtpFailure(phone, record);
+    return res.status(400).json({
+      message: attemptsLeft ? "Invalid OTP code. " + attemptsLeft + " attempts remaining." : "Too many invalid codes. Please request a new OTP."
+    });
   }
 
   otpStore.set(phone, { ...record, verified: true });
@@ -150,13 +247,20 @@ export const signup = async (req, res) => {
   }
 
   const otpRecord = otpStore.get(normalizedPhone);
-  if (!otpRecord || !otpRecord.verified || otpRecord.code !== String(otpCode).trim()) {
+  if (!otpRecord || !otpRecord.verified) {
     return res.status(400).json({ message: "Phone verification is required" });
   }
 
   if (Date.now() > otpRecord.expiresAt) {
     otpStore.delete(normalizedPhone);
     return res.status(400).json({ message: "OTP expired. Please verify again." });
+  }
+
+  if (!otpCodeMatches(normalizedPhone, otpRecord, otpCode)) {
+    const attemptsLeft = noteOtpFailure(normalizedPhone, otpRecord);
+    return res.status(400).json({
+      message: attemptsLeft ? "Phone verification is required" : "Too many invalid codes. Please request a new OTP."
+    });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -248,6 +352,60 @@ export const login = async (req, res) => {
   });
 };
 
+export const loginWithOtp = async (req, res) => {
+  const phone = normalizePhone(req.body?.phone || "");
+  const code = String(req.body?.code || "").trim();
+
+  if (!isValidPhone(phone) || !/^[0-9]{6}$/.test(code)) {
+    return res.status(400).json({ message: "A valid phone number and 6-digit code are required." });
+  }
+
+  const record = getOtpRecord(phone);
+  if (!record) {
+    return res.status(400).json({ message: "That code could not be verified. Check it or request a new code." });
+  }
+  if (Date.now() > record.expiresAt) {
+    otpStore.delete(phone);
+    return res.status(400).json({ message: "That code could not be verified. Check it or request a new code." });
+  }
+  if (!otpCodeMatches(phone, record, code)) {
+    const attemptsLeft = noteOtpFailure(phone, record);
+    return res.status(400).json({
+      message: attemptsLeft ? "Invalid OTP code. " + attemptsLeft + " attempts remaining." : "Too many invalid codes. Please request a new OTP."
+    });
+  }
+
+  otpStore.delete(phone);
+  let user = await findUserByPhone(phone);
+
+  if (!user) {
+    return res.status(404).json({ message: "No account is registered with this mobile number. Please create an account." });
+  }
+
+  if (!user.phoneVerified) {
+    const phoneVerifiedAt = new Date();
+    if (isDatabaseConnected()) {
+      user.phoneVerified = true;
+      user.phoneVerifiedAt = phoneVerifiedAt;
+      await user.save();
+    } else {
+      user = updateLocalUser(user._id, {
+        phoneVerified: true,
+        phoneVerifiedAt: phoneVerifiedAt.toISOString()
+      });
+    }
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: "Account not found. Please try again." });
+  }
+
+  res.json({
+    token: generateToken(user._id, user.role),
+    user: serializeAuthUser(user)
+  });
+};
+
 export const forgotPassword = async (req, res) => {
   const normalizedEmail = normalizeEmail(req.body?.email);
 
@@ -329,8 +487,11 @@ export const resetPassword = async (req, res) => {
     return res.status(400).json({ message: "OTP expired. Please request a new code." });
   }
 
-  if (record.code !== otpCode) {
-    return res.status(400).json({ message: "Invalid OTP code" });
+  if (!otpCodeMatches(phone, record, otpCode)) {
+    const attemptsLeft = noteOtpFailure(phone, record);
+    return res.status(400).json({
+      message: attemptsLeft ? "Invalid OTP code. " + attemptsLeft + " attempts remaining." : "Too many invalid codes. Please request a new OTP."
+    });
   }
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);

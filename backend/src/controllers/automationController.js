@@ -26,6 +26,7 @@ import { getTelegramAdminConfig, parseTelegramUpdate, sendTelegramMessage } from
 import { ensureConfiguredAdminAccount } from "../utils/adminBootstrap.js";
 import { createLocalCourse, deleteLocalCourse, listLocalCourses, updateLocalCourse } from "../utils/localPersistence.js";
 import { createOnlineMcqSet, formatTelegramMcqPayload, listPublishedOnlineMcqSets } from "../utils/onlineMcqService.js";
+import { listPublishedPdfMockTests } from "../utils/pdfMockIngestionService.js";
 
 const supportedFlags = [
   "telegramBotEnabled",
@@ -805,8 +806,58 @@ export const getAutomationPublicMcqSets = async (req, res) => {
   const mcqSets = await listPublishedOnlineMcqSets(req.query?.limit || 12);
   return res.json({
     success: true,
-    mcqSets
+    mcqSets: mcqSets.map((item) => ({
+      _id: String(item._id || item.id),
+      id: String(item._id || item.id),
+      title: item.title,
+      examName: item.examName || "Online MCQ",
+      questionCount: Array.isArray(item.questions) ? item.questions.length : 0,
+      durationMinutes: Number(item.durationMinutes || 30),
+      marksPerQuestion: Number(item.marksPerQuestion ?? 1),
+      negativeMarks: Number(item.negativeMarks ?? 0),
+      allowReview: item.allowReview !== false,
+      createdAt: item.createdAt
+    }))
   });
+};
+
+export const pdfMockSummary = ({ questions = [], ...test }) => {
+  const chapterCounts = new Map();
+  for (const question of questions) {
+    const subject = question.subject || question.section || test.subject || "Mixed Practice";
+    const topic = question.topic || question.chapter || subject;
+    const chapter = question.chapter || topic;
+    const key = `${subject}::${topic}::${chapter}`;
+    const current = chapterCounts.get(key) || { subject, topic, chapter, questionCount: 0 };
+    current.questionCount += 1;
+    chapterCounts.set(key, current);
+  }
+  return {
+    id: String(test._id || test.id),
+    title: test.title,
+    category: test.category || "",
+    subject: test.subject || "",
+    topic: test.topic || "",
+    chapter: test.chapter || "",
+    subtopics: test.subtopics || [],
+    language: test.language || "",
+    mockType: test.mockType || "section",
+    mockGroupId: test.mockGroupId || "",
+    mockGroupTitle: test.mockGroupTitle || "",
+    sourcePdf: test.sourcePdf || "",
+    questionCount: Array.isArray(questions) ? questions.length : 0,
+    chapterCounts: Array.from(chapterCounts.values())
+  };
+};
+
+export const getAutomationPublicPdfMocks = async (_req, res) => {
+  const mockTests = await listPublishedPdfMockTests();
+  return res.json({ success: true, mockTests: mockTests.map(pdfMockSummary) });
+};
+
+export const getAutomationStudentPdfMocks = async (_req, res) => {
+  const mockTests = await listPublishedPdfMockTests();
+  return res.json({ success: true, mockTests });
 };
 
 export const patchAutomationFeatureFlags = async (req, res) => {

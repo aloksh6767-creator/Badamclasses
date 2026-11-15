@@ -17,6 +17,7 @@ import pdfRoutes from "./routes/pdfRoutes.js";
 import liveStatusRoutes from "./routes/liveStatusRoutes.js";
 import liveChatRoutes from "./routes/liveChatRoutes.js";
 import testRankRoutes from "./routes/testRankRoutes.js";
+import testRankAdminRoutes from "./routes/testRankAdminRoutes.js";
 import securityHeaders from "./middleware/securityHeaders.js";
 import { notifyErrorAlert } from "./utils/alertNotifier.js";
 import { getDatabaseStatus, isMongoEnvConfigured } from "./config/db.js";
@@ -25,6 +26,7 @@ import { startAutomationScheduler } from "./utils/automationScheduler.js";
 
 const app = express();
 startAutomationScheduler();
+// The Daily AI Mock scheduler is started from server.js only after MongoDB connects.
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
 
@@ -59,7 +61,7 @@ const allowedOrigins = Array.from(new Set([...localAllowedOrigins, ...production
 const corsOptions = {
   credentials: true,
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Authorization", "Content-Type"],
+  allowedHeaders: ["Authorization", "Content-Type", "X-Guest-Session"],
   origin(origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -110,6 +112,7 @@ app.use("/api/pdfs", pdfRoutes);
 app.use("/api/live-status", liveStatusRoutes);
 app.use("/api/live-chat", liveChatRoutes);
 app.use("/api/test-rank", testRankRoutes);
+app.use("/api/test-rank/admin", testRankAdminRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);

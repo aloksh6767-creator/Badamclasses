@@ -5,7 +5,12 @@ const OnlineMcqQuestionSchema = new mongoose.Schema(
     question: { type: String, required: true, trim: true },
     options: [{ type: String, required: true, trim: true }],
     answer: { type: Number, required: true, min: 0, max: 3 },
-    explanation: { type: String, trim: true, default: "" }
+    explanation: { type: String, trim: true, default: "" },
+    subject: { type: String, trim: true, default: "" },
+    section: { type: String, trim: true, default: "" },
+    topic: { type: String, trim: true, default: "" },
+    difficulty: { type: String, trim: true, default: "" },
+    language: { type: String, trim: true, default: "" }
   },
   { _id: false }
 );
@@ -14,6 +19,9 @@ const OnlineMcqSetSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     examName: { type: String, trim: true, default: "Online MCQ" },
+    examFamily: { type: String, trim: true, default: "" },
+    testType: { type: String, enum: ["full", "sectional", "topic", "pyq", ""], default: "" },
+    subject: { type: String, trim: true, default: "" },
     source: { type: String, trim: true, default: "telegram" },
     status: { type: String, enum: ["draft", "published"], default: "published", index: true },
     questions: [OnlineMcqQuestionSchema],
@@ -21,6 +29,8 @@ const OnlineMcqSetSchema = new mongoose.Schema(
     marksPerQuestion: { type: Number, min: 0, default: 1 },
     negativeMarks: { type: Number, min: 0, default: 0 },
     allowReview: { type: Boolean, default: true },
+    publishAt: { type: Date, default: null },
+    closeAt: { type: Date, default: null },
     createdBy: { type: String, trim: true, default: "telegram-admin" }
   },
   { timestamps: true }

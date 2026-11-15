@@ -14,6 +14,8 @@ const defaultState = {
   inquiries: [],
   liveChatMessages: [],
   onlineMcqSets: [],
+  adminAuditLogs: [],
+  pdfMockTests: [],
   testAttempts: []
 };
 
@@ -40,6 +42,8 @@ const readState = () => {
       inquiries: Array.isArray(parsed.inquiries) ? parsed.inquiries : [],
       liveChatMessages: Array.isArray(parsed.liveChatMessages) ? parsed.liveChatMessages : [],
       onlineMcqSets: Array.isArray(parsed.onlineMcqSets) ? parsed.onlineMcqSets : [],
+      adminAuditLogs: Array.isArray(parsed.adminAuditLogs) ? parsed.adminAuditLogs : [],
+      pdfMockTests: Array.isArray(parsed.pdfMockTests) ? parsed.pdfMockTests : [],
       testAttempts: Array.isArray(parsed.testAttempts) ? parsed.testAttempts : []
     };
   } catch {
@@ -421,6 +425,9 @@ export const createLocalOnlineMcqSet = (payload) => {
     _id: payload._id || createLocalId("online_mcq"),
     title: payload.title || "Telegram MCQ Set",
     examName: payload.examName || "Online MCQ",
+    examFamily: payload.examFamily || "",
+    testType: payload.testType || "",
+    subject: payload.subject || "",
     source: payload.source || "telegram",
     status: payload.status || "published",
     questions: Array.isArray(payload.questions) ? payload.questions : [],
@@ -428,6 +435,8 @@ export const createLocalOnlineMcqSet = (payload) => {
     marksPerQuestion: Number(payload.marksPerQuestion ?? 1),
     negativeMarks: Number(payload.negativeMarks ?? 0),
     allowReview: payload.allowReview !== false,
+    publishAt: payload.publishAt || null,
+    closeAt: payload.closeAt || null,
     createdBy: payload.createdBy || "telegram-admin",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -436,6 +445,78 @@ export const createLocalOnlineMcqSet = (payload) => {
   state.onlineMcqSets.unshift(record);
   writeState(state);
   return clone(record);
+};
+
+export const updateLocalOnlineMcqSet = (id, patch) => {
+  const state = readState();
+  const index = (state.onlineMcqSets || []).findIndex((item) => String(item._id || item.id) === String(id));
+  if (index < 0) return null;
+  state.onlineMcqSets[index] = { ...state.onlineMcqSets[index], ...patch, updatedAt: new Date().toISOString() };
+  writeState(state);
+  return clone(state.onlineMcqSets[index]);
+};
+
+export const addLocalAdminAuditLog = (payload) => {
+  const state = readState();
+  const record = { _id: createLocalId("admin_audit"), ...payload, createdAt: new Date().toISOString() };
+  state.adminAuditLogs = [record, ...(state.adminAuditLogs || [])].slice(0, 500);
+  writeState(state);
+  return clone(record);
+};
+
+export const listLocalAdminAuditLogs = (limit = 100) => clone((readState().adminAuditLogs || []).slice(0, Math.max(1, Number(limit) || 100)));
+
+export const listLocalPdfMockTests = () => clone(readState().pdfMockTests || []);
+
+export const listLocalPdfMockTestsForAdmin = () => listLocalPdfMockTests();
+
+export const updateLocalPdfMockTestStatus = (id, status) => {
+  const state = readState();
+  state.pdfMockTests = Array.isArray(state.pdfMockTests) ? state.pdfMockTests : [];
+  const index = state.pdfMockTests.findIndex((item) => String(item.id || item._id) === String(id));
+  if (index < 0) return null;
+  state.pdfMockTests[index] = { ...state.pdfMockTests[index], status, updatedAt: new Date().toISOString() };
+  writeState(state);
+  return clone(state.pdfMockTests[index]);
+};
+
+export const deleteLocalPdfMockTest = (id) => {
+  const state = readState();
+  const current = Array.isArray(state.pdfMockTests) ? state.pdfMockTests : [];
+  const next = current.filter((item) => String(item.id || item._id) !== String(id));
+  if (next.length === current.length) return false;
+  state.pdfMockTests = next;
+  writeState(state);
+  return true;
+};
+
+export const upsertLocalPdfMockTests = (tests = [], sourcePdf = "") => {
+  const state = readState();
+  state.pdfMockTests = Array.isArray(state.pdfMockTests) ? state.pdfMockTests : [];
+  const incoming = Array.isArray(tests) ? tests : [];
+  const ids = new Set(incoming.map((item) => String(item.id || item._id)).filter(Boolean));
+  if (sourcePdf && ids.size) {
+    state.pdfMockTests = state.pdfMockTests.filter((item) => item.sourcePdf !== sourcePdf || ids.has(String(item.id || item._id)));
+  }
+  const now = new Date().toISOString();
+  const saved = incoming.map((item) => {
+    const id = String(item.id || item._id || createLocalId("pdf_mock"));
+    const index = state.pdfMockTests.findIndex((existing) => String(existing.id || existing._id) === id);
+    const existing = index < 0 ? null : state.pdfMockTests[index];
+    const record = {
+      ...existing,
+      ...item,
+      id,
+      sourcePdf: item.sourcePdf || sourcePdf || existing?.sourcePdf || "",
+      createdAt: existing?.createdAt || item.createdAt || now,
+      updatedAt: now
+    };
+    if (index < 0) state.pdfMockTests.unshift(record);
+    else state.pdfMockTests[index] = record;
+    return record;
+  });
+  writeState(state);
+  return clone(saved);
 };
 
 export const createLocalTestAttempt = (payload) => {

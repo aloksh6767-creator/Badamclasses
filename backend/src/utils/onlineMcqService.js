@@ -29,7 +29,12 @@ const normalizeQuestion = (item = {}) => {
     question: clamp(item.question, 300),
     options,
     answer,
-    explanation: clamp(item.explanation, 280)
+    explanation: clamp(item.explanation, 1000),
+    subject: clamp(item.subject, 80),
+    section: clamp(item.section, 80),
+    topic: clamp(item.topic, 120),
+    difficulty: clamp(item.difficulty, 30),
+    language: clamp(item.language, 40)
   };
 };
 
@@ -51,6 +56,9 @@ export const validateMcqSetPayload = (payload = {}) => {
   return {
     title,
     examName,
+    examFamily: clamp(payload.examFamily, 80),
+    testType: ["full", "sectional", "topic", "pyq"].includes(payload.testType) ? payload.testType : "",
+    subject: clamp(payload.subject, 80),
     source: clamp(payload.source || "telegram", 40),
     status: payload.status === "draft" ? "draft" : "published",
     questions: questions.slice(0, 50),
@@ -58,6 +66,8 @@ export const validateMcqSetPayload = (payload = {}) => {
     marksPerQuestion: Math.max(0, Number(payload.marksPerQuestion ?? 1) || 0),
     negativeMarks: Math.max(0, Number(payload.negativeMarks) || 0),
     allowReview: payload.allowReview !== false,
+    publishAt: payload.publishAt ? new Date(payload.publishAt) : null,
+    closeAt: payload.closeAt ? new Date(payload.closeAt) : null,
     createdBy: clamp(payload.createdBy || "telegram-admin", 80)
   };
 };

@@ -4,7 +4,12 @@ const AttemptQuestionSchema = new mongoose.Schema({
   question: { type: String, required: true },
   options: [{ type: String }],
   answer: { type: Number, required: true },
-  explanation: { type: String, default: "" }
+  explanation: { type: String, default: "" },
+  subject: { type: String, default: "" },
+  section: { type: String, default: "" },
+  topic: { type: String, default: "" },
+  difficulty: { type: String, default: "" },
+  language: { type: String, default: "" }
 }, { _id: false });
 
 const TestAttemptSchema = new mongoose.Schema({
@@ -22,6 +27,7 @@ const TestAttemptSchema = new mongoose.Schema({
   marksPerQuestion: { type: Number, default: 1 },
   negativeMarks: { type: Number, default: 0 },
   allowReview: { type: Boolean, default: true },
+  rankingEligible: { type: Boolean, default: true },
   result: {
     score: Number,
     maxMarks: Number,
