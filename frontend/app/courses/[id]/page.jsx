@@ -822,7 +822,7 @@ export default function CourseDetailsPage() {
           </div>
         </div>
 
-        <div className="mt-5 grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+        <div className="mt-5 grid gap-5">
           <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#07122d] p-3 shadow-[0_22px_65px_rgba(2,8,23,0.36)]">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.24),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.2),transparent_36%)]" />
             <div className="absolute left-5 top-5 z-10 flex flex-wrap gap-2">
@@ -842,7 +842,7 @@ export default function CourseDetailsPage() {
                 event.currentTarget.onerror = null;
                 event.currentTarget.src = getCourseFallbackImage(course);
               }}
-              className="relative z-[1] h-full min-h-[280px] w-full rounded-2xl object-contain drop-shadow-[0_24px_42px_rgba(2,8,23,0.4)] sm:min-h-[360px]"
+              className="relative z-[1] aspect-video w-full rounded-2xl object-contain drop-shadow-[0_24px_42px_rgba(2,8,23,0.4)]"
             />
           </div>
 
