@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { isCurrentBatch } from "@/lib/batchCatalog";
 import { resolveCourseImage } from "@/lib/courseImages";
 import { buildCourseRouteId, normalizeCourseForRoute } from "@/lib/courseIdentity";
 import { batches } from "@/lib/fixtures";
@@ -37,6 +38,9 @@ const normalizeFixtureBatch = (batch, index) =>
       category: batch.category,
       batchTime: batch.batchTime,
       startDate: batch.startDate,
+      courseType: batch.courseType,
+      months: batch.months,
+      isLatest: batch.isLatest,
       liveClassEnabled: batch.liveClassEnabled,
       liveClassUrl: batch.liveClassUrl,
       highlights: batch.highlights,
@@ -76,7 +80,10 @@ const matchesBatchMode = (batch, mode) => {
 export default function BatchesPage() {
   const searchParams = useSearchParams();
   const [deletedCourseKeys, setDeletedCourseKeys] = useState([]);
-  const fallbackBatches = useMemo(() => filterDeletedCourses(batches, deletedCourseKeys).map(normalizeFixtureBatch), [deletedCourseKeys]);
+  const fallbackBatches = useMemo(
+    () => filterDeletedCourses(batches, deletedCourseKeys).filter(isCurrentBatch).map(normalizeFixtureBatch),
+    [deletedCourseKeys]
+  );
   const [visibleBatches, setVisibleBatches] = useState(fallbackBatches);
   const [error, setError] = useState("");
   const search = String(searchParams.get("search") || "").trim().toLowerCase();
@@ -110,13 +117,15 @@ export default function BatchesPage() {
           },
           index
         )
-      );
+      ).filter(isCurrentBatch);
 
       setVisibleBatches(dedupeBatches([...localBatches, ...fallbackBatches]));
 
       try {
         const data = await apiFetch("/courses");
-        const remoteBatches = Array.isArray(data) ? data.map((course, index) => normalizeCourseForRoute(course, index)) : [];
+        const remoteBatches = Array.isArray(data)
+          ? data.map((course, index) => normalizeCourseForRoute(course, index)).filter(isCurrentBatch)
+          : [];
         setVisibleBatches(dedupeBatches([...localBatches, ...remoteBatches, ...fallbackBatches]));
       } catch (loadError) {
         setError("Live batches are unavailable. Showing available catalog.");

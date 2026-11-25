@@ -6,7 +6,10 @@ const UDAAN_COMBO_BANNER = "/udaan-combo-batch-2026.webp";
 const ARITHMETIC_SPECIAL_BANNER = "/arithmetic-special-batch-2026.webp";
 const REASONING_FOUNDATION_BANNER = "/reasoning-foundation-batch-2026.webp";
 const SSC_COMPLETE_BANNER = "/ssc-complete-batch-2026.webp";
-const MATHS_SPECIAL_BANNER = "/maths-special-batch-2026.webp";
+const MATHS_SPECIAL_BANNER = "/maths-special-batch-upload.png";
+const RECORDED_BATCH_2_BANNER = "/recorded-batch-2-0-upload.png";
+const SSC_FOUNDATION_2027_BANNER = "/ssc-foundation-batch-2027.png";
+const SSC_FOUNDATION_BANNER = "/ssc-foundation-batch.png";
 
 const EXACT_IMAGE_MAP = {
   "phoolbagh-branch-new-batch-2026": "/phoolbagh-new-batch-2026.webp",
@@ -15,8 +18,10 @@ const EXACT_IMAGE_MAP = {
   "udaan batch combo (maths + reasoning)": UDAAN_COMBO_BANNER,
   "arithmetic-special": ARITHMETIC_SPECIAL_BANNER,
   "arithmetic special (recorded)": ARITHMETIC_SPECIAL_BANNER,
-  "recorded-batch": "/recorded-batch-2-2026.webp",
-  "recorded batch": "/recorded-batch-2-2026.webp",
+  "recorded-batch": RECORDED_BATCH_2_BANNER,
+  "recorded batch": RECORDED_BATCH_2_BANNER,
+  "recorded-batch-2-0": RECORDED_BATCH_2_BANNER,
+  "recorded batch 2.0": RECORDED_BATCH_2_BANNER,
   "mp-police": MP_POLICE_BANNER,
   "mp police batch": MP_POLICE_BANNER,
   "maths-special": MATHS_SPECIAL_BANNER,
@@ -26,11 +31,18 @@ const EXACT_IMAGE_MAP = {
   "reasoning foundation batch 2026": REASONING_FOUNDATION_BANNER,
   "ssc-complete": SSC_COMPLETE_BANNER,
   "ssc complete batch": SSC_COMPLETE_BANNER,
+  "ssc-foundation-batch-2027": SSC_FOUNDATION_2027_BANNER,
+  "ssc foundation batch 2027": SSC_FOUNDATION_2027_BANNER,
+  "ssc-foundation-2027": SSC_FOUNDATION_2027_BANNER,
+  "ssc-foundation-batch": SSC_FOUNDATION_BANNER,
+  "ssc foundation batch": SSC_FOUNDATION_BANNER,
   "railway-foundation": RAILWAY_BATCH_BANNER,
   "railway foundation batch": RAILWAY_BATCH_BANNER
 };
 
 const KEYWORD_IMAGE_MAP = [
+  { keywords: ["ssc foundation batch 2027"], image: SSC_FOUNDATION_2027_BANNER },
+  { keywords: ["ssc foundation"], image: SSC_FOUNDATION_BANNER },
   { keywords: ["phoolbagh"], image: "/phoolbagh-new-batch-2026.webp" },
   { keywords: ["recorded"], image: "/recorded-batch.webp" },
   { keywords: ["arithmetic"], image: ARITHMETIC_SPECIAL_BANNER },
@@ -49,12 +61,15 @@ const PLACEHOLDER_IMAGES = new Set([
   "/students-carrying-bags.svg"
 ]);
 
-// These files were previously saved as generic thumbnails for multiple batches.
-// Keep a newly uploaded admin banner intact, but replace only the known legacy
-// values with the title-specific current asset.
+// Keep a newly uploaded admin banner intact, but replace known bundled defaults
+// with the batch-specific assets selected for these course titles.
 const LEGACY_GENERIC_BANNERS = new Set([
   "/recorded-batch.webp",
-  "/ssc-complete.webp"
+  "/recorded-batch-2-2026.webp",
+  "/maths-special-batch-2026.webp",
+  "/ssc-complete.webp",
+  "/ssc-complete-batch-2026.webp",
+  "/ssc-complete.jpg"
 ]);
 
 const getAssetPath = (value = "") => {
