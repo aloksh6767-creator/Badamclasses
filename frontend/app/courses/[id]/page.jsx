@@ -423,6 +423,7 @@ export default function CourseDetailsPage() {
             price: batch.priceValue,
             category: batch.category,
             image: batch.image,
+            courseType: batch.courseType,
             imageUrl: batch.imageUrl || batch.image,
             batchTime: batch.batchTime,
             startDate: batch.startDate,

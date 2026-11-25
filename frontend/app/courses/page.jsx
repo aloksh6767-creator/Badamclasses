@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import CourseCard from "@/components/CourseCard";
 import { apiFetch } from "@/lib/api";
+import { isCurrentBatch } from "@/lib/batchCatalog";
 import { resolveCourseImage } from "@/lib/courseImages";
 import { buildCourseRouteId, normalizeCourseForRoute } from "@/lib/courseIdentity";
 import { batches } from "@/lib/fixtures";
@@ -90,8 +91,8 @@ export default function CoursesPage() {
   const searchParams = useSearchParams();
   const [deletedCourseKeys, setDeletedCourseKeys] = useState([]);
   const fallbackCourses = useMemo(() => {
-    const filtered = filterDeletedCourses(batches, deletedCourseKeys);
-    const sourceBatches = filtered.length ? filtered : batches;
+    const filtered = filterDeletedCourses(batches, deletedCourseKeys).filter(isCurrentBatch);
+    const sourceBatches = filtered.length ? filtered : batches.filter(isCurrentBatch);
     return sourceBatches.map((batch, index) =>
       normalizeCourseForRoute({
         _id: batch.id,
@@ -102,6 +103,13 @@ export default function CoursesPage() {
         subject: batch.subject || batch.category || "General",
         category: batch.category || batch.subject || "General",
         image: batch.image,
+        description: batch.description,
+        duration: batch.duration,
+        months: batch.months,
+        courseType: batch.courseType,
+        highlights: batch.highlights,
+        startDate: batch.startDate,
+        isLatest: batch.isLatest,
         liveClassEnabled: batch.liveClassEnabled,
         liveClassUrl: batch.liveClassUrl
       }, index));
@@ -175,18 +183,18 @@ export default function CoursesPage() {
       liveClassUrl: course.liveClassUrl || "",
       liveClassEnabled: Boolean(course.liveClassEnabled),
       image: resolveCourseImage(course)
-    }, index));
+    }, index)).filter(isCurrentBatch);
     const filteredFallback = value
       ? fallbackCourses.filter((course) => course.title.toLowerCase().includes(value.toLowerCase()))
       : fallbackCourses;
-    const safeFallback = allowDevelopmentFallback ? (filteredFallback.length ? filteredFallback : fallbackCourses) : [];
+    const safeFallback = filteredFallback.length ? filteredFallback : fallbackCourses;
     if (allowDevelopmentFallback) setCourses(dedupeCourses([...mappedLocal, ...safeFallback]));
 
     try {
       const query = value ? `?search=${encodeURIComponent(value)}` : "";
       const data = await apiFetch(`/courses${query}`);
       const normalizedRemote = Array.isArray(data)
-        ? data.map((course, index) => normalizeCourseForRoute(course, index))
+        ? data.map((course, index) => normalizeCourseForRoute(course, index)).filter(isCurrentBatch)
         : [];
       const merged = dedupeCourses([...mappedLocal, ...normalizedRemote, ...safeFallback]);
       console.debug("[courses] merged route ids", merged.map((course) => ({
@@ -196,7 +204,7 @@ export default function CoursesPage() {
       setCourses(merged);
     } catch (err) {
       setError(err.message || "Courses could not be loaded. Please retry.");
-      setCourses(allowDevelopmentFallback ? dedupeCourses([...mappedLocal, ...safeFallback]) : []);
+      setCourses(dedupeCourses([...mappedLocal, ...safeFallback]));
     } finally {
       setLoading(false);
     }
