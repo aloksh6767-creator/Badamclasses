@@ -2,6 +2,38 @@ const STUDENT_BATCH_IMAGE = "/students-carrying-bags.svg";
 
 export const batches = [
   {
+    id: "ssc-foundation-batch-2027",
+    title: "SSC Foundation Batch 2027",
+    instructor: "Badam Sir",
+    duration: "2 Years",
+    months: 24,
+    category: "SSC",
+    priceValue: 999,
+    isLatest: true,
+    image: "/ssc-foundation-batch-2027.png",
+    startDate: "December 1, 2026",
+    courseType: "Live + Recorded",
+    liveClassEnabled: true,
+    description: "Combined SSC foundation preparation for the 2027 target, with English, Maths, General Studies, Reasoning, tests, and doubt support.",
+    highlights: ["Complete SSC syllabus", "Chapter-wise and full-length tests", "English, Maths, GS, and Reasoning"]
+  },
+  {
+    id: "ssc-foundation-batch",
+    title: "SSC Foundation Batch",
+    instructor: "Badam Sir",
+    duration: "2 Years",
+    months: 24,
+    category: "SSC",
+    priceValue: 499,
+    isLatest: true,
+    image: "/ssc-foundation-batch.png",
+    startDate: "Admission Open",
+    courseType: "Live",
+    liveClassEnabled: true,
+    description: "Live SSC foundation preparation for CGL, CHSL, CPO, MTS, and Stenographer exams, with notes, tests, practice, and doubt support.",
+    highlights: ["Daily live classes", "SSC CGL, CHSL, CPO, MTS, and Steno", "PDF notes and test series"]
+  },
+  {
     id: "phoolbagh-branch-new-batch-2026",
     title: "Phoolbagh Branch New Batch 2.0",
     instructor: "Badam Sir",
@@ -130,15 +162,17 @@ export const batches = [
   },
   {
     id: "recorded-batch",
-    title: "Recorded Batch",
+    title: "Recorded Batch 2.0",
     instructor: "Badam Sir",
-    duration: "12 Months",
-    months: 12,
+    duration: "2 Years",
+    months: 24,
     category: "General",
     includesMaths: true,
-    priceValue: 599,
-    image: STUDENT_BATCH_IMAGE,
-    highlights: ["Recorded lectures", "PDF notes", "Mock tests"]
+    priceValue: 1199,
+    image: "/recorded-batch-2-0-upload.png",
+    startDate: "November 16, 2026",
+    courseType: "Recorded",
+    highlights: ["350+ recorded classes", "PDF notes and 100+ tests", "Updated for 2026 exams"]
   },
   {
     id: "mp-police",
@@ -155,11 +189,13 @@ export const batches = [
     id: "maths-special",
     title: "Maths Special Batch",
     instructor: "Badam Sir",
-    duration: "1 Year",
-    months: 12,
+    duration: "2 Years",
+    months: 24,
     category: "SSC",
-    priceValue: 999,
-    image: STUDENT_BATCH_IMAGE,
+    priceValue: 699,
+    image: "/maths-special-batch-upload.png",
+    courseType: "Live + Recorded",
+    liveClassEnabled: true,
     highlights: ["Complete arithmetic", "Practice sheets", "6500+ chapterwise PYQs"],
     tests: [
       {

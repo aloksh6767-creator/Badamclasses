@@ -1,9 +1,12 @@
 const PHOOLBAGH_BATCH_IMAGE = "/phoolbagh-new-batch-2026.png";
 const UDAAN_COMBO_BANNER = "/udaan-combo-batch-2026.png";
 const ARITHMETIC_SPECIAL_BANNER = "/arithmetic-special-batch-2026.png";
-const RECORDED_BATCH_IMAGE = "/recorded-batch.jpg";
+const RECORDED_BATCH_IMAGE = "/recorded-batch-2-0-upload.png";
 const REASONING_FOUNDATION_BANNER = "/reasoning-foundation-batch-2026.png";
 const SSC_COMPLETE_IMAGE = "/ssc-complete.jpg";
+const MATHS_SPECIAL_BANNER = "/maths-special-batch-upload.png";
+const SSC_FOUNDATION_2027_BANNER = "/ssc-foundation-batch-2027.png";
+const SSC_FOUNDATION_BANNER = "/ssc-foundation-batch.png";
 const GENERAL_COURSE_BANNER = "/railway-batch-banner-2026.png";
 
 const fallbackCourses = [
@@ -29,6 +32,38 @@ const fallbackCourses = [
     ratingAverage: 4.8,
     ratingCount: 240,
     createdAt: "2026-04-28T00:00:00.000Z"
+  },
+  {
+    _id: "ssc-foundation-batch-2027",
+    id: "ssc-foundation-batch-2027",
+    title: "SSC Foundation Batch 2027",
+    description: "Combined SSC foundation preparation for the 2027 target, with English, Maths, General Studies, Reasoning, tests, and doubt support.",
+    price: 999,
+    instructor: { name: "Badam Sir", email: "support@badamclasses.com" },
+    thumbnail: SSC_FOUNDATION_2027_BANNER,
+    category: "SSC",
+    duration: "2 Years",
+    startDate: "December 1, 2026",
+    liveClassEnabled: true,
+    ratingAverage: 4.8,
+    ratingCount: 200,
+    createdAt: "2026-11-25T00:00:00.000Z"
+  },
+  {
+    _id: "ssc-foundation-batch",
+    id: "ssc-foundation-batch",
+    title: "SSC Foundation Batch",
+    description: "Live SSC foundation preparation for CGL, CHSL, CPO, MTS, and Stenographer exams, with notes, tests, practice, and doubt support.",
+    price: 499,
+    instructor: { name: "Badam Sir", email: "support@badamclasses.com" },
+    thumbnail: SSC_FOUNDATION_BANNER,
+    category: "SSC",
+    duration: "2 Years",
+    startDate: "Admission Open",
+    liveClassEnabled: true,
+    ratingAverage: 4.8,
+    ratingCount: 200,
+    createdAt: "2026-11-25T00:00:00.000Z"
   },
   {
     _id: "udan-batch",
@@ -69,16 +104,17 @@ const fallbackCourses = [
   {
     _id: "recorded-batch",
     id: "recorded-batch",
-    title: "Recorded Batch",
-    description: "Recorded lectures, PDF notes, and mock tests for self-paced preparation.",
-    price: 599,
+    title: "Recorded Batch 2.0",
+    description: "Updated recorded exam preparation with 350+ classes, PDF notes, and 100+ tests.",
+    price: 1199,
     instructor: {
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
     thumbnail: RECORDED_BATCH_IMAGE,
     category: "General",
-    duration: "12 Months",
+    duration: "2 Years",
+    startDate: "November 16, 2026",
     ratingAverage: 4.6,
     ratingCount: 160,
     createdAt: "2026-04-25T00:00:00.000Z"
@@ -104,15 +140,16 @@ const fallbackCourses = [
     _id: "maths-special",
     id: "maths-special",
     title: "Maths Special Batch",
-    description: "Complete arithmetic batch with practice sheets and weekly tests.",
-    price: 999,
+    description: "Complete Maths preparation for SSC, Railway, Delhi Police, and other competitive exams.",
+    price: 699,
     instructor: {
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: SSC_COMPLETE_IMAGE,
+    thumbnail: MATHS_SPECIAL_BANNER,
     category: "SSC",
-    duration: "1 Year",
+    duration: "2 Years",
+    liveClassEnabled: true,
     ratingAverage: 4.8,
     ratingCount: 200,
     createdAt: "2026-04-23T00:00:00.000Z"

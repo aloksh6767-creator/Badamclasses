@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { isCurrentBatch } from "@/lib/batchCatalog";
 import { batches } from "@/lib/fixtures";
 import { readAdminWorkspace } from "@/lib/adminWorkspace";
 import { filterDeletedCourses, filterDeletedCoursesFromStorage, readLocalCourses } from "@/lib/localCourseState";
@@ -67,7 +68,10 @@ const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString("en-IN
 
 const getAssistantCatalog = () => {
   const localCourses = filterDeletedCoursesFromStorage(readLocalCourses());
-  const merged = [...localCourses, ...filterDeletedCourses(batches)];
+  const merged = [
+    ...localCourses.filter(isCurrentBatch),
+    ...filterDeletedCourses(batches).filter(isCurrentBatch)
+  ];
   const seen = new Set();
   const courses = merged.filter((item, index) => {
     const key = normalizeText(item._id || item.id || `${item.title}-${index}`);

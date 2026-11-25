@@ -10,6 +10,7 @@ import CurrentAffairsSection from "@/components/CurrentAffairsSection";
 import { batches, exams, faqs, features, testimonials } from "@/lib/fixtures";
 import { getUser } from "@/lib/auth";
 import { getPublicApiUrl } from "@/lib/apiConfig";
+import { isCurrentBatch } from "@/lib/batchCatalog";
 import { getCourseFallbackImage, resolveCourseImage } from "@/lib/courseImages";
 import { filterDeletedCourses, filterDeletedCoursesFromStorage, readDeletedCourseKeys, readLocalCourses } from "@/lib/localCourseState";
 import { mockExamCategories } from "@/lib/mockTestCatalog";
@@ -574,8 +575,12 @@ export default function HomePage() {
   }, []);
 
   const allBatches = useMemo(() => {
-    const visibleFixtures = filterDeletedCourses(batches, deletedCourseKeys);
-    const merged = [...remoteBatches, ...localBatches, ...visibleFixtures];
+    const visibleFixtures = filterDeletedCourses(batches, deletedCourseKeys).filter(isCurrentBatch);
+    const merged = [
+      ...remoteBatches.filter(isCurrentBatch),
+      ...localBatches.filter(isCurrentBatch),
+      ...visibleFixtures
+    ];
     return sortLatestBatches(dedupeBatchesById(merged.map((batch, index) => normalizeBatch(batch, index))));
   }, [deletedCourseKeys, localBatches, remoteBatches]);
 
