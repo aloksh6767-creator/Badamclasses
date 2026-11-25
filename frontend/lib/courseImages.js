@@ -1,6 +1,6 @@
 const STUDENT_BATCH_IMAGE = "/students-carrying-bags.svg";
 const DEFAULT_COURSE_BANNER = "/new-batch-starts-2026.webp";
-const RAILWAY_BATCH_BANNER = "/railway-batch-banner-new.webp";
+const RAILWAY_BATCH_BANNER = "/railway-foundation-batch.png";
 const MP_POLICE_BANNER = "/mp-police-batch-banner.webp";
 const UDAAN_COMBO_BANNER = "/udaan-combo-batch-2026.webp";
 const ARITHMETIC_SPECIAL_BANNER = "/arithmetic-special-batch-2026.webp";

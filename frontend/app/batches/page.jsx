@@ -13,13 +13,14 @@ import { filterDeletedCourses, filterDeletedCoursesFromStorage, readDeletedCours
 const makeBatchKey = (course, index = 0) => buildCourseRouteId(course, index);
 
 const dedupeBatches = (items = []) => {
-  const seen = new Set();
+  const seenIds = new Set();
+  const seenTitles = new Set();
   return items.filter((item, index) => {
-    const key = `${makeBatchKey(item, index)}::${String(item?.title || "").trim().toLowerCase()}`;
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
+    const id = makeBatchKey(item, index);
+    const title = String(item?.title || "").trim().toLowerCase();
+    if ((id && seenIds.has(id)) || (title && seenTitles.has(title))) return false;
+    if (id) seenIds.add(id);
+    if (title) seenTitles.add(title);
     return true;
   });
 };

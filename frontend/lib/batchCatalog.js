@@ -1,8 +1,8 @@
 const CURRENT_BATCHES = new Map([
   ["ssc-foundation-batch-2027", "ssc foundation batch 2027"],
-  ["ssc-foundation-batch", "ssc foundation batch"],
   ["maths-special", "maths special batch"],
-  ["recorded-batch", "recorded batch 2.0"]
+  ["recorded-batch", "recorded batch 2.0"],
+  ["railway-foundation", "railway foundation batch"]
 ]);
 
 const CURRENT_BATCH_TITLES = new Set(CURRENT_BATCHES.values());
