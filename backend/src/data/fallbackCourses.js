@@ -193,12 +193,12 @@ const fallbackCourses = [
     id: "railway-foundation",
     title: "Railway Foundation Batch",
     description: "Railway foundation batch with complete syllabus coverage, live and recorded classes, daily PDFs, and regular practice.",
-    price: 1199,
+    price: 899,
     instructor: {
       name: "Badam Sir",
       email: "support@badamclasses.com"
     },
-    thumbnail: GENERAL_COURSE_BANNER,
+    thumbnail: "/railway-foundation-batch.png",
     category: "Railway",
     duration: "12 Months",
     ratingAverage: 4.8,

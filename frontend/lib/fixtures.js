@@ -238,9 +238,12 @@ export const batches = [
     duration: "12 Months",
     months: 12,
     category: "Railway",
-    priceValue: 1199,
-    image: STUDENT_BATCH_IMAGE,
-    highlights: ["Railway syllabus", "Live + recorded classes", "Daily PDFs"]
+    priceValue: 899,
+    image: "/railway-foundation-batch.png",
+    courseType: "Live + Recorded",
+    liveClassEnabled: true,
+    description: "Complete Railway exam preparation with Maths, Reasoning, General Awareness, and English, plus live and recorded classes and practice tests.",
+    highlights: ["Complete Railway syllabus", "Live + recorded classes", "Daily PDFs and practice tests"]
   }
 ];
 
