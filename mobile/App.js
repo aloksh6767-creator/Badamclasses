@@ -1,6 +1,6 @@
 import React,{useEffect,useState} from "react";
 import {SafeAreaView,ScrollView,StatusBar,StyleSheet,Text,TouchableOpacity,View,ActivityIndicator} from "react-native";
-const API="https://badamclasses.onrender.com/api",NAVY="#101D38",GOLD="#E7B85A";
+const API=process.env.EXPO_PUBLIC_API_URL||"http://10.0.2.2:5000/api",NAVY="#101D38",GOLD="#E7B85A";
 export default function App(){
  const [courses,setCourses]=useState([]),[loading,setLoading]=useState(true),[tab,setTab]=useState("Home");
  useEffect(()=>{fetch(API+"/courses").then(r=>r.json()).then(d=>setCourses(Array.isArray(d)?d:d.courses||d.data||[])).catch(()=>{}).finally(()=>setLoading(false));},[]);
